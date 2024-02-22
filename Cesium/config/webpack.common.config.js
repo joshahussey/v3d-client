@@ -18,7 +18,7 @@ module.exports = {
         app: "../src/3dMap.tsx"
     },
     output: {
-        filename: "3dMap.js",
+        filename: "index.js",
         path: path.resolve(__dirname, "../WES"),
         sourcePrefix: ""
     },
@@ -111,8 +111,8 @@ module.exports = {
             CESIUM_BASE_URL: JSON.stringify("")
         }),
         new HtmlWebpackPlugin({
-            template: "../src/3dMap.jsp",
-            filename: "3dMap.jsp"
+            template: "../src/index.html",
+            filename: "index.html"
             // minify: false,
             // hash: true,
             // showErrors: true,
