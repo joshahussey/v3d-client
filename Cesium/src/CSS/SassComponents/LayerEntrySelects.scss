@@ -1,0 +1,59 @@
+/* Solid-Select for BaseMaps and Terrain*/
+:root {
+    --dark-blue: #145284;
+    --white: #ffffff;
+    --gray: #b4b4b4;
+}
+
+.solid-select-control {
+    min-width: inherit;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.solid-select-container {
+    display: flex;
+    color: var(--dark-blue);
+    background: var(--white);
+    cursor: pointer;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    min-width: -webkit-fill-available;
+    min-width: -moz-available;
+    min-width: fill-available;
+    min-width: stretch;
+}
+
+.solid-select-list {
+    top: -1px !important;
+    left: -1px !important;
+    margin: 0 !important;
+    border: 1px solid var(--dark-blue);
+    border-radius: 4px !important;
+    padding: 0 !important;
+    min-width: -webkit-fill-available;
+    min-width: -moz-available;
+    min-width: fill-available;
+    min-width: stretch;
+    overflow-y: clip !important;
+}
+
+//When hovering on an individual select list option
+.solid-select-list .solid-select-option:hover {
+    color: var(--white);
+    background-color: var(--dark-blue);
+}
+
+//The 'focused' option
+.solid-select-list .solid-select-option[data-focused="true"] {
+    background-color: var(--white);
+}
+
+//When hovering on the 'focused' option.
+.solid-select-list .solid-select-option[data-focused="true"]:hover {
+    color: var(--white);
+    background-color: var(--dark-blue);
+}

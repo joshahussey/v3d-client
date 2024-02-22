@@ -1,0 +1,41 @@
+@use "./SassComponents/SearchInput.scss";
+@use "./SassComponents/LayerEntrySelects.scss";
+@use "./SassComponents/UtilityClasses.scss";
+@use "./SassComponents/Compass.scss";
+@use "./SassComponents/CesiumOverrides.scss";
+@use "./SassComponents/Toolbar.scss";
+@use "./SassComponents/WesLogo.scss";
+@use "./SassComponents/LayerList.scss";
+@use "./SassComponents/PrimaryHeader.scss";
+@use "./SassComponents/Legend.scss";
+@use "./SassComponents/LayerEntryButtons.scss";
+@use "./SassComponents/SaveView.scss";
+@use "./SassComponents/LayersView.scss";
+@use "./SassComponents/LoadView.scss";
+@use "./SassComponents/Scrollbar.scss";
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+@media (max-width: 40em) {
+    .toolbar-navigation {
+        inset: 0 30% 0 0;
+        flex-direction: column;
+        padding: min(0.5rem, 5rem) 0.5rem;
+    }
+
+    .cslt-toolbar-expanded {
+        padding: min(0.5rem, 5rem) 0.5rem;
+    }
+
+    .cslt-toolbar-menu {
+        grid-auto-flow: column;
+    }
+
+    .solid-select-list {
+        max-width: 11rem;
+    }
+}

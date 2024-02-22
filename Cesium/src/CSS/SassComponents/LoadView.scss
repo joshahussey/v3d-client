@@ -1,0 +1,155 @@
+:root {
+    --dark-blue: #145284;
+    --white: #ffffff;
+    --gray: #b4b4b4;
+    --light-blue: #0086ff;
+}
+
+// The full panel
+.load-view {
+    background: var(--white);
+    border-radius: 8px;
+}
+
+// The whole container of the filter, view list and bottom buttons.
+.load-view-container {
+    padding: 0.4rem;
+    grid-template-columns: repeat(6, 1fr);
+}
+
+// The div containing the header
+.load-view-header-div {
+    background-color: var(--dark-blue);
+    border-top-right-radius: 8px;
+    border-top-left-radius: 8px;
+}
+
+// The header label
+.load-view-header-label {
+    color: var(--white);
+    background-color: var(--dark-blue);
+    font-weight: 700;
+    display: inline-block;
+    border-top-right-radius: 8px;
+    border-top-left-radius: 8px;
+    padding: 0.8rem 0.8rem 0.8rem 0.8rem;
+}
+
+// The filter input field
+.load-view-filter {
+    grid-row: 1;
+    grid-column: 4/7;
+    border: 1px solid var(--gray);
+}
+
+// The list of views
+.load-view-list {
+    list-style-type: none;
+    width: 100%;
+}
+
+// The scroll panel containing the view list
+.load-view-layer-list-scroll {
+    grid-row: 2;
+    grid-column: 1/7;
+    max-height: 25rem;
+    width: 100%;
+    overflow-y: auto;
+}
+
+// Individual view entry
+.load-view-entry {
+    background: var(--white);
+    color: var(--dark-blue);
+    border: 1px solid var(--gray);
+    margin-bottom: 0.2rem;
+    gap: 0rem;
+    grid-template-columns: repeat(7, 1fr);
+    border-radius: 2px;
+    display: "";
+}
+
+// The selected view entry
+.load-view-entry-selected {
+    color: var(--light-blue);
+    border: 2px solid var(--light-blue);
+}
+
+// Hidden view entry for when they are filtered out
+.load-view-entry-hidden {
+    visibility: hidden;
+    display: none;
+}
+
+// View entry title label
+.load-view-entry-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 700;
+    grid-column: 1/7;
+    grid-row: 1;
+    padding: 0.2rem 0.2rem 0.05rem 0.2rem;
+}
+
+// View entry description paragraph
+.load-view-entry-description {
+    grid-column: 1/7;
+    grid-row: 2;
+    padding: 0.05rem 0.2rem 0.2rem 0.2rem;
+    display: -webkit-box;
+    word-break: break-all;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+// Div containing the view entry button
+.load-view-entry-button-div {
+    grid-row: 1/3;
+    grid-column: 7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+// View entry selection button
+.load-view-entry-button {
+    height: 25px;
+    width: 25px;
+    background-color: var(--white);
+    border: 1px solid var(--gray);
+    border-radius: 50%;
+    accent-color: var(--light-blue);
+}
+
+// Shared styling for all of the bottom buttons
+.load-bottom-buttons {
+    grid-row: 3;
+    color: var(--white);
+    background-color: var(--dark-blue);
+    border-radius: 4px;
+}
+
+// Bottom delete button
+.load-view-delete-button {
+    grid-column: 4;
+}
+
+// Bottom cancel button
+.load-view-cancel-button {
+    grid-column: 5;
+}
+
+// Bottom load button
+.load-view-load-button {
+    grid-column: 6;
+}
+
+// Bottom load button when disabled
+.load-view-load-button:disabled {
+    background-color: var(--gray);
+}

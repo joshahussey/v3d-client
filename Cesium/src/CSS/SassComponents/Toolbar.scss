@@ -1,0 +1,35 @@
+.cslt-toolbar-menu {
+    --gap: 0;
+    grid-template-columns: 1fr;
+    font-family: "Courier New";
+    color: white;
+    top: 0;
+    left: 0;
+    background: rgba(20, 82, 132, 0.75);
+    border-bottom-right-radius: 0.625rem;
+}
+
+.toolbar-navigation {
+    /* primary-navigation */
+    list-style: none;
+    padding: 0.5rem;
+    margin: 0;
+}
+
+.toolbar-navigation > li,
+ul {
+    width: fit-content;
+}
+
+.cslt-toolbar-expanded {
+    padding: 0 0.5rem 0.5rem 0.5rem;
+    min-width: 20rem;
+    max-width: 30rem;
+}
+
+@supports (backdrop-filter: blur(0.5rem)) {
+    .cslt-toolbar-menu {
+        background: rgba(20, 82, 132, 0.1);
+        backdrop-filter: blur(0.5rem);
+    }
+}

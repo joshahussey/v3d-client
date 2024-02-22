@@ -1,0 +1,30 @@
+/* Utility Classes */
+.display-none {
+    display: none;
+}
+
+.flex {
+    display: flex;
+    gap: var(--gap, 0.5rem);
+}
+
+.flex-start-center {
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.flex-center-start {
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.cslt-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.grid {
+    display: grid;
+    gap: var(--gap, 0.5rem);
+}

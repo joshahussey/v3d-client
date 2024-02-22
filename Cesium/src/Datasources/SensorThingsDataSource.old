@@ -1,0 +1,1117 @@
+import { Cartesian3, Color, CompositeEntityCollection, DeveloperError, Entity, EntityCollection, Viewer, defined } from "cesium";
+import WesSource from "./WesDataSource";
+import { WesDataSource } from "./Wes";
+
+interface SensorThingsDataSource extends WesDataSource{
+    _links,
+    _supportedLocationTypes: Array<string>,
+    _numericalAverageTypes: Array<string>,
+    _observedProperties,
+    _entityCollection: CompositeEntityCollection,
+    _things: EntityCollection,
+    _featuresOfInterest: EntityCollection,
+    _datastreams: EntityCollection,
+    _showFeaturesOfInterest: boolean,
+    _showThings: boolean,
+    _showObservedAreas: boolean,
+    _showDatastreams: boolean,
+    loadService: Function
+}
+export default SensorThingsDataSource;
+declare class SensorThingsDataSource {
+    constructor(name:string, url: string, viewer?: Viewer);
+}
+function SensorThingsDataSource(this: SensorThingsDataSource, ...args: [name: string, url: string, viewer?: Viewer]) {
+    //Inherit common datasource requirements.
+    WesSource.apply(this, args);
+    this._type = "SensorThingsDataSource";
+    this._links = new Object();
+    this._supportedLocationTypes = [
+        "application/geo+json",
+        "application/vnd.geo+json",
+    ];
+    this._numericalAverageTypes = ["OM_CountObservation", "OM_Measurement"];
+    this._observedProperties = new Object();
+    this._entityCollection = new CompositeEntityCollection([], this);
+    this._things = new EntityCollection(this);
+    this._featuresOfInterest = new EntityCollection(this);
+    this._datastreams = new EntityCollection(this);
+    this._entityCollection.addCollection(this._things);
+    this._entityCollection.addCollection(this._featuresOfInterest);
+    this._entityCollection.addCollection(this._datastreams);
+    this._showFeaturesOfInterest = true;
+    this._showThings = true;
+    this._showObservedAreas = true;
+    this.loadService();
+}
+
+SensorThingsDataSource.prototype = Object.create(WesSource.prototype);
+
+Object.defineProperties(SensorThingsDataSource.prototype, {
+    entities: {
+        get: function() {
+            return this._entityCollection;
+        },
+    },
+
+    things: {
+        get: function() {
+            return this._things;
+        },
+    },
+
+    thingsId: {
+        get: function() {
+            return this._things.id;
+        },
+    },
+
+    datastreams: {
+        get: function() {
+            return this._datastreams;
+        },
+    },
+
+    datastreamsId: {
+        get: function() {
+            return this._datastreams.Id;
+        },
+    },
+
+    featuresOfInterest: {
+        get: function() {
+            return this._featuresOfInterest;
+        },
+    },
+
+    featuresId: {
+        get: function() {
+            return this._featuresOfInterest.id;
+        },
+    },
+
+    isLoading: {
+        get: function() {
+            return this._isLoading;
+        },
+    },
+
+    changedEvent: {
+        get: function() {
+            return this._changed;
+        },
+    },
+
+    errorEvent: {
+        get: function() {
+            return this._error;
+        },
+    },
+
+    loadingEvent: {
+        get: function() {
+            return this._loading;
+        },
+    },
+
+    type: {
+        get: function() {
+            return this._type;
+        },
+    },
+
+    links: {
+        get: function() {
+            return this._links;
+        },
+    },
+
+    url: {
+        get: function() {
+            return this._url;
+        },
+        set: function(value) {
+            this._url = value;
+        },
+    },
+
+    clustering: {
+        get: function() {
+            return this._entityCluster;
+        },
+        set: function(value) {
+            if (!defined(value)) {
+                throw new DeveloperError("value must be defined.");
+            }
+            this._entityCluster = value;
+        },
+    },
+
+    observedProperties: {
+        get: function() {
+            return this._observedProperties;
+        },
+    },
+
+    show: {
+        get: function() {
+            const showValues = {
+                Things: this._showThings,
+                FeaturesOfInterest: this._showFeaturesOfInterest,
+                ObservedAreas: this._showDatastreams,
+            };
+            return showValues;
+        },
+        set: function(value) {
+            this._show = value;
+            if (value === "false" || value === false) {
+                showThings(this, value);
+                showFeaturesOfInterest(this, value);
+                showDatastreams(this, value);
+            } else {
+                showThings(this, value);
+            }
+        },
+    },
+
+    showThings: {
+        get: function() {
+            return this._showThings;
+        },
+        set: function(value:boolean, selectedThing: Entity) {
+            showThings(this, value, selectedThing);
+        },
+    },
+
+    showFeatures: {
+        get: function() {
+            return this._showFeaturesOfInterest;
+        },
+        set: function(value, selectedThing) {
+            const collection = this._things;
+            const things = collection.values;
+            collection.suspendEvents();
+            if (selectedThing == null) {
+                this._showThings = value;
+                for (let i = 0; i < things.length; i++) {
+                    const thing = things[i];
+                    thing.show = value;
+                }
+            } else {
+                selectedThing.show = value;
+            }
+            collection.resumeEvents();
+        },
+    },
+
+    showObservedAreas: {
+        get: function() {
+            return this._showFeaturesOfInterest;
+        },
+        set: function(value, selectedThing) {
+            const collection = this._things;
+            const things = collection.values;
+            collection.suspendEvents();
+            if (selectedThing == null) {
+                this._showThings = value;
+                for (let i = 0; i < things.length; i++) {
+                    const thing = things[i];
+                    thing.show = value;
+                }
+            } else {
+                selectedThing.show = value;
+            }
+            collection.resumeEvents();
+        },
+    },
+});
+
+SensorThingsDataSource.prototype.locationSupportCheck = function(
+    entityLocation
+) {
+    //keep
+    const encodingType = entityLocation.encodingType;
+    let isSupported = false;
+    let typeCount = this._supportedLocationTypes.length;
+    while (typeCount) {
+        const i = typeCount - 1;
+        if (encodingType === this._supportedLocationTypes[i]) {
+            isSupported = true;
+            return isSupported;
+        }
+        typeCount--;
+    }
+    return isSupported;
+};
+
+SensorThingsDataSource.prototype.getRoot = function() {
+    //keep
+    if (!Cesium.defined(this._url)) {
+        throw new Cesium.developerError("Must define URL");
+    }
+    const url = this._url;
+    if (url.endsWith("/")) {
+        this._url = url;
+    } else {
+        this._url = `${url}/`;
+    }
+    return this.fetchJson(url);
+};
+
+SensorThingsDataSource.prototype.getLinks = function(rootData) {
+    //keep
+    const that = this;
+    return new Promise((resolve, reject) => {
+        if (rootData == null) {
+            that._setLoading(false);
+            reject("Service Root Invalid/Undefined");
+        } else {
+            rootData.value.forEach(function(element, index) {
+                const keyArr = Object.keys(rootData.value[index]);
+                const nameKey = keyArr[0];
+                const urlKey = keyArr[1];
+                that._links[rootData.value[index][nameKey]] =
+                    rootData.value[index][urlKey];
+            });
+            resolve(that._links);
+        }
+    });
+};
+
+SensorThingsDataSource.prototype.loadService = async function() {
+    //keep
+    //set entity collection/set loading status & raise loading event
+    const allEntities = this._entityCollection;
+    this._setLoading(true);
+
+    //fetch root json and create links
+    const serviceRoot = await this.getRoot();
+    await this.getLinks(serviceRoot);
+
+    //Prepare environment for rendering and render things, FOI's, and Observed Ares
+    allEntities.suspendEvents();
+    this.getFeaturesOfInterest();
+    this.getDatastreamAreasAndObservedProperties();
+    this.buildThings();
+    allEntities.resumeEvents();
+};
+
+SensorThingsDataSource.prototype.getFeaturesOfInterest = async function() {
+    const encodedQuery =
+        "FeaturesOfInterest?$select=name,id,encodingType,feature";
+    const url = this._url + encodedQuery;
+    const featuresOfInterest = await this.fetchJson(url);
+
+    //	featureCount = featuresOfInterest['@iot.count'];
+    //	if (featureCount > 99) {
+    //		featureCount = 99;
+    //	}
+
+    let featureCount = featuresOfInterest.value.length;
+
+    while (featureCount) {
+        const i = featureCount - 1;
+        const featureOfInterest = createShapeEntity(
+            featuresOfInterest.value[i].feature,
+            featuresOfInterest.value[i]["@iot.id"],
+            featuresOfInterest.value[i]["name"]
+        );
+        if (featureOfInterest) {
+            this._featuresOfInterest.add(featureOfInterest);
+        }
+        featureCount--;
+    }
+};
+
+SensorThingsDataSource.prototype.getDatastreamAreasAndObservedProperties =
+    async function() {
+        const that = this;
+
+        const queryString = `?${encodeURIComponent(
+            "$top=10000&$select=name,id,Datastreams&$expand=Datastreams($select=id,observationType,name,observedArea,unitOfMeasurement)&$count=true"
+        )}`;
+        const url = this._links.ObservedProperties + queryString;
+        const observedPropsJson = await this.fetchJson(url);
+        const observedPropsArr = observedPropsJson.value;
+
+        let i = observedPropsArr.length;
+        while (i) {
+            const observedProperty = new Object(this._links.Things);
+            observedProperty.name = observedPropsArr[i - 1].name;
+            observedProperty.id = observedPropsArr[i - 1]["@iot.id"].toString();
+            let streamCount = 0;
+            if (observedPropsArr[i - 1].Datastreams == null) {
+                i--;
+                continue;
+            }
+            if (observedPropsArr[i - 1].Datastreams.length !== 0) {
+                streamCount = observedPropsArr[i - 1].Datastreams.length;
+                observedProperty.observationType =
+                    observedPropsArr[i - 1].Datastreams[0].observationType;
+                observedProperty.uomSymbol =
+                    observedPropsArr[i - 1].Datastreams[0].unitOfMeasurement.symbol;
+                observedProperty.uomName =
+                    observedPropsArr[i - 1].Datastreams[0].unitOfMeasurement.name;
+            }
+
+            let datastreamEnt;
+            while (streamCount) {
+                const isDefined = that._datastreams.getById(
+                    observedPropsArr[i - 1].Datastreams[streamCount - 1]["@iot.id"]
+                );
+                if (isDefined == null) {
+                    //CHECK HERE IN THE MORNING!!!!************************************************************
+                    datastreamEnt = createShapeEntity(
+                        observedPropsArr[i - 1].Datastreams[streamCount - 1].observedArea,
+                        observedPropsArr[i - 1].Datastreams[streamCount - 1]["@iot.id"],
+                        observedPropsArr[i - 1].Datastreams[streamCount - 1][name]
+                    );
+                } else {
+                    datastreamEnt = new Cesium.Entity({
+                        id: observedPropsArr[i - 1].Datastreams[streamCount - 1]["@iot.id"],
+                        name: observedPropsArr[i - 1].Datastreams[streamCount - 1].name,
+                    });
+                }
+                if (datastreamEnt != null) {
+                    that._datastreams.add(datastreamEnt);
+                }
+
+                streamCount--;
+            }
+            this._observedProperties[observedProperty.id] = observedProperty;
+            i--;
+        }
+
+        this.buildObservedPropertyAverages();
+    };
+
+SensorThingsDataSource.prototype.buildObservedPropertyAverages =
+    async function() {
+        const url = `${this._links.ObservedProperties}?${encodeURIComponent(
+            "$top=10000&$select=Datastreams,id&$expand=Datastreams($select=Observations),Datastreams/Observations($top=1)"
+        )}`;
+        const observationData = await this.fetchJson(url);
+        let numOfObservedProps = observationData.value.length;
+        const observedProps = observationData.value;
+        while (numOfObservedProps) {
+            const i = numOfObservedProps - 1;
+            const observedPropId = observedProps[i]["@iot.id"];
+            if (
+                !Object.prototype.hasOwnProperty.call(
+                    this._observedProperties,
+                    observedPropId
+                )
+            ) {
+                numOfObservedProps--;
+                continue;
+            }
+            if (!("observationType" in this._observedProperties[observedPropId])) {
+                numOfObservedProps--;
+                continue;
+            } else if (
+                !this._numericalAverageTypes.includes(
+                    this._observedProperties[observedPropId].observationType
+                        .split("/")
+                        .pop()
+                )
+            ) {
+                numOfObservedProps--;
+                continue;
+            }
+            let numOfDatastreams = observedProps[i].Datastreams.length;
+            const resultCount = numOfDatastreams;
+            let resultSum = 0;
+            while (numOfDatastreams) {
+                const j = numOfDatastreams - 1;
+                if (observedProps[i].Datastreams[j].Observations[0] != null) {
+                    if ("result" in observedProps[i].Datastreams[j].Observations[0]) {
+                        if (
+                            observedProps[i].Datastreams[j].Observations[0].result != null
+                        ) {
+                            resultSum =
+                                resultSum +
+                                Number(observedProps[i].Datastreams[j].Observations[0].result);
+                        }
+                    }
+                }
+
+                numOfDatastreams--;
+            }
+            const resultAve = resultSum / resultCount;
+
+            if (observedPropId in this._observedProperties) {
+                this._observedProperties[observedPropId].resultAverage = resultAve;
+            }
+            numOfObservedProps--;
+        }
+    };
+
+SensorThingsDataSource.prototype.buildThings = async function() {
+    //keep
+
+    const queryString = `?$top=10000&$expand=${encodeURIComponent(
+        "Locations($select=encodingType,location),Datastreams($select=id,observationType,ObservedProperty),Datastreams/ObservedProperty($select=id)"
+    )}`;
+    const url = this._links.Things + queryString;
+    const rawThingsJson = await this.fetchJson(url);
+    const rawThings = rawThingsJson.value;
+    let count = rawThings.length;
+    count = 9; //<-wtf?
+    while (count) {
+        try {
+            const i = count - 1;
+            const rawThing = rawThings[i];
+            const propertyBag = this.getCustomThingProperties(rawThing);
+            const renderLocationAndType = this.getPositionRef(rawThing);
+
+            const thing = new Cesium.Entity({
+                id: rawThing["@iot.id"],
+                name: rawThing.name,
+                description: rawThing.description,
+                properties: propertyBag,
+            });
+            switch (renderLocationAndType[0]) {
+                case "model":
+                    thing.model = renderLocationAndType[1];
+                    thing.position = renderLocationAndType[2];
+                    break;
+                case "polyline":
+                    thing.polyline = renderLocationAndType[1];
+                    break;
+                case "polygon":
+                    thing.polygon = renderLocationAndType[1];
+                    break;
+            }
+
+            this._things.add(thing);
+            count--;
+        } catch (err) {
+            console.warn(err);
+            count--;
+        }
+    }
+};
+
+SensorThingsDataSource.prototype.getCustomThingProperties = function(
+    rawThing
+) {
+    //Keep
+
+    const thingProperties = new Cesium.PropertyBag();
+    const datastreamsIdArr = [];
+    const observedPropsArr = [];
+
+    if (rawThing.properties != null) {
+        for (const key in rawThing.properties) {
+            thingProperties.addProperty(key, rawThing.properties[key]);
+        }
+    }
+    if (rawThing.Datastreams != null) {
+        let streamCount = rawThing.Datastreams.length;
+        while (streamCount) {
+            const i = streamCount - 1;
+            datastreamsIdArr.push(rawThing.Datastreams[i]["@iot.id"]);
+            if (
+                !observedPropsArr.includes(
+                    rawThing.Datastreams[i].ObservedProperty["@iot.id"]
+                )
+            ) {
+                observedPropsArr.push(
+                    rawThing.Datastreams[i].ObservedProperty["@iot.id"]
+                );
+            }
+
+            streamCount--;
+        }
+    }
+    thingProperties.addProperty("DatastreamIDs", datastreamsIdArr);
+    thingProperties.addProperty("ObservedPropertyIDs", observedPropsArr);
+    thingProperties.addProperty("FeaturesOfInterest", []);
+    return thingProperties;
+};
+
+SensorThingsDataSource.prototype.getPositionRef = function(rawThing) {
+    //keep
+
+    if (rawThing.Locations == null) {
+        console.warn("Thing Locations does not exist");
+        return false;
+    }
+
+    const numberOfLocations = rawThing.Locations.length;
+
+    switch (numberOfLocations) {
+        case 0:
+            console.warn("Thing Locations empty");
+            return false;
+        case 1: {
+            const isSupportedType = this.locationSupportCheck(rawThing.Locations[0]);
+            if (isSupportedType) {
+                const thingLocationAndType = this.getThingLocationAndType(
+                    rawThing.Locations[0].location
+                );
+                if (thingLocationAndType !== false) {
+                    return thingLocationAndType;
+                } else {
+                    console.warn(
+                        "Thing location invalid. (Correct Encoding, but contains no suitable geometry)"
+                    );
+                    return false;
+                }
+            } else {
+                console.warn("encodingType not supported");
+                return false;
+            }
+        }
+        case "default": {
+            console.warn(
+                "Thing has multiple Locations. Rendering at first Supported"
+            );
+            let locationCount = numberOfLocations;
+            const hasSuitableGeometry = false;
+            while (locationCount) {
+                const i = locationCount - 1;
+                const isSupportedType = this.locationSupportCheck(
+                    rawThing.Locations[i].location
+                );
+                if (isSupportedType) {
+                    const thingLocationAndType = this.getThingLocationAndType(
+                        rawThing.Locations[0].location
+                    );
+                    if (thingLocationAndType !== false) {
+                        return thingLocationAndType;
+                    }
+                }
+                locationCount--;
+            }
+            if (!hasSuitableGeometry) {
+                console.warn(
+                    "Thing locations are invalid. (Correct Encoding, but contains no suitable geometries)"
+                );
+                return false;
+            }
+        }
+    }
+};
+
+SensorThingsDataSource.prototype.associateDatastreamsAndFeatures =
+    async function(selectedThing, value) {
+        const datastreams = selectedThing.properties.DatastreamIDs.valueOf();
+        let numStreams = datastreams.length;
+        if (selectedThing.properties.FeaturesOfInterest.valueOf().length !== 0) {
+            const features = selectedThing.properties.FeaturesOfInterest.valueOf();
+            let numFeatures = features.length;
+            while (numStreams) {
+                const i = numStreams - 1;
+                showDatastreams(this, value, this._datastreams.getById(datastreams[i]));
+                numStreams--;
+            }
+            while (numFeatures) {
+                const i = numFeatures - 1;
+                showFeaturesOfInterest(
+                    this,
+                    value,
+                    this._featuresOfInterest.getById(features[i])
+                );
+                numFeatures--;
+            }
+        } else {
+            const featuresArr = [];
+            while (numStreams) {
+                const i = numStreams - 1;
+                const url = `${this._links.Datastreams}(${datastreams[i]
+                    })/Observations?$top=1&$expand=FeatureOfInterest${encodeURIComponent(
+                        "($select=id)"
+                    )}&$select=FeatureOfInterest`;
+                const featureID = await this.fetchJson(url);
+
+                if (featureID.value.length !== 0) {
+                    if (
+                        featuresArr.includes(
+                            featureID.value[0].FeatureOfInterest["@iot.id"]
+                        )
+                    ) {
+                        numStreams--;
+                        continue;
+                    }
+                    featuresArr.push(featureID.value[0].FeatureOfInterest["@iot.id"]);
+                    showFeaturesOfInterest(
+                        this,
+                        value,
+                        this._featuresOfInterest.getById(
+                            featureID.value[0].FeatureOfInterest["@iot.id"]
+                        )
+                    );
+                }
+                numStreams--;
+            }
+            selectedThing.properties.FeaturesOfInterest = featuresArr;
+        }
+    };
+
+SensorThingsDataSource.prototype.buildAverageTable = function(thing) {
+    averageTableCreate();
+    const tbody = document.getElementById("average-table-body");
+
+    const observedPropArr = thing.properties.ObservedPropertyIDs.valueOf();
+    let observedPropCount = observedPropArr.length;
+
+    let name;
+    let nameCol;
+    let result;
+    let resultCol;
+    const row = document.createElement("tr");
+    while (observedPropCount) {
+        const i = observedPropCount - 1;
+        if (
+            !Object.prototype.hasOwnProperty.call(
+                this._observedProperties,
+                observedPropArr[i]
+            )
+        ) {
+            observedPropCount--;
+            continue;
+        }
+        if ("resultAverage" in this._observedProperties[observedPropArr[i]]) {
+            if (this._observedProperties[observedPropArr[i]] != null) {
+                name = document.createTextNode(
+                    `${this._observedProperties[observedPropArr[i]].name.toUpperCase()}: `
+                );
+                nameCol = document.createElement("td");
+                nameCol.setAttribute("class", "cslt-average-name");
+                result = document.createTextNode(
+                    Math.round(
+                        (this._observedProperties[observedPropArr[i]].resultAverage +
+                            Number.EPSILON) *
+                        100
+                    ) / 100
+                );
+                resultCol = document.createElement("td");
+                nameCol.appendChild(name);
+                resultCol.appendChild(result);
+                row.appendChild(nameCol);
+                row.appendChild(resultCol);
+            }
+        }
+
+        observedPropCount--;
+    }
+    tbody.appendChild(row);
+};
+
+SensorThingsDataSource.prototype.buildThingDataTable = async function(thing) {
+    tableCreate();
+    const that = this;
+    const dataInfo = await this.checkDataType(thing);
+    let obsData;
+    dataInfo.forEach(async function(element) {
+        switch (element.tableType) {
+            case "numVsTime":
+                obsData = await that.getObservationDataNumVsTime(element);
+                that.tableTypeNumVsTime(obsData);
+                break;
+
+            case "Count":
+                obsData = await that.getObservationDataCount(element);
+                that.tableTypeCount(obsData);
+                break;
+
+            case "Unknown":
+                that.tableTypeUnknown(element);
+                break;
+        }
+    });
+};
+
+SensorThingsDataSource.prototype.checkDataType = async function(thing) {
+    //rewrite
+
+    const observedPropIDs = thing.properties.ObservedPropertyIDs.valueOf();
+    let propCount = observedPropIDs.length;
+    const dataInfoObjectsArr = [];
+    while (propCount) {
+        const i = propCount - 1;
+        if (
+            !Object.prototype.hasOwnProperty.call(
+                this._observedProperties,
+                observedPropIDs[i]
+            )
+        ) {
+            propCount--;
+            continue;
+        }
+        const observedProp = this._observedProperties[observedPropIDs[i]];
+        const infoObj = new Object();
+        infoObj.id = observedProp.id;
+        infoObj.name = observedProp.name;
+        infoObj.description = observedProp.uomName;
+        infoObj.observationType = observedProp.observationType;
+        infoObj.symbol = observedProp.uomSymbol;
+        infoObj.observationLink = `${this._links.Things}(${thing.id})/Datastreams?`;
+        dataInfoObjectsArr.push(infoObj);
+        propCount--;
+    }
+    const datastreamParams = await this.chooseDataDisplayType(dataInfoObjectsArr);
+    return datastreamParams;
+};
+
+SensorThingsDataSource.prototype.chooseDataDisplayType = function(dataInfo) {
+    //keep
+    const that = this;
+    dataInfo.forEach(function(element, index) {
+        if (
+            that._numericalAverageTypes.includes(
+                element.observationType.split("/").pop()
+            )
+        ) {
+            dataInfo[index].tableType = "numVsTime";
+        } else {
+            dataInfo[index].tableType = "Unknown";
+        }
+    });
+    return dataInfo;
+};
+
+//desc
+//name
+//results(Obj- phenomenonTime, result)
+//
+SensorThingsDataSource.prototype.tableTypeNumVsTime = function(dataInfo) {
+    //keep
+
+    //get Table Body
+    const tbody = document.getElementById("data-table-body");
+    //add Header Row for the dataStream
+    let header;
+    if (dataInfo.results.length !== 0) {
+        header = document.createTextNode(
+            `${dataInfo.name}: ${dataInfo.results[dataInfo.results.length - 1].result
+            }`
+        );
+    } else {
+        header = document.createTextNode(`${dataInfo.name}: NoResults`);
+        const headCol = document.createElement("td");
+        headCol.setAttribute("colspan", "100%");
+        const headRow = document.createElement("tr");
+        headRow.setAttribute("class", "cslt-table-header");
+        headCol.appendChild(header);
+        headRow.appendChild(headCol);
+        tbody.appendChild(headRow);
+        return;
+    }
+
+    const headCol = document.createElement("td");
+    headCol.setAttribute("colspan", "100%");
+    const headRow = document.createElement("tr");
+    headRow.setAttribute("class", "cslt-table-header");
+    headCol.appendChild(header);
+    headRow.appendChild(headCol);
+    tbody.appendChild(headRow);
+
+    const chartCanvas = document.createElement("canvas");
+    chartCanvas.setAttribute("class", "chart-numVsTime");
+    chartCanvas.setAttribute("id", `chart${dataInfo.name}`);
+    const chartContext = chartCanvas.getContext("2d");
+    //generate array of labels and data
+    const labels = [];
+    const data = [];
+    dataInfo.results.forEach(function(element) {
+        labels.push(element.phenomenonTime);
+        data.push(Number(element.result));
+    });
+    //const chart =
+    new Chart(chartContext, {
+        type: "line",
+
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: dataInfo.description,
+                    data: data,
+                },
+            ],
+        },
+
+        options: {},
+    });
+
+    const chartCol = document.createElement("td");
+    chartCol.setAttribute("colspan", "100%");
+    const chartRow = document.createElement("tr");
+    chartCol.appendChild(chartCanvas);
+    chartRow.appendChild(chartCol);
+    tbody.appendChild(chartRow);
+
+    //Plot a chart.
+};
+
+SensorThingsDataSource.prototype.tableTypeCount = function(dataInfo) {
+    //keep
+    //get Table Body
+    const tbody = document.getElementById("data-table-body");
+    //add Header Row for the dataStream
+    const header = document.createTextNode(dataInfo.description);
+    const headCol = document.createElement("td");
+    headCol.setAttribute("colspan", "100%");
+    const headRow = document.createElement("tr");
+    headRow.setAttribute("class", "cslt-table-header");
+    headCol.appendChild(header);
+    headRow.appendChild(headCol);
+    tbody.appendChild(headRow);
+    //Add Data Row for the datastream
+    const dataTime = document.createTextNode(dataInfo.phenomenonTime);
+    const dataResult = document.createTextNode(
+        `${dataInfo.name}: ${dataInfo.result}${dataInfo.symbol}`
+    );
+
+    const dataTimeCol = document.createElement("td");
+    const dataResultCol = document.createElement("td");
+    dataTimeCol.setAttribute("colspan", "50%");
+    dataResultCol.setAttribute("colspan", "50%");
+    dataTimeCol.appendChild(dataTime);
+    dataResultCol.appendChild(dataResult);
+    const dataRow = document.createElement("tr");
+    dataRow.appendChild(dataTimeCol);
+    dataRow.appendChild(dataResultCol);
+    tbody.appendChild(dataRow);
+};
+
+SensorThingsDataSource.prototype.tableTypeUnknown = function(dataInfo) {
+    //keep
+    //get Table Body
+    const tbody = document.getElementById("data-table-body");
+    //add Header Row for the dataStream
+    const header = document.createTextNode(dataInfo.description);
+    const headCol = document.createElement("td");
+    headCol.setAttribute("colspan", "100%");
+    const headRow = document.createElement("tr");
+    headRow.setAttribute("class", "cslt-table-header");
+    headCol.appendChild(header);
+    headRow.appendChild(headCol);
+    tbody.appendChild(headRow);
+    //Add Data Row for the datastream
+    const dataLink = document.createElement("a");
+    dataLink.setAttribute("href", dataInfo.observationLink);
+    dataLink.setAttribute("class", "cslt-table-link");
+    const linkText = document.createTextNode(dataInfo.observationLink);
+    const dataCol = document.createElement("td");
+    dataCol.setAttribute("colspan", "100%");
+    const dataRow = document.createElement("tr");
+    dataLink.appendChild(linkText);
+    dataCol.appendChild(dataLink);
+    dataRow.appendChild(dataCol);
+    tbody.appendChild(dataRow);
+};
+
+SensorThingsDataSource.prototype.getObservationDataCount = function(dataInfo) {
+    //keep
+    const url = `${dataInfo.observationLink
+        }$expand=ObservedProperty${encodeURIComponent(
+            "($select=id)"
+        )},Observations${encodeURIComponent(
+            "($top=20)"
+        )}&$select=ObservedProperty,Observations`;
+
+    return new Promise((resolve, reject) => {
+        this.fetchJson(url)
+            .then(function(data) {
+                const obs = new Object();
+                obs.phenomenonTime = new Date(
+                    data.value[0].phenomenonTime
+                ).toDateString(); //.toString()).toDateString();
+                obs.result = data.value[0].result;
+                const dataObj = { ...dataInfo, ...obs };
+                return dataObj;
+            })
+            .then(function(dataInfo) {
+                resolve(dataInfo);
+            });
+    });
+};
+
+SensorThingsDataSource.prototype.getObservationDataNumVsTime = function(
+    dataInfo
+) {
+    //keep
+    const url = `${dataInfo.observationLink
+        }$expand=ObservedProperty${encodeURIComponent(
+            "($select=id)"
+        )},Observations${encodeURIComponent(
+            "($top=20)"
+        )}&$select=ObservedProperty,Observations`;
+
+    return new Promise((resolve, reject) => {
+        this.fetchJson(url)
+            .then(function(data) {
+                const results = [];
+                let i = -1;
+                data.value.forEach(function(element, index) {
+                    if (element.ObservedProperty["@iot.id"] == dataInfo.id) {
+                        i = index;
+                    }
+                });
+                if (i !== -1) {
+                    data.value[i].Observations.forEach(function(element, index) {
+                        const obj = new Object();
+
+                        obj.phenomenonTime = new Date(
+                            element.phenomenonTime
+                        ).toDateString(); //.toString()).toDateString();
+                        obj.result = element.result;
+                        results.push(obj);
+                    });
+                }
+
+                const dataObj = { ...dataInfo, results };
+                return dataObj;
+            })
+            .then(function(dataInfo) {
+                resolve(dataInfo);
+            });
+    });
+};
+
+//["type",typeObject, pointPosition];
+SensorThingsDataSource.prototype.getThingLocationAndType = function(geoJson) {
+    //keep
+    const that = this;
+    if (typeof geoJson != "object") {
+        return false;
+    }
+    const geom = new GeoJsonDecoder(geoJson);
+    const shapes = geom.getAll();
+    let caseType = "default";
+    if (shapes[0].length !== 0) {
+        caseType = "point";
+    } else if (shapes[1].length !== 0) {
+        caseType = "line";
+    } else if (shapes[2].length !== 0) {
+        caseType = "polygon";
+    }
+
+    let lineObj;
+    let polygonObj;
+    let position;
+
+    switch (caseType) {
+        case "point": {
+            const point = buildCesiumPoint(shapes);
+            const hReference = heightReferenceCheck(point);
+            position = Cartesian3.fromDegrees(point[0], point[1], point[2]);
+            const modelUrl = that.chooseModel();
+            const model = {
+                heightReference: hReference,
+                uri: modelUrl,
+                minimumPixelSize: 128,
+                maximumScale: 300,
+            };
+            return ["model", model, position];
+        }
+        case "line": {
+            const lineNoHeight = buildLineHasNoHeight(shapes);
+            if (lineNoHeight === false) {
+                const line = buildCesiumLine(shapes);
+
+                position = Cartesian3.fromDegreesArrayHeights(line);
+                lineObj = {
+                    positions: position,
+                    width: 3,
+                    material: Color.PURPLE,
+                };
+            } else {
+                position = Cartesian3.fromDegreesArray(lineNoHeight);
+                lineObj = {
+                    positions: position,
+                    width: 3,
+                    material: Color.PURPLE,
+                    clampToGround: true,
+                };
+            }
+            return ["polyline", lineObj];
+        }
+        case "polygon": {
+            const polygonNoHeight = buildPolygonHasNoHeight(shapes);
+            if (polygonNoHeight === false) {
+                const polygon = buildCesiumPolygon(shapes);
+                const rings = polygon.length;
+                let ringNum = rings;
+                let holeArr;
+                let polygonHier;
+
+                while (ringNum) {
+                    if (ringNum > 1) {
+                        position = Cartesian3.fromDegreesArrayHeights(
+                            polygon[ringNum - 1]
+                        );
+                        const holeObj = {
+                            positions: position,
+                        };
+                        holeArr.push(holeObj);
+                    } else {
+                        position = Cartesian3.fromDegreesArrayHeights(
+                            polygon[ringNum - 1]
+                        );
+                        polygonHier = {
+                            positions: position,
+                            holes: holeArr,
+                        };
+                    }
+                    ringNum--;
+                }
+
+                polygonObj = {
+                    hierarchy: polygonHier,
+                    width: 3,
+                    material: Color.ORANGE.withAlpha(0.4),
+                };
+            } else {
+                const rings = polygonNoHeight.length;
+                let ringNum = rings;
+                let holeArr;
+                let polygonHier;
+
+                while (ringNum) {
+                    if (ringNum > 1) {
+                        position = Cartesian3.fromDegreesArray(
+                            polygonNoHeight[ringNum - 1]
+                        );
+                        const holeObj = {
+                            positions: position,
+                        };
+                        holeArr.push(holeObj);
+                    } else {
+                        position = Cartesian3.fromDegreesArray(
+                            polygonNoHeight[ringNum - 1]
+                        );
+                        polygonHier = {
+                            positions: position,
+                            holes: holeArr,
+                        };
+                    }
+                    ringNum--;
+                }
+
+                polygonObj = {
+                    hierarchy: polygonHier,
+                    width: 3,
+                    material: Color.ORANGE.withAlpha(0.4),
+                };
+            }
+            return ["polygon", polygonObj];
+        }
+        case "default":
+            return false;
+    }
+};
+
+SensorThingsDataSource.prototype.chooseModel = function() {
+    let model = "./glbmodels/Box.glb";
+    const bikeDocksString = /\w*bike\w*/;
+    const hasBikeDocks = bikeDocksString.exec(this._url) !== null;
+    if (hasBikeDocks) {
+        model = "./glbmodels/BikeStand.glb";
+    }
+
+    return model;
+};
