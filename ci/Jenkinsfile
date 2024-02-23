@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+    stages {
+        stage ('Checkout') {
+            steps {
+                echo "Checkout"
+            }
+        }
+        stage('Build') {
+            steps {
+                echo "Building on ${NODE_NAME}..."
+                }
+            }
+        stage('Test') {
+            steps {
+                echo "Testing on ${NODE_NAME}..."
+                }
+            }
+    }
+    
+    post {
+        success {
+            gerritReview labels: ["Verification": +1], message: 'Automated Verification Passed.'
+            cleanWs()
+        }
+        failure {
+            gerritReview labels: ["Verification": -1], message: "Automated Verification Failed. See ${BUILD_URL} for full build log."
+        }
+    }
+}
