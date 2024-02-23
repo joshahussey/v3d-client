@@ -381,17 +381,20 @@ const Map3DController = window.Map3DController
           },
 
           raiseMapStateChangedEvent: () => {
-              const cesiumWindow = window.csltWindowRegistry.getWindow("3d");
+            const csltRegistry = window.csltWindowRegistry;
+            const cesiumWindow = csltRegistry ? csltRegistry.getWindow("3d") : window;
               cesiumWindow.dispatchEvent(new Event("mapStateChanged"));
           },
 
           raiseMapStateSavedEvent: () => {
-              const cesiumWindow = window.csltWindowRegistry.getWindow("3d");
+              const csltRegistry = window.csltWindowRegistry;
+              const cesiumWindow = csltRegistry ? csltRegistry.getWindow("3d") : window;
               cesiumWindow.dispatchEvent(new Event("mapStateSaved"));
           },
 
           raiseMapStateLoadedEvent: () => {
-              const cesiumWindow = window.csltWindowRegistry.getWindow("3d");
+              const csltRegistry = window.csltWindowRegistry;
+              const cesiumWindow = csltRegistry ? csltRegistry.getWindow("3d") : window;
               cesiumWindow.dispatchEvent(new Event("mapStateLoaded"));
           }
       };
