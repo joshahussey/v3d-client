@@ -673,7 +673,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
         if (pointMatches.length > 0) {
             const modelMatches = pointMatches.filter(rule => rule.PointSymbolizer?.Model != null);
             if (modelMatches.length > 0) {
-                let model = new ModelGraphics();
+                const model = new ModelGraphics();
                 for (let i = 0; i < modelMatches.length; i++) {
                     this.addModelGraphics(model, modelMatches[i].PointSymbolizer!);
                     if (modelMatches[i].PointSymbolizer?.Model?.Orientation != null) {
@@ -693,8 +693,8 @@ export default class FeaturesApiDataSource extends WesDataSource {
                     this.getLabelProperties(props, feature, labelMatches[i].PointSymbolizer!.Label!);
                 }
 
-                let canv = this.buildLabelBillboardCanvas(props);
-                let billyB = new BillboardGraphics();
+                const canv = this.buildLabelBillboardCanvas(props);
+                const billyB = new BillboardGraphics();
                 billyB.image = new ConstantProperty(canv);
                 if (props["scale"] != null) {
                     billyB.scale = new ConstantProperty(props["scale"]);
@@ -712,14 +712,14 @@ export default class FeaturesApiDataSource extends WesDataSource {
                 feature.billboard = billyB;
             } else {
                 if (billboardMatches.length > 0) {
-                    let billboard = new BillboardGraphics();
+                    const billboard = new BillboardGraphics();
                     for (let i = 0; i < billboardMatches.length; i++) {
                         this.addFeatureBillboard(billboard, billboardMatches[i].PointSymbolizer!);
                     }
                     feature.billboard = billboard;
                 }
                 if (labelMatches.length > 0) {
-                    let label = new LabelGraphics();
+                    const label = new LabelGraphics();
                     for (let i = 0; i < labelMatches.length; i++) {
                         this.addFeatureLabel(label, feature, labelMatches[i].PointSymbolizer!);
                     }
@@ -955,15 +955,15 @@ export default class FeaturesApiDataSource extends WesDataSource {
             model.shadows = new ConstantProperty(shadows);
         }
         if (pointSymbolizer.Model.SilhouetteColor != null) {
-            let silhouetteColor = Color.fromBytes(pointSymbolizer.Model.SilhouetteColor[0], pointSymbolizer.Model.SilhouetteColor[1], pointSymbolizer.Model.SilhouetteColor[2], pointSymbolizer.Model.SilhouetteColor[3]);
+            const silhouetteColor = Color.fromBytes(pointSymbolizer.Model.SilhouetteColor[0], pointSymbolizer.Model.SilhouetteColor[1], pointSymbolizer.Model.SilhouetteColor[2], pointSymbolizer.Model.SilhouetteColor[3]);
             model.silhouetteColor = new ConstantProperty(silhouetteColor);
         }
         if (pointSymbolizer.Model.SilhouetteSize != null) {
-            let silhouetteSize = pointSymbolizer.Model.SilhouetteSize;
+            const silhouetteSize = pointSymbolizer.Model.SilhouetteSize;
             model.silhouetteSize = new ConstantProperty(silhouetteSize);
         }
         if (pointSymbolizer.Model.Color != null) {
-            let color = Color.fromBytes(pointSymbolizer.Model.Color[0], pointSymbolizer.Model.Color[1], pointSymbolizer.Model.Color[2], pointSymbolizer.Model.Color[3]);
+            const color = Color.fromBytes(pointSymbolizer.Model.Color[0], pointSymbolizer.Model.Color[1], pointSymbolizer.Model.Color[2], pointSymbolizer.Model.Color[3]);
             model.color = new ConstantProperty(color);
         }
         if (pointSymbolizer.Model.ColorBlendMode != null) {
@@ -982,23 +982,23 @@ export default class FeaturesApiDataSource extends WesDataSource {
             model.colorBlendMode = new ConstantProperty(colorBlendMode);
         }
         if (pointSymbolizer.Model.ColorBlendAmount != null) {
-            let colorBlendAmount = pointSymbolizer.Model.ColorBlendAmount;
+            const colorBlendAmount = pointSymbolizer.Model.ColorBlendAmount;
             model.colorBlendAmount = new ConstantProperty(colorBlendAmount);
         }
         if (pointSymbolizer.Model.LightColor != null) {
-            let lightColor = Color.fromBytes(pointSymbolizer.Model.LightColor[0], pointSymbolizer.Model.LightColor[1], pointSymbolizer.Model.LightColor[2], pointSymbolizer.Model.LightColor[3]);
+            const lightColor = Color.fromBytes(pointSymbolizer.Model.LightColor[0], pointSymbolizer.Model.LightColor[1], pointSymbolizer.Model.LightColor[2], pointSymbolizer.Model.LightColor[3]);
             model.lightColor = new ConstantProperty(lightColor);
         }
         if (pointSymbolizer.Model.Scale != null) {
-            let scale = pointSymbolizer.Model.Scale;
+            const scale = pointSymbolizer.Model.Scale;
             model.scale = new ConstantProperty(scale);
         }
         if (pointSymbolizer.Model.MaximumScale != null) {
-            let maximumScale = pointSymbolizer.Model.MaximumScale;
+            const maximumScale = pointSymbolizer.Model.MaximumScale;
             model.maximumScale = new ConstantProperty(maximumScale);
         }
         if (pointSymbolizer.Model.MinimumPixelSize != null) {
-            let minimumPixelSize = pointSymbolizer.Model.MinimumPixelSize;
+            const minimumPixelSize = pointSymbolizer.Model.MinimumPixelSize;
             model.minimumPixelSize = new ConstantProperty(minimumPixelSize);
         } else {
             model.minimumPixelSize = new ConstantProperty(80);
@@ -1039,23 +1039,23 @@ export default class FeaturesApiDataSource extends WesDataSource {
     }
 
     addPolygonGraphics(feature: Entity, polygonSymbolizer: TddPolygonSymbolizer) {
-        let extrudedHeight = polygonSymbolizer.ExtrudedHeight ? polygonSymbolizer.ExtrudedHeight : undefined;
-        let textureRotation = polygonSymbolizer.TextureRotation ? polygonSymbolizer.TextureRotation : 0;
-        let fill = polygonSymbolizer.Fill ? polygonSymbolizer.Fill : false;
+        const extrudedHeight = polygonSymbolizer.ExtrudedHeight ? polygonSymbolizer.ExtrudedHeight : undefined;
+        const textureRotation = polygonSymbolizer.TextureRotation ? polygonSymbolizer.TextureRotation : 0;
+        const fill = polygonSymbolizer.Fill ? polygonSymbolizer.Fill : false;
         let material;
         if (polygonSymbolizer.Material && polygonSymbolizer.Material.Color) {
             material = new ColorMaterialProperty(Color.fromBytes(polygonSymbolizer.Material.Color[0], polygonSymbolizer.Material.Color[1], polygonSymbolizer.Material.Color[2], polygonSymbolizer.Material.Color[3]));
         } else if (polygonSymbolizer.Material && polygonSymbolizer.Material.MaterialProperty && polygonSymbolizer.Material.MaterialProperty.MaterialImage) {
             material = new ImageMaterialProperty({ image: polygonSymbolizer.Material.MaterialProperty.MaterialImage.image, repeat: new Cartesian2(polygonSymbolizer.Material.MaterialProperty.MaterialImage.repeat.x, polygonSymbolizer.Material.MaterialProperty.MaterialImage.repeat.y) });
         }
-        let outline = polygonSymbolizer.Outline ? polygonSymbolizer.Outline : false;
+        const outline = polygonSymbolizer.Outline ? polygonSymbolizer.Outline : false;
         let outlineColor;
         if (polygonSymbolizer.OutlineColor != null) {
             outlineColor = Color.fromBytes(polygonSymbolizer.OutlineColor[0], polygonSymbolizer.OutlineColor[1], polygonSymbolizer.OutlineColor[2], polygonSymbolizer.OutlineColor[3]);
         }
-        let outlineWidth = polygonSymbolizer.OutlineWidth ? polygonSymbolizer.OutlineWidth : undefined;
-        let closeTop = polygonSymbolizer.CloseTop ? polygonSymbolizer.CloseTop : false;
-        let closeBottom = polygonSymbolizer.CloseBottom ? polygonSymbolizer.CloseBottom : false;
+        const outlineWidth = polygonSymbolizer.OutlineWidth ? polygonSymbolizer.OutlineWidth : undefined;
+        const closeTop = polygonSymbolizer.CloseTop ? polygonSymbolizer.CloseTop : false;
+        const closeBottom = polygonSymbolizer.CloseBottom ? polygonSymbolizer.CloseBottom : false;
         let shadows;
         if (polygonSymbolizer.Shadows != null) {
             switch (polygonSymbolizer.Shadows) {
@@ -1073,7 +1073,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
                     break;
             }
         }
-        let zIndex = polygonSymbolizer.ZIndex ? polygonSymbolizer.ZIndex : undefined;
+        const zIndex = polygonSymbolizer.ZIndex ? polygonSymbolizer.ZIndex : undefined;
         if (extrudedHeight) {
             feature.polygon!.extrudedHeight = new ConstantProperty(extrudedHeight);
         }

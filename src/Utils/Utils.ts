@@ -234,7 +234,7 @@ export function createShapeEntity(geoJson: OGCFeature, id: string, name: string)
                 const polygon = buildPolygon(shapes as GeoJsonGetAllResult);
                 const rings = polygon.length;
                 let ringNum = rings;
-                let holeArr = [];
+                const holeArr = [];
                 let holeObj;
                 let polygonHier;
 
@@ -268,7 +268,7 @@ export function createShapeEntity(geoJson: OGCFeature, id: string, name: string)
             } else {
                 const rings = (polygonNoHeight as Array<Array<number>>).length;
                 let ringNum = rings;
-                let holeArr = [];
+                const holeArr = [];
                 let holeObj;
                 let polygonHier;
 
@@ -548,9 +548,9 @@ export function buildPoint(geoJsonGetAllResult: GeoJsonGetAllResult, pointIndex?
     if (pointIndex == undefined) {
         pointIndex = 0;
     }
-    let x = geoJsonGetAllResult[0][pointIndex][0][0];
-    let y = geoJsonGetAllResult[0][pointIndex][0][1];
-    let z = geoJsonGetAllResult[0][pointIndex][0][2];
+    const x = geoJsonGetAllResult[0][pointIndex][0][0];
+    const y = geoJsonGetAllResult[0][pointIndex][0][1];
+    const z = geoJsonGetAllResult[0][pointIndex][0][2];
 
     return [x, y, z];
 }
@@ -594,7 +594,7 @@ export function buildPolygon(geoJsonGetAllResult: GeoJsonGetAllResult, polygonIn
     let x;
     let y;
     let z;
-    let polygonRingArray: number[][] = [];
+    const polygonRingArray: number[][] = [];
     geoJsonGetAllResult[2][polygonIndex][0].forEach(function (ring: GeoJSON.Position[]) {
         let ringPointArray: number[] = [];
         ring.forEach(function (point: GeoJSON.Position) {
@@ -625,7 +625,7 @@ export function buildPolygonHasNoHeight(
     }
     let x;
     let y;
-    let polygonRingArray: number[][] = [];
+    const polygonRingArray: number[][] = [];
     let hasHeight = false;
     geoJsonGetAllResult[2][polygonIndex][0].forEach(function (ring: GeoJSON.Position[]) {
         ring.forEach(function (point) {
@@ -700,7 +700,7 @@ export function findPoint(arr: number[]) {
  * @return array} line An array containing the 3 Dimensional line.
  */
 export function findLine(arr: number[][]) {
-    var line: GeoJSON.LineString["coordinates"] = [];
+    const line: GeoJSON.LineString["coordinates"] = [];
     arr.forEach(function (element) {
         const x = element[0];
         const y = element[1];
@@ -717,8 +717,8 @@ export function findLine(arr: number[][]) {
  * @return array} rings The array contaiing the 3 Dimensional polygon.
  */
 export function findPolygon(arr: number[][][]) {
-    var rings: GeoJSON.LineString["coordinates"][] = [];
-    var points: GeoJSON.Point["coordinates"][] = [];
+    const rings: GeoJSON.LineString["coordinates"][] = [];
+    let points: GeoJSON.Point["coordinates"][] = [];
     //ring
     arr.forEach(function (ring) {
         //line
@@ -759,9 +759,9 @@ export function geometryObjectSwitch(
     if (type == undefined) {
         type = object.type.toLowerCase();
     }
-    let points: indexedPoint[] = [];
-    let lines: indexedLine[] = [];
-    let polygons: indexedPolygon[] = [];
+    const points: indexedPoint[] = [];
+    const lines: indexedLine[] = [];
+    const polygons: indexedPolygon[] = [];
     switch (type) {
         case "point": {
             const point = findPoint((object as GeoJSON.Point).coordinates);

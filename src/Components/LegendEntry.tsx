@@ -24,7 +24,7 @@ export function LegendEntry(description: {
     return (
         <div class="legend-entry">
             <div>{description.source.id}:&nbsp;</div>
-            <Show when={description.source.lowerTimeBound != null} fallback={<div></div>}>
+            <Show when={description.source.lowerTimeBound != null} fallback={<div />}>
                 <div>
                     {formatDate(description.source.lowerTimeBound)}
                     &nbsp; - &nbsp;

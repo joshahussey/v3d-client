@@ -51,6 +51,7 @@ import { Slider } from "./Components/Slider";
 import { createLiveWmsPeriodString, isLiveWms } from "./Utils/TimeParser";
 import FeaturesApiLiveDataSource from "./Datasources/FeaturesApiLiveDatasource";
 import { handleAoiEvent } from "./Utils/Aoi";
+import { WesUI } from "./UI/WesUI";
 
 const Controller = (window as CesiumWindow).Map3DController;
 
@@ -1095,27 +1096,7 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
         });
 
         //Create Toolbar Buttons
-        return (
-            <>
-                <header id="primary-header" class="cslt-primary-header flex">
-                    <ToolbarStateContext>
-                        <InterfaceProvider>
-                            <div class="grid">
-                                <div id="cslt-toolbar" class="cslt-toolbar-menu grid">
-                                    <ToolbarNav />
-                                </div>
-                                <div>
-                                    <ExpandedMenu />
-                                </div>
-                            </div>
-                            <Slider />
-                            <Legend />
-                        </InterfaceProvider>
-                    </ToolbarStateContext>
-                </header>
-                <WesLogo />
-            </>
-        );
+        return (<WesUI />);
     }
     render(App, document.getElementById("WesUserInterface")!);
 

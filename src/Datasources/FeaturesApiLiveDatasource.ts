@@ -42,7 +42,7 @@ function createTimeStamps(temporal: FeaturesCollectionTemporal) {
     const stopDate = temporal.interval[0][1] ? new Date(temporal.interval[0][1]) : new Date();
     const period = iso8601PeriodToObject(temporal.resolution);
     const timeStamps = [];
-    let currentTime = startDate;
+    const currentTime = startDate;
     while (currentTime < stopDate) {
         timeStamps.push(currentTime.toUTCString());
         currentTime.setFullYear(currentTime.getFullYear() + period.years);

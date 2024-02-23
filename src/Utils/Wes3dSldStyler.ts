@@ -778,7 +778,7 @@ function formatTextSymbolizer(cesiumTextSymbolizer: CesiumTextSymbolizerObject):
 }
 
 function formatRasterSymbolizer(cesiumRasterSymbolizer: CesiumRasterSymbolizerObject): CesiumRasterSymbolizer {
-    let symbolizer: CesiumRasterSymbolizer = {
+    const symbolizer: CesiumRasterSymbolizer = {
         opacity: 1.0,
         colorMap: []
     };

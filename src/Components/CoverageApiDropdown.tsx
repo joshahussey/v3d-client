@@ -22,7 +22,7 @@ export function CoverageApiDropdown(datasource: { datasource: WesDataSource }): 
     };
     return (
         <Show when={datasource.datasource instanceof CoverageApiDataSource}>
-            <div class="grid-break"></div>
+            <div class="grid-break" />
             <div class="selector-grid selector-row-two">
                 <label class="selector-label" for="alpha">
                     Transparency:{" "}
@@ -36,7 +36,7 @@ export function CoverageApiDropdown(datasource: { datasource: WesDataSource }): 
                     step="0.01"
                     value={(settings as CoverageApiDataSource).alpha}
                     onChange={setAlpha}
-                ></input>
+                 />
             </div>
             <div class="selector-grid selector-row-three">
                 <label class="selector-label" for="Height Scale">
@@ -51,7 +51,7 @@ export function CoverageApiDropdown(datasource: { datasource: WesDataSource }): 
                     step="100"
                     value={(settings as CoverageApiDataSource).heightExaggeration}
                     onChange={setHeight}
-                ></input>
+                 />
             </div>
             <div class="selector-grid selector-row-four">
                 <label class="selector-label" for="Resolution">
@@ -66,7 +66,7 @@ export function CoverageApiDropdown(datasource: { datasource: WesDataSource }): 
                     step="0.01"
                     value={(settings as CoverageApiDataSource).maxResolution}
                     onChange={setResolution}
-                ></input>
+                 />
             </div>
         </Show>
     );

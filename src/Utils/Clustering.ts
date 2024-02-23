@@ -62,13 +62,13 @@ export default class FeatureClusters {
     }
 
     getWindowCoordinateArray(cartesian3Array: Cartesian3[]) {
-        let windowCoordinateArray: Array<FeatureWeightIdentifier> = [];
+        const windowCoordinateArray: Array<FeatureWeightIdentifier> = [];
         let numCoordinates = cartesian3Array.length - 1;
         while (numCoordinates) {
             //TODO: At certain altitude check distance before scene transform
             const cartesian3 = SceneTransforms.wgs84ToWindowCoordinates(this._scene, cartesian3Array[numCoordinates]);
             const coordinateArray: PixelPosition = [cartesian3.x, cartesian3.y];
-            let featureWeightIdentifier: FeatureWeightIdentifier = this.addWeights(coordinateArray);
+            const featureWeightIdentifier: FeatureWeightIdentifier = this.addWeights(coordinateArray);
             windowCoordinateArray.unshift(featureWeightIdentifier);
             numCoordinates--;
         }
@@ -209,7 +209,7 @@ export default class FeatureClusters {
     }
 
     mapClusters() {
-        let newRawFeaturesArray: FeaturesJson = [];
+        const newRawFeaturesArray: FeaturesJson = [];
         this._clusters.forEach((cluster: Cluster) => {
             if (cluster[0] === true) {
                 let jsonCluster: JsonCluster;
@@ -245,21 +245,21 @@ export default class FeatureClusters {
     }
 
     getMapCenter() {
-        var windowPosition = new Cartesian2(
+        const windowPosition = new Cartesian2(
             this._viewer.container.clientWidth / 2,
             this._viewer.container.clientHeight / 2
         );
-        var pickRay = this._viewer.scene.camera.getPickRay(windowPosition);
+        const pickRay = this._viewer.scene.camera.getPickRay(windowPosition);
         if (pickRay == null) {
             console.log("PickRay Required");
             return;
         }
-        var pickPosition = this._viewer.scene.globe.pick(pickRay, this._viewer.scene);
+        const pickPosition = this._viewer.scene.globe.pick(pickRay, this._viewer.scene);
         if (pickPosition == null) {
             console.log("PickPosition required");
             return;
         }
-        var pickPositionCartographic = this._viewer.scene.globe.ellipsoid.cartesianToCartographic(pickPosition);
+        const pickPositionCartographic = this._viewer.scene.globe.ellipsoid.cartesianToCartographic(pickPosition);
         return [
             pickPositionCartographic.longitude * (180 / Math.PI),
             pickPositionCartographic.latitude * (180 / Math.PI)
@@ -316,7 +316,7 @@ export default class FeatureClusters {
         if (this._scene.camera.positionCartographic.height > 950000 && this._rawFeaturesArray.length > 500)
             return this.createTotalCluster(this._rawFeaturesArray);
         const cartesian3Array = this.getCartesian3Array();
-        let windowCoordinateArray = this.getWindowCoordinateArray(cartesian3Array);
+        const windowCoordinateArray = this.getWindowCoordinateArray(cartesian3Array);
         this.weigh(windowCoordinateArray);
         let indexOfMax = this.getMaxIndex(windowCoordinateArray);
         let centerCoordinates = this.getClusterCenter(indexOfMax, windowCoordinateArray);

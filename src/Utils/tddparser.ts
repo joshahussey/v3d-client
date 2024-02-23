@@ -19,16 +19,16 @@ function matchesFilter(rawFeature: OGCFeature, filter: any): boolean {
     const featVal = rawFeature.properties[filter[op].Property];
     switch (op) {
         case "And": {
-            let keys = Object.keys(filter[op]);
+            const keys = Object.keys(filter[op]);
             for (let i = 0; i < keys.length; i++) {
                 if (Array.isArray(filter[op][keys[i]])) {
                     for (let j = 0; j < filter[op][keys[i]].length; j++) {
-                        let element = new Object();
+                        const element = new Object();
                         element[keys[i]] = filter[op][keys[i]][j];
                         if (!matchesFilter(rawFeature, element)) return false;
                     }
                 } else {
-                    let filt = new Object();
+                    const filt = new Object();
                     filt[keys[i]] = filter[op][keys[i]];
                     if (!matchesFilter(rawFeature, filt)) return false;
                 }
@@ -36,16 +36,16 @@ function matchesFilter(rawFeature: OGCFeature, filter: any): boolean {
             return true;
         }
         case "Or": {
-            let keys = Object.keys(filter[op]);
+            const keys = Object.keys(filter[op]);
             for (let i = 0; i < keys.length; i++) {
                 if (Array.isArray(filter[op][keys[i]])) {
                     for (let j = 0; j < filter[op][keys[i]].length; j++) {
-                        let element = new Object();
+                        const element = new Object();
                         element[keys[i]] = filter[op][keys[i]][j];
                         if (matchesFilter(rawFeature, element)) return true;
                     }
                 } else {
-                    let filt = new Object();
+                    const filt = new Object();
                     filt[keys[i]] = filter[op][keys[i]];
                     if (matchesFilter(rawFeature, filt)) return true;
                 }

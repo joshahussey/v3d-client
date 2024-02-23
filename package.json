@@ -6,7 +6,8 @@
     "scripts": {
         "build": "webpack --config ./config/webpack.master.config.js",
         "build-release": "webpack --config ./config/webpack.master.config.js",
-        "host": "./run.sh"
+        "host": "./run.sh",
+        "fix": "eslint 'src/**/*.{ts,tsx,js}' 'src/*.{ts,tsx,js}' --fix"
     },
     "keywords": [
         "3d",
@@ -26,6 +27,7 @@
         "@types/jest": "^29.5.5",
         "@types/knockout": "^3.4.72",
         "@types/knockout.es5": "^0.0.35",
+        "@typescript-eslint/eslint-plugin": "^7.0.2",
         "assert": "^2.0.0",
         "babel-loader": "^9.1.2",
         "babel-plugin-transform-regexp-constructors": "^0.4.3",

@@ -3,7 +3,7 @@ import AoiDataSource from "../Datasources/AoiDataSource";
 import { standAloneLayersServiceLabel, standAloneLayersServiceUID, standAloneLayersServiceUrl } from "../Constants";
 
 export async function handleAoiEvent(event: string) {
-    let eventContent = decodeURIComponent(decodeURIComponent(event));
+    const eventContent = decodeURIComponent(decodeURIComponent(event));
     const params = new URLSearchParams(eventContent);
 
     const aoisContent = params.get("AOIS");
@@ -13,7 +13,7 @@ export async function handleAoiEvent(event: string) {
     }
     const aoisArr = JSON.parse(aoisContent);
 
-    let geoJson = aoisArr && aoisArr.length > 0 ? aoisArr[0] : undefined;
+    const geoJson = aoisArr && aoisArr.length > 0 ? aoisArr[0] : undefined;
 
     const viewer = (window as CesiumWindow).Map3DViewer;
     const datasources = viewer.dataSources as WesDatasources;

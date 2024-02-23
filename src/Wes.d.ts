@@ -465,7 +465,7 @@ type BillboardProperty = {
 type TddPolygonSymbolizer = {
     ExtrudedHeight?: number;
     TextureRotation?: number;
-    Fill?: Boolean;
+    Fill?: boolean;
     Material?: Material;
     Outline?: boolean;
     OutlineColor?: RGBA;

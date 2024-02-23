@@ -294,7 +294,7 @@ export default class AoiDataSource extends WesDataSource {
             Cartesian3.lerp(p3, p0, -(buffer / diff30), g);
             Cartesian3.lerp(p0, p3, -(buffer / diff30), h);
 
-            let geomInstances = [];
+            const geomInstances = [];
 
             const rectGeoms = [
                 Rectangle.fromCartesianArray([p0, p3, f, a]),
