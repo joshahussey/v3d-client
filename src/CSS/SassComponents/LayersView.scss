@@ -1,0 +1,93 @@
+/* Layers View */
+:root {
+    --dark-blue: #145284;
+    --white: #ffffff;
+}
+
+.layers-view {
+    background: var(--white);
+    border-radius: 4px;
+    border-top-right-radius: 8px;
+    border-top-left-radius: 8px;
+    display: grid;
+    grid-template-columns: 2;
+    grid-template-rows: 2;
+}
+
+.layers-view-layers-label {
+    grid-row: 1;
+    color: var(--white);
+    background-color: var(--dark-blue);
+    font-weight: 700;
+    display: inline-block;
+    border-top-right-radius: 8px;
+    border-top-left-radius: 8px;
+    padding: 0.8rem 0.8rem 0.8rem 0.8rem;
+}
+.layers-view-layers-label-order-closed {
+    grid-column: 1/2;
+}
+.layers-view-layers-label-order-opened {
+    grid-column: 1/3;
+}
+.layers-view-width-order-opened {
+    min-width: 42rem;
+    max-width: 42rem;
+}
+
+.layers-view-layer-tree-panel {
+    grid-column: 1;
+    grid-row: 2/4;
+    background: var(--white);
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    padding: 0.4rem;
+    width: 26rem;
+    display: grid;
+}
+
+// The scroll panel containing the layers list
+.layers-view-layer-list-scroll {
+    max-height: 35rem;
+    width: 100%;
+    overflow-y: auto;
+}
+
+.layers-view-layer-list-container {
+    background: var(--white);
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.layers-list-layer-order-button-div {
+    display: flex;
+    justify-content: end;
+    margin-top: auto;
+}
+.layers-list-layer-order-button {
+    margin-left: auto;
+    color: var(--white);
+    background-color: var(--dark-blue);
+    border-radius: 4px;
+}
+.layers-list-layer-order-button:disabled {
+    color: var(--white);
+    background-color: var(--gray);
+}
+
+.layers-view-layer-order-panel {
+    grid-column: 2;
+    grid-row: 2/4;
+    background: var(--white);
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    padding: 0.4rem;
+    width: 16rem;
+    display: grid;
+}
+// The scroll panel containing the layers list
+.layers-view-layer-order-scroll {
+    max-height: 35rem;
+    width: 100%;
+    overflow-y: auto;
+}

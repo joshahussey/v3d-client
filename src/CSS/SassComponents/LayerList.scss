@@ -1,0 +1,27 @@
+/*Layer Manager*/
+:root {
+    --dark-blue: #145284;
+    --white: #ffffff;
+    --gray: #b4b4b4;
+}
+
+#layer-list {
+    flex-direction: column;
+    --gap: 0.2rem;
+}
+#layer-list > li {
+    display: grid;
+    grid-template-columns: repeat(12, 2rem);
+    align-items: center;
+    width: -webkit-fill-available;
+    border: 1px solid var(--gray);
+    background: var(--white);
+}
+
+.layer-list-layer-entry {
+    display: flex;
+    width: 99%;
+    grid-column: 1/12;
+    align-items: center;
+    background: var(--white);
+}

@@ -1,0 +1,47 @@
+:root {
+    --dark-blue: #145284;
+    --white: #ffffff;
+    --gray: #b4b4b4;
+}
+
+.service-div {
+    display: flex;
+    grid-column: 1/13;
+    grid-row: 1;
+    align-items: center;
+    background: var(--white);
+}
+
+.service-layers-div {
+    display: inline;
+    grid-column: 2/13;
+    grid-row: 3;
+    align-items: center;
+    background: var(--white);
+}
+
+.service-layers-list {
+    width: 100%;
+}
+.service-layers-list > li {
+    display: grid;
+    grid-template-columns: repeat(11, 2rem);
+    align-items: center;
+    width: -webkit-fill-available;
+    background: var(--white);
+}
+
+.service-grid-break {
+    border-top: 1px solid var(--gray);
+    padding-bottom: 0.1rem;
+    grid-column: 2/12;
+    grid-row: 2/3;
+}
+
+.service-dropdown-button {
+    height: 1.25rem;
+    width: 1.25rem;
+    min-width: 1.25rem;
+    min-height: 1.25rem;
+    padding: 0;
+}

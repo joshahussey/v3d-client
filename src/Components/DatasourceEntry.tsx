@@ -1,0 +1,54 @@
+import { JSX, Show, createSignal, Accessor } from "solid-js";
+import WesDataSource from "../Datasources/WesDataSource";
+import { DropDownButton } from "./DropDownButton";
+import { DeleteLayerButton } from "./DeleteLayerButton";
+import { ZoomToLayerButton } from "./ZoomToLayerButton";
+import { ShowOnMapCheckbox } from "./ShowOnMapCheckbox";
+import { UserStyleSelector } from "./UserStyleSelector";
+import { HighlightSelector } from "./HighlightSelector";
+import FeaturesApiDataSource from "../Datasources/FeaturesApiDataSource";
+import { CoverageApiDropdown } from "./CoverageApiDropdown";
+import { celestrakUID } from "../Constants";
+import { makeCheckboxStatus } from "./ServiceEntry";
+
+/**
+ * Represents a component for displaying a single entry in a data source list.
+ * @param {Object} props - An object containing the parameters
+ * @param {WesDataSource} props.datasource - The WesDataSource instance for the data source.
+ * @param {makeCheckboxStatus} props.syncServiceCheckboxCallback - A function used to synchronize the layer's service's checkbox.
+ * @param {Accessor<number>} props.serviceCheckBoxState - A function to access the layer's service's checkbox state.
+ * @returns {JSX.Element} A JSX element representing the data source entry.
+ */
+export function DatasourceEntry(props: {
+    datasource: WesDataSource;
+    syncServiceCheckboxCallback: makeCheckboxStatus;
+    serviceCheckBoxState: Accessor<number>;
+}): JSX.Element {
+    const { datasource, syncServiceCheckboxCallback, serviceCheckBoxState } = props;
+    const [opened, setOpened] = createSignal(false);
+    return (
+        <li>
+            <div class="layer-list-layer-entry">
+                <ShowOnMapCheckbox
+                    datasource={datasource}
+                    syncServiceCheckboxCallback={syncServiceCheckboxCallback}
+                    serviceCheckBoxState={serviceCheckBoxState}
+                />
+                <span class="layer-name" title={datasource.name}>{datasource.name}</span>
+                <DropDownButton opened={opened} setOpened={setOpened} />
+                <ZoomToLayerButton datasource={datasource} />
+                <Show when={datasource.uid != celestrakUID}>
+                    <DeleteLayerButton datasource={datasource} />
+                </Show>
+            </div>
+            <Show when={opened()}>
+                <div class="grid-break" />
+                <UserStyleSelector datasource={datasource} />
+                <Show when={datasource instanceof FeaturesApiDataSource}>
+                    <HighlightSelector datasource={datasource as FeaturesApiDataSource} />
+                </Show>
+                <CoverageApiDropdown datasource={datasource} />
+            </Show>
+        </li>
+    );
+}

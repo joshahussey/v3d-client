@@ -1,0 +1,89 @@
+:root {
+    --dark-blue: #145284;
+    --white: #ffffff;
+    --gray: #b4b4b4;
+    --light-blue: #0086ff;
+}
+
+// The full panel
+.search-panel {
+    background: var(--white);
+    border-radius: 8px;
+}
+
+// The div containing the header
+.search-panel-header-div {
+    background-color: var(--dark-blue);
+    border-top-right-radius: 8px;
+    border-top-left-radius: 8px;
+}
+
+// The header label
+.search-panel-header-label {
+    color: var(--white);
+    background-color: var(--dark-blue);
+    font-weight: 700;
+    display: inline-block;
+    border-top-right-radius: 8px;
+    border-top-left-radius: 8px;
+    padding: 0.8rem 0.8rem 0.8rem 0.8rem;
+}
+
+/* Search Input */
+.cslt-search-input {
+    font-family: "Courier New";
+    padding: 0.5rem;
+}
+
+.cslt-cesium-toolbar-search-form {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    margin-bottom: 0.4rem;
+}
+
+.cslt-cesium-toolbar-search-input {
+    grid-column: 1/10;
+    border-radius: 4px;
+    border: 1px solid var(--gray);
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    margin-right: 0.2rem;
+}
+
+.cslt-cesium-toolbar-search-span {
+    grid-column: 10;
+    background-color: var(--dark-blue);
+    border: 1px solid var(--dark-blue);
+    border-radius: 4px;
+    margin-left: 0.2rem;
+}
+
+.cesium-geocoder-searchButton {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cslt-cesium-toolbar-search-results {
+    width: 100%;
+}
+
+.cslt-cesium-toolbar-search-results > ul {
+    list-style: none;
+    color: var(--dark-blue);
+    width: 100%;
+}
+.cslt-cesium-toolbar-search-results > ul > li {
+    padding: 0.125rem 0.5rem 0.125rem 0.5rem;
+    border: 1px solid var(--dark-blue);
+    font-size: smaller;
+    cursor: pointer;
+    width: 100%;
+    border-radius: 4px;
+    margin-bottom: 0.1rem;
+}
+.cslt-cesium-toolbar-search-results > ul > li:hover {
+    color: var(--light-blue);
+    border: 1px solid var(--light-blue);
+    border-radius: 4px;
+}
