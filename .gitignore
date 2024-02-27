@@ -1,3 +1,5 @@
 /web
 /node_modules
 /run.log
+src/ComponentLibrary/*
+src/CSSLibrary/*

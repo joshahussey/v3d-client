@@ -21,7 +21,9 @@ export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
     const [checkboxState, setCheckboxState] = createSignal(0);
 
     const allLayerDivs: JSX.Element[] = [];
-    for (const layer of entry.layers.sort(function(a, b){return a.name.localeCompare(b.name)})) {
+    for (const layer of entry.layers.sort(function (a, b) {
+        return a.name.localeCompare(b.name);
+    })) {
         if (layer instanceof ImageryLayer) {
             allLayerDivs.push(
                 <ImageryEntry
@@ -94,14 +96,39 @@ export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
             <div class="service-div">
                 <Show when={opened()} fallback={<></>}>
                     <button class="cesium-button service-dropdown-button" onClick={() => setOpened(!opened())}>
-                        &minus;
+                        <svg
+                            width="24"
+                            height="24"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlns:svg="http://www.w3.org/2000/svg"
+                            preserveAspectRatio="xMidYMid meet"
+                            fill="#b4b4b4"
+                        >
+                            <g id="keyboard_arrow_up" transform="rotate(180 12 11.545)">
+                                <path d="m7.41,7.84l4.59,4.58l4.59,-4.58l1.41,1.41l-6,6l-6,-6l1.41,-1.41z" id="svg_1" />
+                            </g>
+                        </svg>
                     </button>
                 </Show>
                 <Show when={!opened()} fallback={<></>}>
                     <button class="cesium-button service-dropdown-button" onClick={() => setOpened(!opened())}>
-                        &plus;
+                        <svg
+                            width="24"
+                            height="24"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlns:svg="http://www.w3.org/2000/svg"
+                            preserveAspectRatio="xMidYMid meet"
+                            fill="#b4b4b4"
+                        >
+                            <g id="keyboard_arrow_down">
+                                <path d="m7.41,7.84l4.59,4.58l4.59,-4.58l1.41,1.41l-6,6l-6,-6l1.41,-1.41z" id="svg_1" />
+                            </g>
+                        </svg>
                     </button>
                 </Show>
+                <span class="layer-name" title={entry.service.serviceTitle}>
+                    {entry.service.serviceTitle}
+                </span>
                 <input
                     type="checkbox"
                     class="cesium-button shown-status-button layer-entry-button-flex"
@@ -109,9 +136,6 @@ export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
                     onChange={e => booleanToCheckBoxStatus(e.currentTarget.checked)}
                     ref={checkboxRef}
                 />
-                <span class="layer-name" title={entry.service.serviceTitle}>
-                    {entry.service.serviceTitle}
-                </span>
             </div>
             <Show when={opened()}>
                 <div class="service-grid-break" />

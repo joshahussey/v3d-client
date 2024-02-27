@@ -6,6 +6,7 @@ import { ShowOnMapCheckbox } from "./ShowOnMapCheckbox";
 import { ZoomToLayerButton } from "./ZoomToLayerButton";
 import { osmBuildingsUID } from "../Constants";
 import { makeCheckboxStatus } from "./ServiceEntry";
+import { LayerSettingsButton } from "./LayerSettingsButton";
 
 /**
  * Represents a component for displaying an entry for a primitive layer (3D tileset) in a list.
@@ -25,6 +26,15 @@ export function PrimitiveEntry(props: {
     return (
         <li>
             <div class="layer-list-layer-entry">
+                <span class="layer-name" title={tileset.name}>{tileset.name}</span>
+                <LayerSettingsButton
+                    opened={opened}
+                    setOpened={setOpened}
+                    primitiveLayer={tileset}
+                    isEnabled={tileset.enabled}/>
+                <Show when={tileset.uid != osmBuildingsUID}>
+                    <DeleteLayerButton primitiveLayer={tileset} isEnabled={tileset.enabled} />
+                </Show>
                 <Show when={tileset.enabled != undefined && !tileset.enabled}>
                     <button
                         class="cesium-button osm-warning-button"
@@ -41,12 +51,6 @@ export function PrimitiveEntry(props: {
                         serviceCheckBoxState={serviceCheckBoxState}
                         isEnabled={tileset.enabled}
                     />
-                </Show>
-                <span class="layer-name" title={tileset.name}>{tileset.name}</span>
-                <DropDownButton opened={opened} setOpened={setOpened} isEnabled={tileset.enabled} />
-                <ZoomToLayerButton primitiveLayer={tileset} isEnabled={tileset.enabled} />
-                <Show when={tileset.uid != osmBuildingsUID}>
-                    <DeleteLayerButton primitiveLayer={tileset} isEnabled={tileset.enabled} />
                 </Show>
             </div>
             <Show when={opened()}>

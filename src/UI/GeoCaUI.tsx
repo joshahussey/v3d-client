@@ -1,0 +1,53 @@
+import { JSX } from "solid-js";
+import { ToolbarStateContext } from "../Context/ToolbarStateContext";
+import { InterfaceProvider } from "../Context/UIContext";
+import { ExpandedMenu, ToolbarNav, ToolbarButton } from "../Components/Components";
+import { Slider } from "../Components/Slider";
+import { Legend } from "../Components/Legend";
+import { CesiumWindow } from "../Wes";
+
+/**
+ * Represents the root of the UI elements.
+ * @returns {JSX.Element} A JSX element representing the UI element root.
+ */
+export function GeoCaUI(): JSX.Element {
+    const viewer = (window as CesiumWindow).Map3DViewer;
+    const buttonStyle = {
+        "font-size": "large"
+    };
+    const buttonImageStyle = {
+        "max-height": "32px",
+        "max-width": "32px"
+    };
+    return (
+        <>
+            <header id="primary-header" class="cslt-primary-header flex">
+                <ToolbarStateContext>
+                    <InterfaceProvider>
+                        <div style={{"display":"grid"}}>
+                            <div id="cslt-toolbar" class="cslt-toolbar-menu">
+                                <ToolbarNav />
+                            </div>
+                            <div>
+                                <ExpandedMenu />
+                            </div>
+                        </div>
+                        <Slider />
+                        <Legend />
+                    </InterfaceProvider>
+                </ToolbarStateContext>
+            </header>
+            <button
+                id="Home"
+                type="button"
+                class="cesium-button home-button"
+                style={buttonStyle}
+                onClick={() => {
+                    viewer.camera.flyHome(0.5);
+                }}
+            >
+                <img src="./Icons/home.png" title="Home" style={buttonImageStyle} />
+            </button>
+        </>
+    );
+}

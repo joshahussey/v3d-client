@@ -44,4 +44,12 @@
     min-width: 1.25rem;
     min-height: 1.25rem;
     padding: 0;
+    color: var(--gray);
+    background-color: white;
+    border: none;
+}
+.service-dropdown-button:hover {
+    color: var(--gray);
+    background-color: white;
+    border: none;
 }

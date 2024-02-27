@@ -1,8 +1,10 @@
+import { JSX } from "solid-js";
+
 type ToolbarButtonType = {
     id: string;
     onClick: () => void;
     class?: string;
-    icon?: string;
+    icon?: string | JSX.Element;
     text?: string;
 };
 
@@ -12,20 +14,17 @@ type ToolbarButtonType = {
  * @returns {JSX.Element} A JSX element representing the toolbar button.
  */
 export function ToolbarButton(props: ToolbarButtonType): Element {
-    let className = "cesium-button";
+    let className = "cesium-button toolbar-button";
     if (props.class) {
         className = props.class;
     }
-    const buttonStyle = {
-        "font-size": "large"
-    }
-    const buttonImageStyle = {
-        "max-height": "32px",
-        "max-width": "32px"
+    let icon;
+    if (props.icon) {
+        icon = props.icon;
     }
     return (
-        <button id={props.id} type="button" class={className} style={buttonStyle} onClick={props.onClick}>
-            <img src={props.icon} title={props.text} style={buttonImageStyle} />
+        <button id={props.id} type="button" class={className} onClick={props.onClick}>
+            {icon}
         </button>
     ) as Element;
 }

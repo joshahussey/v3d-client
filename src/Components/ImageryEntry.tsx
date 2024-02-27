@@ -1,11 +1,9 @@
 import { JSX, Show, createSignal, Accessor } from "solid-js";
 import { createStore } from "solid-js/store";
-import { DropDownButton } from "./DropDownButton";
-import { DeleteLayerButton } from "./DeleteLayerButton";
-import { ZoomToLayerButton } from "./ZoomToLayerButton";
 import { WesImageryLayer } from "../Wes";
 import { ShowOnMapCheckbox } from "./ShowOnMapCheckbox";
 import { makeCheckboxStatus } from "./ServiceEntry";
+import { LayerSettingsButton } from "./LayerSettingsButton";
 
 /**
  * Represents a component for displaying an entry for an imagery layer in a list.
@@ -26,18 +24,23 @@ export function ImageryEntry(props: {
     const setAlpha = (e: any) => {
         setSettings({ alpha: e.target.value });
     };
+
     return (
         <li>
             <div class="layer-list-layer-entry">
+                <span class="layer-name" title={imageryLayer.name}>
+                    {imageryLayer.name}
+                </span>
+                <LayerSettingsButton
+                    opened={opened}
+                    setOpened={setOpened}
+                    imageryLayer={imageryLayer}
+                    isEnabled={true}/>
                 <ShowOnMapCheckbox
                     imageryLayer={imageryLayer}
                     syncServiceCheckboxCallback={syncServiceCheckboxCallback}
                     serviceCheckBoxState={serviceCheckBoxState}
                 />
-                <span class="layer-name" title={imageryLayer.name}>{imageryLayer.name}</span>
-                <DropDownButton opened={opened} setOpened={setOpened} />
-                <ZoomToLayerButton imageryLayer={imageryLayer} />
-                <DeleteLayerButton imageryLayer={imageryLayer} />
             </div>
             <Show when={opened()}>
                 <div class="selector-grid selector-highlight">

@@ -19,7 +19,7 @@ export function DropDownButton(open: {
             disabled={open.isEnabled != undefined && !open.isEnabled}
             onClick={() => open.setOpened(!open.opened())}
         >
-            <img class="layer-entry-button-image" src="./Icons/cogs_wheel.png" />
+            {<>&#8230;</>}
         </button>
     );
 }

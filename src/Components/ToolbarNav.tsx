@@ -1,128 +1,112 @@
 import { JSX, createEffect } from "solid-js";
 import { useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { ToolbarButton } from "./Components";
-import { CesiumWindow } from "../Wes";
 
 /**
  * Represents a component for rendering the toolbar navigation with various buttons.
  * @returns {JSX.Element} A JSX element representing the toolbar navigation.
  */
 export function ToolbarNav(): JSX.Element {
-    const viewer = (window as CesiumWindow).Map3DViewer;
     const {
         isLayersOpened,
         setLayersOpened,
-        isSaveOpened,
-        setSaveOpened,
-        isLoadOpened,
-        setLoadOpened,
-        isCatalogOpened,
-        setCatalogOpened,
         isSearchOpened,
-        setSearchOpened
+        setSearchOpened,
+        isLayersOrderOpened,
+        setLayersOrderOpened,
+        isBasemapTerrainOpened,
+        setBasemapTerrainOpened
     } = useToolbarStateContext() as any;
     createEffect(() => {
         if (isLayersOpened()) {
-            setSaveOpened(false);
-            setLoadOpened(false);
-            setCatalogOpened(false);
-            setSearchOpened(false);
-        }
-    });
-    createEffect(() => {
-        if (isSaveOpened()) {
-            setLayersOpened(false);
-            setLoadOpened(false);
-            setCatalogOpened(false);
-            setSearchOpened(false);
-        }
-    });
-    createEffect(() => {
-        if (isLoadOpened()) {
-            setSaveOpened(false);
-            setLayersOpened(false);
-            setCatalogOpened(false);
-            setSearchOpened(false);
-        }
-    });
-    createEffect(() => {
-        if (isCatalogOpened()) {
-            setSaveOpened(false);
-            setLoadOpened(false);
-            setLayersOpened(false);
             setSearchOpened(false);
         }
     });
     createEffect(() => {
         if (isSearchOpened()) {
-            setSaveOpened(false);
-            setLoadOpened(false);
             setLayersOpened(false);
-            setCatalogOpened(false);
         }
     });
+    const layerOrderIcon = (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fit=""
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 24 24"
+            focusable="false"
+            fill="#b4b4b4"
+            class="toolbar-button-image"
+        >
+            <g id="swap_vert">
+                <path d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3L5 6.99h3V14h2V6.99h3L9 3z"/>
+            </g>
+        </svg>
+    );
+    const basemapTerrainOpenedIcon = (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fit=""
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 24 24"
+            focusable="false"
+            fill="#b4b4b4"
+            class="toolbar-button-image"
+        >
+            <g id="map">
+                <path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z" />
+            </g>
+        </svg>
+    );
+    const layersOpened = (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fit=""
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 24 24"
+            focusable="false"
+            fill="#b4b4b4"
+            class="toolbar-button-image"
+        >
+            <g id="layers">
+                <path d="M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z" />
+            </g>
+        </svg>
+    );
     return (
-        <ul id="toolbar-navigation" class="toolbar-navigation flex">
-            <li>
-                <ToolbarButton
-                    id="Home"
-                    icon="./Icons/home.png"
-                    onClick={() => {
-                        viewer.camera.flyHome(0.5);
-                    }}
-                    text="Home"
-                />
-            </li>
-            <li>
+        <div class="cslt-toolbar-expanded">
+            <div class="csltToolbarHeader">
+                <span class="toolbarLayersLabel">Layers</span>
                 <ToolbarButton
                     id="Layers"
-                    icon="./Icons/layers.png"
+                    icon={layerOrderIcon}
+                    onClick={() => {
+                        if (!isLayersOpened()) {
+                            setLayersOpened(!isLayersOpened())
+                        }
+                        setLayersOrderOpened(!isLayersOrderOpened());
+                    }}
+                    text="Layers"
+                />
+                <ToolbarButton
+                    id="Layers"
+                    icon={basemapTerrainOpenedIcon}
+                    onClick={() => {
+                        if (!isLayersOpened()) {
+                            setLayersOpened(!isLayersOpened())
+                        }
+                        setBasemapTerrainOpened(!isBasemapTerrainOpened());
+                    }}
+                    text="Layers"
+                />
+                <ToolbarButton
+                    id="Layers"
+                    icon={layersOpened}
                     onClick={() => {
                         setLayersOpened(!isLayersOpened());
                     }}
                     text="Layers"
                 />
-            </li>
-            <li>
-                <ToolbarButton
-                    id="SaveButton"
-                    icon="./Icons/save.png"
-                    onClick={() => {
-                        setSaveOpened(!isSaveOpened());
-                    }}
-                    text="Save view"
-                />
-            </li>
-            <li>
-                <ToolbarButton
-                    id="LoadButton"
-                    icon="./Icons/load.png"
-                    onClick={() => {
-                        setLoadOpened(!isLoadOpened());
-                    }}
-                    text="Load view"
-                />
-            </li>
-            <li>
-                <ToolbarButton
-                    id="CatalogueButton"
-                    icon="./Icons/browse_catalog_v4.png"
-                    onClick={() => {
-                        setCatalogOpened(!isCatalogOpened());
-                    }}
-                    text="Browse catalogue"
-                />
-            </li>
-            <li>
-                <ToolbarButton
-                    id="SearchButton"
-                    icon="./Icons/search_location.png"
-                    onClick={() => {
-                        setSearchOpened(!isSearchOpened());
-                    }}
-                    text="Search"
-                />
-            </li>
-        </ul>
+            </div>
+        </div>
     );
 }

@@ -14,7 +14,7 @@
 
 .solid-select-container {
     display: flex;
-    color: var(--dark-blue);
+    color: var(--gray);
     background: var(--white);
     cursor: pointer;
     -moz-user-select: none;
@@ -31,7 +31,7 @@
     top: -1px !important;
     left: -1px !important;
     margin: 0 !important;
-    border: 1px solid var(--dark-blue);
+    border: 1px solid var(--gray);
     border-radius: 4px !important;
     padding: 0 !important;
     min-width: -webkit-fill-available;
@@ -44,7 +44,7 @@
 //When hovering on an individual select list option
 .solid-select-list .solid-select-option:hover {
     color: var(--white);
-    background-color: var(--dark-blue);
+    background-color: var(--gray);
 }
 
 //The 'focused' option
@@ -55,5 +55,5 @@
 //When hovering on the 'focused' option.
 .solid-select-list .solid-select-option[data-focused="true"]:hover {
     color: var(--white);
-    background-color: var(--dark-blue);
+    background-color: var(--gray);
 }

@@ -16,7 +16,7 @@
 }
 
 .layer-order-list-label {
-    background-color: var(--dark-blue);
+    background-color: var(--gray);
     color: var(--white);
     width: 100%;
     display: inline-block;
@@ -39,7 +39,7 @@
 
 .layer-order-name {
     padding: 0.4rem 0.4rem 0.4rem 0.4rem;
-    color: var(--dark-blue);
+    color: var(--gray);
     text-align: left;
     vertical-align: middle;
     overflow: hidden;
@@ -55,7 +55,7 @@
     min-height: 0.9375rem;
     min-width: 0.9375rem;
     background-color: var(--white);
-    border: 1px solid var(--dark-blue);
+    border: 1px solid var(--gray);
     border-radius: 50%;
     accent-color: var(--light-blue);
     margin: 0.4rem 0.4rem 0.4rem 0.4rem;

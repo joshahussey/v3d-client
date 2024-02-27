@@ -107,7 +107,6 @@ export function LayersOrderDiv(props: { closeLayerOrderPanel: Setter<boolean> })
     return (
         <div class="layers-view-layer-order-panel">
             <nav class="layers-view-layer-order-scroll">
-                <label class="layer-order-list-label"> Map Layers </label>
                 <ul class="cslt-list layer-order-list" ref={layerOrderListRef}>
                     <For each={reversedImageryLayers()}>
                         {layer => (

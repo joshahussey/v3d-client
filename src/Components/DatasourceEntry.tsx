@@ -10,6 +10,7 @@ import FeaturesApiDataSource from "../Datasources/FeaturesApiDataSource";
 import { CoverageApiDropdown } from "./CoverageApiDropdown";
 import { celestrakUID } from "../Constants";
 import { makeCheckboxStatus } from "./ServiceEntry";
+import { LayerSettingsButton } from "./LayerSettingsButton";
 
 /**
  * Represents a component for displaying a single entry in a data source list.
@@ -29,17 +30,17 @@ export function DatasourceEntry(props: {
     return (
         <li>
             <div class="layer-list-layer-entry">
+                <span class="layer-name" title={datasource.name}>{datasource.name}</span>
+                <LayerSettingsButton
+                    opened={opened}
+                    setOpened={setOpened}
+                    datasource={datasource}
+                    isEnabled={true}/>
                 <ShowOnMapCheckbox
                     datasource={datasource}
                     syncServiceCheckboxCallback={syncServiceCheckboxCallback}
                     serviceCheckBoxState={serviceCheckBoxState}
                 />
-                <span class="layer-name" title={datasource.name}>{datasource.name}</span>
-                <DropDownButton opened={opened} setOpened={setOpened} />
-                <ZoomToLayerButton datasource={datasource} />
-                <Show when={datasource.uid != celestrakUID}>
-                    <DeleteLayerButton datasource={datasource} />
-                </Show>
             </div>
             <Show when={opened()}>
                 <div class="grid-break" />

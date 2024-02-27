@@ -7,9 +7,6 @@ import FeaturesApiDataSource from "./Datasources/FeaturesApiDataSource";
 //import SensorThingsDataSource from "./Datasources/SensorThingsDataSource";
 import { Accessor, createEffect, createSignal } from "solid-js";
 import { render } from "solid-js/web";
-import { ExpandedMenu, ToolbarNav } from "./Components/Components";
-import { WesLogo } from "./Components/WesLogo";
-import { Legend } from "./Components/Legend";
 import {
     BLUE_TILE_STYLE,
     HOME_POSITION,
@@ -22,8 +19,7 @@ import {
     standAloneLayersServiceUID,
     standAloneLayersServiceUrl
 } from "./Constants";
-import { ToolbarStateContext } from "./Context/ToolbarStateContext";
-import { InterfaceProvider, getContextSignals } from "./Context/UIContext";
+import { getContextSignals } from "./Context/UIContext";
 import CelestialBodyDataSource from "./Datasources/CelestialBodyDataSource";
 import CoverageApiDataSource from "./Datasources/CoverageApiDataSource";
 import OgcMapsDatasource from "./Datasources/OgcMapsDatasource";
@@ -47,11 +43,10 @@ import {
     WesWebMapTileServiceImageryProvider
 } from "./Wes";
 import { createStore } from "solid-js/store";
-import { Slider } from "./Components/Slider";
 import { createLiveWmsPeriodString, isLiveWms } from "./Utils/TimeParser";
 import FeaturesApiLiveDataSource from "./Datasources/FeaturesApiLiveDatasource";
 import { handleAoiEvent } from "./Utils/Aoi";
-import { WesUI } from "./UI/WesUI";
+import { GeoCaUI } from "./UI/GeoCaUI";
 
 const Controller = (window as CesiumWindow).Map3DController;
 
@@ -1096,7 +1091,7 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
         });
 
         //Create Toolbar Buttons
-        return (<WesUI />);
+        return (<GeoCaUI />);
     }
     render(App, document.getElementById("WesUserInterface")!);
 

@@ -8,6 +8,8 @@ export function ToolbarStateContext(props: any) {
     const [isCatalogOpened, setCatalogOpened] = createSignal(false);
     const [isSearchOpened, setSearchOpened] = createSignal(false);
     const [isEditOpened, setEditOpened] = createSignal(false);
+    const [isLayersOrderOpened, setLayersOrderOpened] = createSignal(false);
+    const [isBasemapTerrainOpened, setBasemapTerrainOpened] = createSignal(true);
     return (
         <ToolbarContext.Provider
             value={{
@@ -22,7 +24,11 @@ export function ToolbarStateContext(props: any) {
                 isSearchOpened,
                 setSearchOpened,
                 isEditOpened,
-                setEditOpened
+                setEditOpened,
+                isLayersOrderOpened,
+                setLayersOrderOpened,
+                isBasemapTerrainOpened,
+                setBasemapTerrainOpened
             }}
         >
             {props.children}

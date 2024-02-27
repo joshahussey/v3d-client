@@ -1,12 +1,13 @@
 .cslt-toolbar-menu {
+    display: grid;
     --gap: 0;
     grid-template-columns: 1fr;
-    font-family: "Courier New";
+    font-family: "Roboto", "Helvetica Neue", "sans-serif";
     color: white;
     top: 0;
     left: 0;
     background: rgba(20, 82, 132, 0.75);
-    border-bottom-right-radius: 0.625rem;
+    //border-bottom-right-radius: 0.625rem;
 }
 
 .toolbar-navigation {
@@ -22,14 +23,44 @@ ul {
 }
 
 .cslt-toolbar-expanded {
-    padding: 0 0.5rem 0.5rem 0.5rem;
-    min-width: 20rem;
-    max-width: 30rem;
+    min-width: 26rem;
+    max-width: 42rem;
+    display: grid;
 }
 
-@supports (backdrop-filter: blur(0.5rem)) {
-    .cslt-toolbar-menu {
-        background: rgba(20, 82, 132, 0.1);
-        backdrop-filter: blur(0.5rem);
-    }
+.csltToolbarHeader {
+    display: grid;
+    grid-template-columns: 5fr 1fr 1fr 1fr;
+    border-bottom: 1px solid var(--gray);
+}
+
+.toolbar-button {
+    //border: 1px solid var(--gray);
+    background-color: rgb(255, 255, 255);
+    border: none;
+    //border-left: 1px solid var(--gray);
+    border-radius: 0%;
+}
+
+.toolbar-button-image {
+    max-height: 24px;
+    max-width: 24px;
+    height: 100%;
+    width: 100%;
+}
+
+.toolbarLayersLabel {
+    color: var(--gray);
+    font-size: x-large;
+    display: inline-block;
+    padding: 0.8rem;
+}
+
+.cslt-toolbar-menu {
+    background: rgb(255, 255, 255);
+}
+
+.layersHeaderBreak {
+    border-left: 1px solid var(--gray);
+    padding-right: 0.1rem;
 }
