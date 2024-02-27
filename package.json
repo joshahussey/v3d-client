@@ -7,6 +7,7 @@
         "build": "webpack --config ./config/webpack.master.config.js",
         "build-release": "webpack --config ./config/webpack.master.config.js",
         "host": "./run.sh",
+        "lint": "eslint 'src/**/*.{ts,tsx,js}' 'src/*.{ts,tsx,js}'",
         "fix": "eslint 'src/**/*.{ts,tsx,js}' 'src/*.{ts,tsx,js}' --fix"
     },
     "keywords": [

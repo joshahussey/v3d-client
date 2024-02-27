@@ -1,4 +1,5 @@
 DO NOT ALTER FILES IN WEB 
+web is the hosted directory
 
 MAKE CHANGES IN src and static
 
@@ -7,6 +8,12 @@ ADD STATIC FILES TO static AND COPY THROUGH WEBPACK CONFIG
 
 To install deps:
 'npm install'
+
+To lint:
+'npm run lint'
+
+To lint & fix errors:
+'npm run fix'
 
 To build dev:
 'npm run build'
