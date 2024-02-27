@@ -19,8 +19,8 @@ pipeline {
                 dir('test'){
                     sh 'npx jest'
                 }
-                }
             }
+        }
     }
     
     post {
