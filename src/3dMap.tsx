@@ -94,7 +94,7 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
     const randomNumber = "1";
     sessionStorage.setItem("cslt_3d_id", randomNumber);
 
-    const webSocket = createReconnectingWS("wss://localhost:2016/api/a");
+    const webSocket = createReconnectingWS("wss://localhost:2016/api/a?sessionID=69");
     const [lastMessage, setLastMessage] = createSignal();
     webSocket.addEventListener("message", e => {
         setLastMessage(e.data);
@@ -103,7 +103,10 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
     createEffect(() => {
         console.log(lastMessage());
     });
-    webSocket.send(randomNumber);
+    const message = JSON.stringify({
+        sessionID: randomNumber
+    });
+    webSocket.send(message);
 
     const viewer = new cesium.Viewer("cesiumContainer", {
         baseLayer: baseImageryLayer,

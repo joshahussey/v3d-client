@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/gorilla/websocket"
+	"github.com/davecgh/go-spew/spew"
 )
 
 var upgrader = websocket.Upgrader{
@@ -17,7 +18,6 @@ var upgrader = websocket.Upgrader{
 // Client represents a WebSocket client.
 type Client struct {
 	conn      *websocket.Conn
-	clientID  string
 	sessionID string
 }
 
@@ -29,21 +29,23 @@ type ClientManager struct {
 
 // HandleWebSocket handles WebSocket connections.
 func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("saidonasoidnoaisnoisadnoiasdn");
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	clientID := r.URL.Query().Get("clientID")
 	sessionID := r.URL.Query().Get("sessionID")
+
+	fmt.Printf("%v\n", sessionID)
 
 	client := &Client{
 		conn:      conn,
-		clientID:  clientID,
 		sessionID: sessionID,
 	}
+
+	fmt.Printf("Client:\n")
+	spew.Dump(client)
 
 	ClientMgr.AddClient(client)
 
@@ -69,7 +71,7 @@ func (c *Client) Listen() {
 		}
 
 		// Handle the received message based on your requirements
-		fmt.Printf("Received message from client %s: %s\n", c.clientID, p)
+		fmt.Printf("Session ID: %v\n", c.sessionID)
 
 		// Example: Send a response back to the client
 		c.conn.WriteMessage(messageType, []byte("Message received!"))
@@ -100,8 +102,7 @@ func (cm *ClientManager) RemoveClient(client *Client) {
 }
 
 func main() {
-	fmt.Printf("first")
-	http.HandleFunc("/api/a/", HandleWebSocket)
+	http.HandleFunc("/", HandleWebSocket)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 

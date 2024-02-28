@@ -1,11 +1,12 @@
 module cslt3d
 
-go 1.21.4
+go 1.23
 
 require github.com/gorilla/websocket v1.5.1
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20221212164502-fae10dda9338 // indirect
 	golang.org/x/mod v0.15.0 // indirect
