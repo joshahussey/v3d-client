@@ -47,7 +47,7 @@ import { createLiveWmsPeriodString, isLiveWms } from "./Utils/TimeParser";
 import FeaturesApiLiveDataSource from "./Datasources/FeaturesApiLiveDatasource";
 import { handleAoiEvent } from "./Utils/Aoi";
 import { GeoCaUI } from "./UI/GeoCaUI";
-import { WSMessage, createReconnectingWS, createWS } from "@solid-primitives/websocket";
+import { createReconnectingWS } from "@solid-primitives/websocket";
 
 const Controller = (window as CesiumWindow).Map3DController;
 
@@ -95,13 +95,40 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
     sessionStorage.setItem("cslt_3d_id", randomNumber);
 
     const webSocket = createReconnectingWS("wss://localhost:2016/api/a?sessionID=69");
-    const [lastMessage, setLastMessage] = createSignal();
+    const [lastMessage, setLastMessage] = createSignal<string>();
     webSocket.addEventListener("message", e => {
         setLastMessage(e.data);
-        console.log("Message", e.data);
     });
-    createEffect(() => {
-        console.log(lastMessage());
+    createEffect(async () => {
+        const message = lastMessage();
+        if (!message) return;
+
+        const parsedMessage = await JSON.parse(message);
+        const args = parsedMessage.args;
+
+        switch (parsedMessage.type) {
+            case "WMS":
+                Controller.addWMS(
+                    args.uid,
+                    args.url,
+                    args.name,
+                    args.description,
+                    args.layers,
+                    args.format,
+                    args.credit,
+                    args.minX,
+                    args.minY,
+                    args.maxX,
+                    args.maxY,
+                    args.serviceTitle,
+                    args.serviceId,
+                    args.serviceUrl
+                );
+                Controller.raiseMapStateChangedEvent();
+                break;
+            default:
+                break;
+        }
     });
     const message = JSON.stringify({
         sessionID: randomNumber

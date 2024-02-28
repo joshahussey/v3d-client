@@ -51,14 +51,14 @@ func HandleAdd(w http.ResponseWriter, r *http.Request) {
 	}
     defer conn.Close()
 	sessionID := r.URL.Query().Get("sessionID")
-	messageType, p, err := conn.ReadMessage()
+	_, p, err := conn.ReadMessage()
 	if err != nil {
 		log.Println(err)
 		return
 	}
     fmt.Printf("This is not fit: %s", string(p))
 	client := ClientMgr.clients[sessionID]
-    writeErr := client.conn.WriteMessage(messageType, []byte("YOUVE GOT MAIL MF"))
+    writeErr := client.conn.WriteMessage(1, p)
     if writeErr != nil {
         log.Println(writeErr)
         return
