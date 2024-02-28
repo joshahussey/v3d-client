@@ -47,6 +47,7 @@ import { createLiveWmsPeriodString, isLiveWms } from "./Utils/TimeParser";
 import FeaturesApiLiveDataSource from "./Datasources/FeaturesApiLiveDatasource";
 import { handleAoiEvent } from "./Utils/Aoi";
 import { GeoCaUI } from "./UI/GeoCaUI";
+import { WSMessage, createReconnectingWS, createWS } from "@solid-primitives/websocket";
 
 const Controller = (window as CesiumWindow).Map3DController;
 
@@ -89,6 +90,20 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
         );
         localStorage.removeItem("initCameraViewport");
     }
+
+    const randomNumber = "1";
+    sessionStorage.setItem("cslt_3d_id", randomNumber);
+
+    const webSocket = createReconnectingWS("wss://localhost:2016/api/a");
+    const [lastMessage, setLastMessage] = createSignal();
+    webSocket.addEventListener("message", e => {
+        setLastMessage(e.data);
+        console.log("Message", e.data);
+    });
+    createEffect(() => {
+        console.log(lastMessage());
+    });
+    webSocket.send(randomNumber);
 
     const viewer = new cesium.Viewer("cesiumContainer", {
         baseLayer: baseImageryLayer,
@@ -341,8 +356,8 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                     ) {
                         const layer = viewer.imageryLayers.get(j);
                         while (
-                            i >= viewer.imageryLayers.indexOf(layer) && 
-                            viewer.imageryLayers.indexOf(layer) != -1 && 
+                            i >= viewer.imageryLayers.indexOf(layer) &&
+                            viewer.imageryLayers.indexOf(layer) != -1 &&
                             viewer.imageryLayers.indexOf(layer) < viewer.imageryLayers.length - 1
                         ) {
                             if (correctMapStateImageLayersCopy.length != viewer.imageryLayers.length) break;
@@ -709,8 +724,8 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                 option.bounds.minX,
                 option.bounds.minY,
                 option.bounds.maxX,
-                option.bounds.maxY,
-            )
+                option.bounds.maxY
+            );
         }
         if (option.type === "WMTS") {
             const resource = new cesium.Resource({ url: option.url });
@@ -869,11 +884,11 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                 viewer,
                 imageryOption.uid,
                 imageryOption.bounds,
-                imageryOption.serviceInfo = {
+                (imageryOption.serviceInfo = {
                     serviceId: imageryOption.serviceInfo?.serviceId,
                     serviceTitle: imageryOption.serviceInfo?.serviceTitle,
                     serviceUrl: imageryOption.serviceInfo?.serviceUrl
-                }
+                })
             );
             layer = cesium.ImageryLayer.fromProviderAsync(createdDatasource.provider as any, {});
         } else {
@@ -1091,7 +1106,7 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
         });
 
         //Create Toolbar Buttons
-        return (<GeoCaUI />);
+        return <GeoCaUI />;
     }
     render(App, document.getElementById("WesUserInterface")!);
 

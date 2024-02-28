@@ -1,0 +1,38 @@
+{
+    http_port 2015
+    https_port 2016
+}
+
+localhost:2015 {
+    log {
+        format console
+        output file ./cslt3d.log
+    }
+
+    file_server {
+        root web/
+    }
+
+    route /api/a {
+            handle {
+                reverse_proxy localhost:8080
+        }
+    }
+}
+
+localhost:2016 {
+    log {
+        format console
+        output file ./cslt3d.log
+    }
+
+    file_server {
+        root web/
+    }
+
+    route /api/a {
+            handle {
+                reverse_proxy localhost:8080
+        }
+    }
+}

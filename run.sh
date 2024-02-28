@@ -11,5 +11,6 @@ else
 fi
 script=$(readlink -f $0)
 dirname=$(dirname "$script")
-nohup "$dirname"/caddy file-server --root "$dirname"/web --listen :2015 > "$dirname"/run.log 2>&1 &
+nohup "$dirname"/caddy run --config "$dirname"/caddyfile --adapter caddyfile > "$dirname"/run.log 2>&1 &
+#nohup "$dirname"/caddy file-server --config "$dirname/caddy.json" --root "$dirname"/web --listen :2015 > "$dirname"/run.log 2>&1 &
 echo "$!"> "/tmp/standalone3d.pid"
