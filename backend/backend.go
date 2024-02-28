@@ -2,12 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
 	"sync"
-
-	"github.com/gorilla/websocket"
-	"github.com/davecgh/go-spew/spew"
 )
 
 var upgrader = websocket.Upgrader{
@@ -23,7 +21,7 @@ type Client struct {
 
 // ClientManager manages WebSocket clients and their IDs.
 type ClientManager struct {
-	clients map[*Client]bool
+	clients map[string]Client
 	mutex   sync.Mutex
 }
 
@@ -34,75 +32,87 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-
 	sessionID := r.URL.Query().Get("sessionID")
-
-	fmt.Printf("%v\n", sessionID)
-
-	client := &Client{
+	client := Client{
 		conn:      conn,
 		sessionID: sessionID,
 	}
-
-	fmt.Printf("Client:\n")
-	spew.Dump(client)
-
-	ClientMgr.AddClient(client)
-
+	ClientMgr.AddClient(sessionID, client)
+	fmt.Printf("Connected client %s.\n", sessionID)
 	go client.Listen()
 }
 
-func HandleRequest(w http.ResponseWriter, r *http.Request) {
-	
+func HandleAdd(w http.ResponseWriter, r *http.Request) {
+    fmt.Println("handleadd")
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+    defer conn.Close()
+	sessionID := r.URL.Query().Get("sessionID")
+	messageType, p, err := conn.ReadMessage()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+    fmt.Printf("This is not fit: %s", string(p))
+	client := ClientMgr.clients[sessionID]
+    writeErr := client.conn.WriteMessage(messageType, []byte("YOUVE GOT MAIL MF"))
+    if writeErr != nil {
+        log.Println(writeErr)
+        return
+    }
 }
 
 // Listen listens for incoming messages from the client.
 func (c *Client) Listen() {
 	defer func() {
-		ClientMgr.RemoveClient(c)
+		ClientMgr.RemoveClient(c.sessionID)
 		c.conn.Close()
 	}()
 
 	for {
-		messageType, p, err := c.conn.ReadMessage()
+		//messageType, _, err := c.conn.ReadMessage()
+		_, _, err := c.conn.ReadMessage()
 		if err != nil {
 			log.Println(err)
 			return
 		}
 
 		// Handle the received message based on your requirements
-		fmt.Printf("Session ID: %v\n", c.sessionID)
+		fmt.Printf("Session ID: %v, sent message.\n", c.sessionID)
 
 		// Example: Send a response back to the client
-		c.conn.WriteMessage(messageType, []byte("Message received!"))
+		//c.conn.WriteMessage(messageType, []byte("Message received!"))
 	}
 }
 
 // ClientManager instance to manage clients
 var ClientMgr = &ClientManager{
-	clients: make(map[*Client]bool),
+	clients: make(map[string]Client),
 }
 
 // AddClient adds a new client to the manager.
-func (cm *ClientManager) AddClient(client *Client) {
+func (cm *ClientManager) AddClient(sessionID string, client Client) {
 	cm.mutex.Lock()
 	defer cm.mutex.Unlock()
 
-	cm.clients[client] = true
-	fmt.Printf("Client %s connected with Session ID %s\n", client.clientID, client.sessionID)
+	cm.clients[sessionID] = client
+	fmt.Printf("Client %s added to clients list.\n", client.sessionID)
 }
 
 // RemoveClient removes a client from the manager.
-func (cm *ClientManager) RemoveClient(client *Client) {
+func (cm *ClientManager) RemoveClient(sessionID string) {
 	cm.mutex.Lock()
 	defer cm.mutex.Unlock()
 
-	delete(cm.clients, client)
-	fmt.Printf("Client %s disconnected\n", client.clientID)
+	delete(cm.clients, sessionID)
+	fmt.Printf("Client %s disconnected\n", sessionID)
 }
 
 func main() {
 	http.HandleFunc("/", HandleWebSocket)
+	http.HandleFunc("/add", HandleAdd)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
-

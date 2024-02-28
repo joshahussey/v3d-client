@@ -18,6 +18,11 @@ localhost:2015 {
                 reverse_proxy localhost:8080
         }
     }
+    route /state* {
+        handle { 
+            reverse_proxy /add localhost:8080
+            }
+    }
 }
 
 localhost:2016 {
@@ -34,5 +39,10 @@ localhost:2016 {
             handle {
                 reverse_proxy localhost:8080
         }
+    }
+    route /state* {
+        handle { 
+            reverse_proxy /add localhost:8080
+            }
     }
 }
