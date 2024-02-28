@@ -52,6 +52,9 @@
 .solid-select-single-value {
     grid-column-start: 1;
     grid-row-start: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .solid-select-multi-value {
     --tw-bg-opacity: 1;
@@ -93,6 +96,8 @@
     grid-column-start: 1;
     grid-row-start: 1;
     font: inherit;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .solid-select-input:read-only {
     cursor: default;

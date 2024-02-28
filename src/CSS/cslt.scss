@@ -16,11 +16,13 @@
 @use "./SassComponents/HomeButtonDiv.scss";
 @use "./SassComponents/ServiceEntry.scss";
 @use "./SassComponents/LayersOrder.scss";
+@use "./SassComponents/LayerSettingsMenu.scss";
 
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    font-family: "Roboto", "Helvetica Neue", "sans-serif";
 }
 
 @media (max-width: 40em) {
