@@ -52,11 +52,11 @@ import { createReconnectingWS } from "@solid-primitives/websocket";
 const Controller = (window as CesiumWindow).Map3DController;
 
 localStorage.setItem("cesiumOpened", "true");
-window.onbeforeunload = function () {
+window.onbeforeunload = function() {
     localStorage.setItem("cesiumOpened", "false");
 };
 
-const load = async function (mapState: MapState): Promise<cesium.Viewer> {
+const load = async function(mapState: MapState): Promise<cesium.Viewer> {
     //Setup
     const dataSourcesToBeAdded: Set<WesDataSourceObject> = new Set();
     const imageryLayersToBeAdded: Set<WesImageryObject> = new Set();
@@ -136,6 +136,74 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                     args.minY,
                     args.maxX,
                     args.maxY,
+                    args.serviceTitle,
+                    args.serviceId,
+                    args.serviceUrl
+                );
+                Controller.raiseMapStateChangedEvent();
+                break;
+            case "WMTS":
+                Controller.addWMTS(
+                    args.uid,
+                    args.url,
+                    args.name,
+                    args.description,
+                    args.layer,
+                    args.style,
+                    args.format,
+                    args.tileMatrixSetID,
+                    args.maximumLevel,
+                    args.credit,
+                    args.minX,
+                    args.minY,
+                    args.maxX,
+                    args.maxY,
+                    args.serviceTitle,
+                    args.serviceId,
+                    args.serviceUrl
+                );
+                Controller.raiseMapStateChangedEvent();
+                break;
+            case "OGCMAP":
+                Controller.addOgcMap(
+                    args.uid,
+                    args.name,
+                    args.url,
+                    args.minX,
+                    args.minY,
+                    args.maxX,
+                    args.maxY,
+                    args.serviceTitle,
+                    args.serviceId,
+                    args.serviceUrl
+                );
+                Controller.raiseMapStateChangedEvent();
+                break;
+            case "DATSOURCE":
+                Controller.addDataSource(
+                    args.uid,
+                    args.url,
+                    args.name,
+                    args.description,
+                    args.type,
+                    args.sourceLayerIndex,
+                    args.id,
+                    args.minX,
+                    args.minY,
+                    args.maxX,
+                    args.maxY,
+                    args.serviceTitle,
+                    args.serviceId,
+                    args.serviceUrl
+                );
+                Controller.raiseMapStateChangedEvent();
+                break;
+            case "3DTILES":
+                Controller.add3DTiles(
+                    args.uid,
+                    args.url,
+                    args.title,
+                    args.description,
                     args.serviceTitle,
                     args.serviceId,
                     args.serviceUrl
@@ -683,7 +751,7 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
 
         switch (terrainUID) {
             case wgsEllipsoidUID: {
-                (viewer.scene.primitives as any)._primitives.forEach(function (primitive: Wes3DTileSet) {
+                (viewer.scene.primitives as any)._primitives.forEach(function(primitive: Wes3DTileSet) {
                     if ((primitive as any)._url && (primitive as any)._url.includes("google")) {
                         primitive.show = false;
                     }
@@ -694,7 +762,7 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                 break;
             }
             case cesiumBuiltInUID: {
-                (viewer.scene.primitives as any)._primitives.forEach(function (primitive: Wes3DTileSet) {
+                (viewer.scene.primitives as any)._primitives.forEach(function(primitive: Wes3DTileSet) {
                     if ((primitive as any)._url && (primitive as any)._url.includes("google")) {
                         primitive.show = false;
                     }
@@ -719,7 +787,7 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                 break;
             }
             default: {
-                (viewer.scene.primitives as any)._primitives.forEach(function (primitive: Wes3DTileSet) {
+                (viewer.scene.primitives as any)._primitives.forEach(function(primitive: Wes3DTileSet) {
                     if ((primitive as any)._url && primitive._url.includes("google")) {
                         primitive.show = false;
                     }
