@@ -2,7 +2,7 @@
 script=$(readlink -f "$0")
 dirname=$(dirname "$script")
 rootdir=$(dirname "$dirname")
-env_path="$dirname/config/env"
+env_path="$rootdir/config/env"
 export $(cat "$env_path" | xargs)
 pid_path="/tmp/standalone_server.pid"
 if test -e "$pid_path"; then

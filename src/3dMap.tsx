@@ -179,7 +179,7 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
                 );
                 Controller.raiseMapStateChangedEvent();
                 break;
-            case "DATSOURCE":
+            case "DATASOURCE":
                 Controller.addDataSource(
                     args.uid,
                     args.url,
