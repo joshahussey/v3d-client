@@ -15,11 +15,20 @@ ADD STATIC FILES TO static AND COPY THROUGH WEBPACK CONFIG
 #To lint & fix errors:
 'npm run fix'
 
-#To build dev:
-'npm run build'
+#To build dev client:
+'npm run build-client'
 
-#To build production:
-'npm run build-release'
+#To build production client:
+'npm run build-client-release'
 
-#To host on port 2015 run:
-'npm run host'
+#To build backend:
+'npm run build-backend'
+
+#To build client and backend dev:
+'npm run full-build'
+
+#To build client and backend production:
+'npm run full-build-release'
+
+#To host dev:
+'npm run app'
