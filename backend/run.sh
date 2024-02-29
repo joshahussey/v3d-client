@@ -1,4 +1,6 @@
 #!/bin/sh
+export CSLT_3D_HTTP_PORT="2015"
+export CSLT_3D_HTTPS_PORT="2016"
 pid_path="/tmp/standalone_backend.pid"
 if test -e "$pid_path"; then
     pid=$(cat $pid_path)

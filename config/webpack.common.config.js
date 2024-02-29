@@ -117,6 +117,7 @@ module.exports = {
             // hash: true,
             // showErrors: true,
             // cache: true,
-        })
+        }),
+        new webpack.EnvironmentPlugin(["CSLT_3D_HTTP_PORT", "CSLT_3D_HTTPS_PORT"])
     ]
 };

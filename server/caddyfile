@@ -1,9 +1,9 @@
 {
-    http_port 2015
-    https_port 2016
+    http_port {$CSLT_3D_HTTP_PORT}
+    https_port {$CSLT_3D_HTTPS_PORT}
 }
 
-localhost:2015 {
+localhost {
     log {
         format console
         output file ./cslt3d.log
@@ -22,27 +22,5 @@ localhost:2015 {
         handle { 
             reverse_proxy localhost:8080
             }
-    }
-}
-
-localhost:2016 {
-    log {
-        format console
-        output file ./cslt3d.log
-    }
-
-    file_server {
-        root web/
-    }
-
-    route /api/a* {
-            handle {
-                reverse_proxy localhost:8080
-        }
-    }
-    route /add* {
-        handle {
-            reverse_proxy localhost:8080
-        }
     }
 }

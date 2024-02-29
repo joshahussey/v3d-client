@@ -90,13 +90,24 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
         );
         localStorage.removeItem("initCameraViewport");
     }
-    let sessionID = sessionStorage.getItem("sessionID"); 
-    if(!sessionID){
+    let sessionID = sessionStorage.getItem("sessionID");
+    if (!sessionID) {
         sessionID = new Date().valueOf().toString();
         sessionStorage.setItem("sessionID", sessionID);
     }
-    const webSocket = createReconnectingWS(`ws://josh-dev.compusult.com:2015/api/a?sessionID=${sessionID}`);
-    const [lastMessage, setLastMessage] = createSignal<string>("",{equals:false});
+    let webSocket;
+    switch (window.location.protocol) {
+        case "http:":
+            webSocket = createReconnectingWS(`ws://${window.location.hostname}:2015/api/a?sessionID=${sessionID}`);
+            break;
+        case "https:":
+            webSocket = createReconnectingWS(`wss://${window.location.hostname}:2016/api/a?sessionID=${sessionID}`);
+            break;
+        default:
+            throw new Error("Unknown protocol -- cannot initialize web socket.");
+    }
+
+    const [lastMessage, setLastMessage] = createSignal<string>("", { equals: false });
     webSocket.addEventListener("message", e => {
         setLastMessage(e.data);
     });
