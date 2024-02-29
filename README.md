@@ -1,9 +1,7 @@
 ###DO NOT ALTER FILES IN web 
 ##IN FACT, DO NOT ALTER ANYTHING IF YOU DONT KNOW WHAT YOU ARE DOING
-#web is the hosted directory
-##MAKE CHANGES IN src and static
-##STATIC FILES SHOULD NOT BE ADDED TO web
-ADD STATIC FILES TO static AND COPY THROUGH WEBPACK CONFIG
+Hosted: web
+Source: src, static
 
 Backend lang: go
 WebServer: Caddy 
