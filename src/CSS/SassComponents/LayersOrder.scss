@@ -1,9 +1,4 @@
 /* Layers View */
-:root {
-    --dark-blue: #145284;
-    --white: #ffffff;
-}
-
 .layer-order-list {
     flex-direction: column;
     --gap: 0.2rem;
@@ -39,7 +34,7 @@
 
 .layer-order-name {
     padding: 0.4rem 0.4rem 0.4rem 0.4rem;
-    color: var(--gray);
+    color: var(--dark-gray);
     text-align: left;
     vertical-align: middle;
     overflow: hidden;

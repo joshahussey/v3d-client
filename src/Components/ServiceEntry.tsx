@@ -102,7 +102,6 @@ export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
                             xmlns="http://www.w3.org/2000/svg"
                             xmlns:svg="http://www.w3.org/2000/svg"
                             preserveAspectRatio="xMidYMid meet"
-                            fill="#b4b4b4"
                         >
                             <g id="keyboard_arrow_up" transform="rotate(180 12 11.545)">
                                 <path d="m7.41,7.84l4.59,4.58l4.59,-4.58l1.41,1.41l-6,6l-6,-6l1.41,-1.41z" id="svg_1" />
@@ -118,7 +117,6 @@ export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
                             xmlns="http://www.w3.org/2000/svg"
                             xmlns:svg="http://www.w3.org/2000/svg"
                             preserveAspectRatio="xMidYMid meet"
-                            fill="#b4b4b4"
                         >
                             <g id="keyboard_arrow_down">
                                 <path d="m7.41,7.84l4.59,4.58l4.59,-4.58l1.41,1.41l-6,6l-6,-6l1.41,-1.41z" id="svg_1" />

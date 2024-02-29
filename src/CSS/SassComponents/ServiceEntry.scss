@@ -1,15 +1,12 @@
-:root {
-    --dark-blue: #145284;
-    --white: #ffffff;
-    --gray: #b4b4b4;
-}
-
 .service-div {
     display: flex;
     grid-column: 1/13;
     grid-row: 1;
     align-items: center;
     background: var(--white);
+}
+.service-div:hover {
+    background-color: var(--light-gray)
 }
 
 .service-layers-div {
@@ -30,6 +27,9 @@
     width: -webkit-fill-available;
     background: var(--white);
 }
+.service-layers-list > li:hover {
+    background-color: var(--light-gray)
+}
 
 .service-grid-break {
     border-top: 1px solid var(--gray);
@@ -44,12 +44,14 @@
     min-width: 1.25rem;
     min-height: 1.25rem;
     padding: 0;
-    color: var(--gray);
-    background-color: white;
+    color: var(--dark-gray);
+    background-color: var(--clear);
     border: none;
+    fill: var(--dark-gray);
 }
 .service-dropdown-button:hover {
-    color: var(--gray);
-    background-color: white;
+    fill: var(--dark-gray);
+    color: var(--dark-gray);
+    box-shadow: none;
     border: none;
 }

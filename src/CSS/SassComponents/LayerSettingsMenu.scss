@@ -29,7 +29,8 @@
 }
 
 .layer-list-layer-entry:hover .dropdown-button {
-    color: var(--gray);
+    color: var(--dark-gray);
+    background-color: var(--clear);
     display: block;
 }
 

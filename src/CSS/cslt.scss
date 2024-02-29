@@ -25,6 +25,15 @@
     font-family: "Roboto", "Helvetica Neue", "sans-serif";
 }
 
+:root {
+    --clear: rgba(255, 255, 255, 0);
+    --dark-blue: #145284;
+    --white: #ffffff;
+    --light-gray: #dfdfdf;
+    --gray: #939393;
+    --dark-gray: #212121;
+}
+
 @media (max-width: 40em) {
     .toolbar-navigation {
         inset: 0 30% 0 0;

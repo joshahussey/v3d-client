@@ -2,6 +2,9 @@
 .cesium-button {
     background-color: var(--gray);
 }
+.cesium-button:hover {
+    background-color: var(--clear);
+}
 
 .cesium-widget-credits {
     display: none !important;

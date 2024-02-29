@@ -1,10 +1,4 @@
 /*Layer Manager*/
-:root {
-    --dark-blue: #145284;
-    --white: #ffffff;
-    --gray: #b4b4b4;
-}
-
 #layer-list {
     flex-direction: column;
     --gap: 0.2rem;
@@ -23,4 +17,7 @@
     grid-column: 1/12;
     align-items: center;
     background: var(--white);
+}
+.layer-list-layer-entry:hover {
+    background-color: var(--light-gray);
 }

@@ -10,23 +10,11 @@ export function ToolbarNav(): JSX.Element {
     const {
         isLayersOpened,
         setLayersOpened,
-        isSearchOpened,
-        setSearchOpened,
         isLayersOrderOpened,
         setLayersOrderOpened,
         isBasemapTerrainOpened,
         setBasemapTerrainOpened
     } = useToolbarStateContext() as any;
-    createEffect(() => {
-        if (isLayersOpened()) {
-            setSearchOpened(false);
-        }
-    });
-    createEffect(() => {
-        if (isSearchOpened()) {
-            setLayersOpened(false);
-        }
-    });
     const layerOrderIcon = (
         <svg
             xmlns="http://www.w3.org/2000/svg"
