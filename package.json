@@ -11,7 +11,7 @@
         "full-build-release": "export $(cat config/env | xargs) && webpack --config ./config/webpack.master.config.js && go build -C ./backend -v -x",
         "lint": "eslint 'src/**/*.{ts,tsx,js}' 'src/*.{ts,tsx,js}'",
         "fix": "eslint 'src/**/*.{ts,tsx,js}' 'src/*.{ts,tsx,js}' --fix",
-        "dev": "export DOMAIN_NAME=localhost && export $(cat config/env | xargs) && ./backend/run.sh && ./server/run.sh",
+        "dev": "export ROOT_DIR_3D=. && export DOMAIN_NAME=localhost && export $(cat config/env | xargs) && ./backend/run.sh && ./server/run.sh",
         "app": "export $(cat config/env | xargs) && ./backend/run.sh && ./server/run.sh"
     },
     "keywords": [

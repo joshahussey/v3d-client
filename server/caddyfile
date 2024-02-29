@@ -6,11 +6,11 @@
 {$DOMAIN_NAME}:{$CSLT_3D_HTTP_PORT} {
     log {
         format console
-        output file ./logs/cslt3d_http.log
+        output file {$ROOT_DIR_3D}/logs/cslt3d_http.log
     }
 
     file_server {
-        root web/
+        root {$ROOT_DIR_3D}/web/
     }
 
     route /api/a* {
@@ -27,11 +27,11 @@
 {$DOMAIN_NAME}:{$CSLT_3D_HTTPS_PORT} {
     log {
         format console
-        output file ./logs/cslt3d_https.log
+        output file {$ROOT_DIR_3D}/logs/cslt3d_https.log
     }
 
     file_server {
-        root web/
+        root {$ROOT_DIR_3D}/web/
     }
 
     route /api/a* {
