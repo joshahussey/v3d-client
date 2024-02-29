@@ -1,6 +1,9 @@
 #!/bin/sh
-export CSLT_3D_HTTP_PORT="2015"
-export CSLT_3D_HTTPS_PORT="2016"
+script=$(readlink -f "$0")
+dirname=$(dirname "$script")
+rootdir=$(dirname "$dirname")
+env_path="$rootdir/config/env"
+export $(cat "$env_path" | xargs)
 pid_path="/tmp/standalone_backend.pid"
 if test -e "$pid_path"; then
     pid=$(cat $pid_path)
@@ -13,8 +16,5 @@ if ps -p "$pid" > /dev/null; then
 else 
     echo "Backend not up. Nothing to kill. Starting new backend."
 fi
-script=$(readlink -f "$0")
-dirname=$(dirname "$script")
-rootdir=$(dirname "$dirname")
 nohup "$dirname"/cslt3d > "$rootdir"/logs/backend.log 2>&1 &
 echo "$!"> "$pid_path"

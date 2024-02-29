@@ -98,10 +98,12 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
     let webSocket;
     switch (window.location.protocol) {
         case "http:":
-            webSocket = createReconnectingWS(`ws://${window.location.hostname}:2015/api/a?sessionID=${sessionID}`);
+            //eslint-disable-next-line
+            webSocket = createReconnectingWS(`ws://${window.location.hostname}:${process.env.CSLT_3D_HTTP_PORT}/api/a?sessionID=${sessionID}`);
             break;
         case "https:":
-            webSocket = createReconnectingWS(`wss://${window.location.hostname}:2016/api/a?sessionID=${sessionID}`);
+            //eslint-disable-next-line
+            webSocket = createReconnectingWS(`wss://${window.location.hostname}:${process.env.CSLT_3D_HTTPS_PORT}/api/a?sessionID=${sessionID}`);
             break;
         default:
             throw new Error("Unknown protocol -- cannot initialize web socket.");

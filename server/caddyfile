@@ -3,10 +3,10 @@
     https_port {$CSLT_3D_HTTPS_PORT}
 }
 
-localhost {
+{$DOMAIN_NAME}:{$CSLT_3D_HTTP_PORT} {
     log {
         format console
-        output file ./cslt3d.log
+        output file ./logs/cslt3d_http.log
     }
 
     file_server {
@@ -15,12 +15,33 @@ localhost {
 
     route /api/a* {
             handle {
-                reverse_proxy localhost:8080
+                reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
         }
     }
     route /add* {
         handle { 
-            reverse_proxy localhost:8080
+            reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
+            }
+    }
+}
+{$DOMAIN_NAME}:{$CSLT_3D_HTTPS_PORT} {
+    log {
+        format console
+        output file ./logs/cslt3d_https.log
+    }
+
+    file_server {
+        root web/
+    }
+
+    route /api/a* {
+            handle {
+                reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
+        }
+    }
+    route /add* {
+        handle { 
+            reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
             }
     }
 }
