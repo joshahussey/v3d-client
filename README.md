@@ -1,10 +1,12 @@
 ###DO NOT ALTER FILES IN web 
 #web is the hosted directory
-
 ##MAKE CHANGES IN src and static
-
 ##STATIC FILES SHOULD NOT BE ADDED TO web
 ADD STATIC FILES TO static AND COPY THROUGH WEBPACK CONFIG
+
+Backend lang: go
+WebServer: Caddy 
+Client: Typescript/SolidJS
 
 #To install deps:
 'npm install'
