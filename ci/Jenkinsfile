@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    tools {
+        go 'Go1.22.0'
+    }
     stages {
         stage ('Checkout') {
             steps {
@@ -10,7 +13,7 @@ pipeline {
             steps {
                 echo "Building on ${NODE_NAME}..."
                 sh 'npm install'
-                sh 'npm run build-client-release'
+                sh 'npm run full-build-release'
                 }
             }
         stage('Test') {
