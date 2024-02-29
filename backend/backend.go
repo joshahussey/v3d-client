@@ -43,26 +43,26 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleAdd(w http.ResponseWriter, r *http.Request) {
-    fmt.Println("handleadd")
+	fmt.Println("handleadd")
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-    defer conn.Close()
+	defer conn.Close()
 	sessionID := r.URL.Query().Get("sessionID")
 	_, p, err := conn.ReadMessage()
 	if err != nil {
 		log.Println(err)
 		return
 	}
-    fmt.Printf("This is not fit: %s", string(p))
+	fmt.Printf("This is not fit: %s", string(p))
 	client := ClientMgr.clients[sessionID]
-    writeErr := client.conn.WriteMessage(1, p)
-    if writeErr != nil {
-        log.Println(writeErr)
-        return
-    }
+	writeErr := client.conn.WriteMessage(1, p)
+	if writeErr != nil {
+		log.Println(writeErr)
+		return
+	}
 }
 
 // Listen listens for incoming messages from the client.

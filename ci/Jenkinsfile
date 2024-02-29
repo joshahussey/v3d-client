@@ -10,7 +10,7 @@ pipeline {
             steps {
                 echo "Building on ${NODE_NAME}..."
                 sh 'npm install'
-                sh 'npm run build'
+                sh 'npm run build-client-release'
                 }
             }
         stage('Test') {

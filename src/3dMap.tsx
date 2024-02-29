@@ -90,17 +90,20 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
         );
         localStorage.removeItem("initCameraViewport");
     }
-
-    const randomNumber = "1";
-    sessionStorage.setItem("cslt_3d_id", randomNumber);
-
-    const webSocket = createReconnectingWS("wss://localhost:2016/api/a?sessionID=69");
-    const [lastMessage, setLastMessage] = createSignal<string>();
+    let sessionID = sessionStorage.getItem("sessionID"); 
+    if(!sessionID){
+        sessionID = new Date().valueOf().toString();
+        sessionStorage.setItem("sessionID", sessionID);
+    }
+    const webSocket = createReconnectingWS(`ws://josh-dev.compusult.com:2015/api/a?sessionID=${sessionID}`);
+    const [lastMessage, setLastMessage] = createSignal<string>("",{equals:false});
     webSocket.addEventListener("message", e => {
         setLastMessage(e.data);
     });
     createEffect(async () => {
         const message = lastMessage();
+        console.log("Message:");
+        console.log(message);
         if (!message) return;
 
         const parsedMessage = await JSON.parse(message);
@@ -130,10 +133,6 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                 break;
         }
     });
-    const message = JSON.stringify({
-        sessionID: randomNumber
-    });
-    webSocket.send(message);
 
     const viewer = new cesium.Viewer("cesiumContainer", {
         baseLayer: baseImageryLayer,

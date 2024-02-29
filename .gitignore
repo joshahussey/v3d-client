@@ -1,6 +1,6 @@
-/web
+/web/
+/backend/cslt3d
+/logs/*
 /node_modules
-/run.log
 src/ComponentLibrary/*
 src/CSSLibrary/*
-cslt3d.log

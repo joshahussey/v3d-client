@@ -4,11 +4,14 @@
     "description": "3D client",
     "main": "3dMap.js",
     "scripts": {
-        "build": "webpack --config ./config/webpack.master.config.js",
-        "build-release": "webpack --config ./config/webpack.master.config.js",
-        "host": "./run.sh",
+        "build-client": "webpack --config ./config/webpack.master.config.js",
+        "build-client-release": "webpack --config ./config/webpack.master.config.js",
+        "build-backend": "go build -C ./backend -v -x",
+        "full-build": "webpack --config ./config/webpack.master.config.js && go build -C ./backend -v -x",
+        "full-build-release": "webpack --config ./config/webpack.master.config.js && go build -C ./backend -v -x",
         "lint": "eslint 'src/**/*.{ts,tsx,js}' 'src/*.{ts,tsx,js}'",
-        "fix": "eslint 'src/**/*.{ts,tsx,js}' 'src/*.{ts,tsx,js}' --fix"
+        "fix": "eslint 'src/**/*.{ts,tsx,js}' 'src/*.{ts,tsx,js}' --fix",
+        "app": "./backend/run.sh && ./server/run.sh"
     },
     "keywords": [
         "3d",
