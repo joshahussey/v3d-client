@@ -20,4 +20,16 @@ ENV TLS_CERT_LOC $TLS_CERT_LOC_ARG
 ENV TLS_KEY_LOC $TLS_KEY_LOC_ARG
 RUN [ "npm", "install" ]
 RUN [ "npm", "run", "full-build-release" ]
+RUN [ "rm", "-rf", "Dockerfile" ]
+RUN [ "rm", "-rf", "ci/Jenkinsfile" ]
+RUN [ "rm", "-rf", "ci/.aman" ]
+RUN [ "rm", "-rf", "config/webpack.common.config.js" ]
+RUN [ "rm", "-rf", "config/webpack.master.config.js" ]
+RUN [ "rm", "-rf", "package.json" ]
+RUN [ "rm", "-rf", "package-lock.json" ]
+RUN [ "rm", "-rf", "node_modules" ]
+RUN [ "rm", "-rf", "src" ]
+RUN [ "rm", "-rf", "static" ]
+RUN [ "rm", "-rf", "test" ]
+RUN [ "rm", "-rf", "tsconfig.json" ]
 CMD ./backend/run.sh && ./server/run.sh
