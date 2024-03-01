@@ -33,3 +33,9 @@ Client: Typescript/SolidJS
 
 #To host dev:
 'npm run app'
+
+#To build Docker image:
+'docker build -t cslt3d .'
+
+#To run Docker image:
+'docker run -p 2015:2015 -p 2016:2016 -p 8080:8080 cslt3d'

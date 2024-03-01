@@ -24,6 +24,12 @@ pipeline {
                 }
             }
         }
+        stage('Containerize') {
+            steps {
+                echo "Building Docker image on ${NODE_NAME}..."
+                sh 'sudo docker build -t cslt3d .'
+            }
+        }
     }
     
     post {

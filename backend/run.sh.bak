@@ -1,0 +1,20 @@
+#!/bin/sh
+script=$(readlink -f "$0")
+dirname=$(dirname "$script")
+rootdir=$(dirname "$dirname")
+env_path="$rootdir/config/env"
+export $(cat "$env_path" | xargs)
+pid_path="/tmp/standalone_backend.pid"
+if test -e "$pid_path"; then
+    pid=$(cat $pid_path)
+else
+    pid=9999999
+fi
+if kill -0 "$pid" > /dev/null; then
+    echo "Killed backend process $pid. Starting new backend."
+    kill -9 "$pid"
+else 
+    echo "Backend not up. Nothing to kill. Starting new backend."
+fi
+nohup "$dirname"/cslt3d > "$rootdir"/logs/backend.log 2>&1 &
+echo "$!"> "$pid_path"
