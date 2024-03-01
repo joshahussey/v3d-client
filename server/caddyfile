@@ -13,7 +13,7 @@
         root {$ROOT_DIR_3D}/web/
     }
 
-    route /api/a* {
+    route /map* {
             handle {
                 reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
         }
@@ -34,7 +34,7 @@
         root {$ROOT_DIR_3D}/web/
     }
 
-    route /api/a* {
+    route /map* {
             handle {
                 reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
         }
