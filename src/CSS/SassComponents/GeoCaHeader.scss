@@ -1,0 +1,33 @@
+.geo-ca-header {
+    display: grid;
+    padding-left: 1rem;
+    height: 100%;
+    width: 100%;
+    align-items: center;
+    grid-template-columns: 2fr 8fr repeat(3, 1fr);
+    box-shadow: 0px 2px 5px 3px rgb(147, 147, 147, 0.25);
+    border-bottom: 1px solid (--light-gray);
+}
+
+.geo-ca-header-button {
+    background-color: var(--clear);
+    border: none;
+    font-size: large;
+    font-weight: 500;
+}
+
+.geo-ca-logo {
+    grid-column: 1/2;
+}
+
+.geo-ca-search {
+    grid-column: 3/4;
+}
+
+.geo-ca-mymap {
+    grid-column: 4/5;
+}
+
+.geo-ca-lang {
+    grid-column: 5/6;
+}

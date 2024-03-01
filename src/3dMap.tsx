@@ -47,6 +47,7 @@ import { createLiveWmsPeriodString, isLiveWms } from "./Utils/TimeParser";
 import FeaturesApiLiveDataSource from "./Datasources/FeaturesApiLiveDatasource";
 import { handleAoiEvent } from "./Utils/Aoi";
 import { GeoCaUI } from "./UI/GeoCaUI";
+import { GeoCaHeaderDiv } from "./Components/GeoCaHeaderDiv";
 import { createReconnectingWS } from "@solid-primitives/websocket";
 
 const Controller = (window as CesiumWindow).Map3DController;
@@ -78,7 +79,8 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
         clockRange: cesium.ClockRange.CLAMPED
     });
     const clockModel = new cesium.ClockViewModel(clock);
-    cesium.Camera.DEFAULT_VIEW_RECTANGLE = cesium.Rectangle.fromDegrees(-90, -90, 90, 90);
+    cesium.Camera.DEFAULT_VIEW_RECTANGLE = cesium.Rectangle.fromDegrees(-140.99778, 41.6751050889, -52.6480987209, 83.23324);
+    cesium.Camera.DEFAULT_VIEW_FACTOR = 0;
     const initCameraViewport = localStorage.getItem("initCameraViewport");
     if (initCameraViewport) {
         const rectangleComponents = initCameraViewport.split(",");
@@ -230,8 +232,6 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
         clockViewModel: clockModel
     });
 
-    cesium.Camera.DEFAULT_VIEW_RECTANGLE = cesium.Rectangle.fromDegrees(-90, -90, 90, 90);
-
     (window as CesiumWindow).Map3DViewer = viewer;
     viewer.scene.globe.depthTestAgainstTerrain = true;
     const primitiveLayers = viewer.scene.primitives;
@@ -244,11 +244,14 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
     viewer.scene.moon = new cesium.Moon();
     viewer.scene.sun = new cesium.Sun();
     const navOptions = {
-        defaultResetView: cesium.Rectangle.fromDegrees(80, 22, 130, 50),
+        defaultResetView: cesium.Rectangle.fromDegrees(-140.99778, 41.6751050889, -52.6480987209, 83.23324),
         enableCompass: true,
         enableZoomControls: true,
         enableDistanceLegend: true,
-        enableCompassOuterRing: true
+        enableCompassOuterRing: true,
+        resetTooltip: "Zoom To Home",
+        zoomInTooltip: "Zoom In",
+        zoomOutTooltip: "Zoom Out"
     };
     new CesiumNavigation(viewer, navOptions);
     viewer.selectedEntityChanged.addEventListener(showEntityProperties);
@@ -1218,6 +1221,12 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
         //Create Toolbar Buttons
         return <GeoCaUI />;
     }
+
+    //Toolbar element
+    function GeoCaHeader() {
+        return <GeoCaHeaderDiv/>;
+    }
+    render(GeoCaHeader, document.getElementById("geoCaBorder")!)
     render(App, document.getElementById("WesUserInterface")!);
 
     return viewer;
