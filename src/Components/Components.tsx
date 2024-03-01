@@ -16,3 +16,4 @@ export { LayersListDiv } from "./LayersListDiv";
 export { LayersOrderDiv } from "./LayersOrderDiv";
 export { ServiceEntry } from "./ServiceEntry";
 export { GeoCaHeaderDiv } from "./GeoCaHeaderDiv";
+export { LayersTreeDiv } from "./LayersTreeDiv";

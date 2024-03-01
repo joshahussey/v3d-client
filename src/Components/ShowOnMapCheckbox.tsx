@@ -78,7 +78,7 @@ export function ShowOnMapCheckbox(props: {
         <input
             type="checkbox"
             disabled={isEnabled != undefined && !isEnabled}
-            class="cesium-button shown-status-button layer-entry-button-flex"
+            class="cesium-button shown-status-button"
             onChange={e => checkboxChanged(e.currentTarget.checked)}
             checked={isShown()}
             ref={checkBoxRef}

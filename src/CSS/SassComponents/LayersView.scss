@@ -3,7 +3,7 @@
     background: var(--white);
     border-radius: 4px;
     display: grid;
-    grid-template-columns: 2;
+    grid-template-columns: 1;
     grid-template-rows: 2;
 }
 
@@ -30,7 +30,6 @@
     grid-column: 1;
     grid-row: 2/4;
     background: var(--white);
-    padding: 0.4rem;
     width: 26rem;
     display: grid;
 }
@@ -50,6 +49,7 @@
     display: flex;
     justify-content: end;
     margin-top: auto;
+    border-top: 1px solid var(--gray)
 }
 .layers-list-layer-order-button {
     margin-left: auto;
@@ -66,8 +66,7 @@
     grid-column: 2;
     grid-row: 2/4;
     background: var(--white);
-    padding: 0.4rem;
-    width: 16rem;
+    width: 26rem;
     display: grid;
 }
 // The scroll panel containing the layers list

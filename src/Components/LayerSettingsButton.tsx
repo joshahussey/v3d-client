@@ -25,7 +25,7 @@ export function LayerSettingsButton(props: {
             if (layerSettingsMenuShown()) {
                 layerSettingsMenuRef.classList.remove("layer-settings-menu-hidden");
                 layerSettingsMenuRef.classList.add("layer-settings-menu");
-                layerSettingsMenuRef.style.top = layerSettingsMenuButtonRef.getBoundingClientRect().top + "px"
+                layerSettingsMenuRef.style.top = `calc(${layerSettingsMenuButtonRef.getBoundingClientRect().top}px - 4rem)`
                 layerSettingsMenuRef.style.left = (layerSettingsMenuButtonRef.getBoundingClientRect().left - (layerSettingsMenuRef.getBoundingClientRect().right - layerSettingsMenuRef.getBoundingClientRect().left)) + "px"
             } else {
                 layerSettingsMenuRef.classList.remove("layer-settings-menu");
@@ -35,7 +35,7 @@ export function LayerSettingsButton(props: {
     });
 
     window.addEventListener('mouseup', function(event){
-        if(
+        if (
             (
                 !(event.target?.closest("#" + layerSettingsMenuRef.id)) && 
                 !(event.target?.closest("#layerSettingsMenuButton"))
@@ -43,7 +43,7 @@ export function LayerSettingsButton(props: {
                 (event.target?.closest("#layerSettingsMenuButton")) &&
                 layerSettingsMenuRef.classList.contains("layer-settings-menu")
             )
-        ){
+        ) {
             setLayerSettingsMenuShown(false)
         }
     });

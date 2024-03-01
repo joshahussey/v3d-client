@@ -22,7 +22,7 @@ export function ToolbarNav(): JSX.Element {
             preserveAspectRatio="xMidYMid meet"
             viewBox="0 0 24 24"
             focusable="false"
-            fill="#b4b4b4"
+            fill={isLayersOrderOpened() ? "#212121" : "#939393"}
             class="toolbar-button-image"
         >
             <g id="swap_vert">
@@ -37,7 +37,7 @@ export function ToolbarNav(): JSX.Element {
             preserveAspectRatio="xMidYMid meet"
             viewBox="0 0 24 24"
             focusable="false"
-            fill="#b4b4b4"
+            fill={isBasemapTerrainOpened() ? "#212121" : "#939393"}
             class="toolbar-button-image"
         >
             <g id="map">
@@ -52,7 +52,7 @@ export function ToolbarNav(): JSX.Element {
             preserveAspectRatio="xMidYMid meet"
             viewBox="0 0 24 24"
             focusable="false"
-            fill="#b4b4b4"
+            fill={isLayersOpened() ? "#212121" : "#939393"}
             class="toolbar-button-image"
         >
             <g id="layers">

@@ -23,6 +23,7 @@
     min-width: 1.25rem;
     min-height: 1.25rem;
     accent-color: var(--gray);
+    margin-right: 0.6rem;
 }
 .shown-status-button:indeterminate {
     accent-color: var(--gray);
@@ -175,7 +176,7 @@
 
 .selector-layer {
     position: relative;
-    grid-column: 4/13;
+    grid-column: 4/14;
     grid-row: 1/2;
 }
 .selector-layer-disabled.solid-select-container {

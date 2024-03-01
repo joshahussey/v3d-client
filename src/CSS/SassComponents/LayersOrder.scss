@@ -2,7 +2,6 @@
 .layer-order-list {
     flex-direction: column;
     --gap: 0.2rem;
-    border: 1px solid var(--gray);
     width: 100%;
 }
 .layer-order-list > li {
@@ -28,8 +27,8 @@
     background: var(--white);
 }
 .layer-order-entry-selected {
-    color: var(--light-blue);
-    border: 2px solid var(--light-blue);
+    color: var(--light-gray);
+    border: 2px solid var(--light-gray);
 }
 
 .layer-order-name {
@@ -50,9 +49,9 @@
     min-height: 0.9375rem;
     min-width: 0.9375rem;
     background-color: var(--white);
-    border: 1px solid var(--gray);
+    border: 1px solid var(--light-gray);
     border-radius: 50%;
-    accent-color: var(--light-blue);
+    accent-color: var(--gray);
     margin: 0.4rem 0.4rem 0.4rem 0.4rem;
 }
 
@@ -60,6 +59,7 @@
     display: flex;
     justify-content: end;
     margin-top: auto;
+    border-top: 1px solid var(--gray);
 }
 
 .layer-order-button {

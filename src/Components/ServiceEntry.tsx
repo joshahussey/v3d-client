@@ -129,7 +129,7 @@ export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
                 </span>
                 <input
                     type="checkbox"
-                    class="cesium-button shown-status-button layer-entry-button-flex"
+                    class="cesium-button shown-status-button"
                     checked={checkboxStatus()}
                     onChange={e => booleanToCheckBoxStatus(e.currentTarget.checked)}
                     ref={checkboxRef}

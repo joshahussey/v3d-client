@@ -8,11 +8,14 @@
     <script src="./3DMapController.js" ></script>
   </head>
   <body style="margin: 0px">
-      <div id="loadingOverlay"><img class="loadingImage" src="./loading.gif"></img></div>
-      <div id="geoCaBorder" 
-        class="geoCaBorder" 
-        style="z-index: 1; position:relative; width: 100vw; height: 9vh;"></div>
-    <div id="cesiumContainer" style="width: 100%; height: 91vh">
+    <div id="loadingOverlay">
+      <img class="loadingImage" src="./loading.gif"></img>
+    </div>
+    <div id="geoCaBorder" 
+      class="geoCaBorder" 
+      style="z-index: 1; position:relative; width: 100vw; height: 5rem">
+    </div>
+    <div id="cesiumContainer" style="width: 100%; height: calc(100vh - 5rem)">
       <div id="WesUserInterface"></div>
     </div>
   </body>
