@@ -1,4 +1,4 @@
-import { JSX, createEffect } from "solid-js";
+import { JSX } from "solid-js";
 import { useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { ToolbarButton } from "./Components";
 
@@ -26,7 +26,7 @@ export function ToolbarNav(): JSX.Element {
             class="toolbar-button-image"
         >
             <g id="swap_vert">
-                <path d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3L5 6.99h3V14h2V6.99h3L9 3z"/>
+                <path d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3L5 6.99h3V14h2V6.99h3L9 3z" />
             </g>
         </svg>
     );
@@ -63,13 +63,20 @@ export function ToolbarNav(): JSX.Element {
     return (
         <div class="cslt-toolbar-expanded">
             <div class="csltToolbarHeader">
-                <span class="toolbarLayersLabel">Layers</span>
+                <span
+                    class="toolbarLayersLabel"
+                    onClick={() => {
+                        setLayersOpened(!isLayersOpened());
+                    }}
+                >
+                    Layers
+                </span>
                 <ToolbarButton
                     id="Layers"
                     icon={layerOrderIcon}
                     onClick={() => {
                         if (!isLayersOpened()) {
-                            setLayersOpened(!isLayersOpened())
+                            setLayersOpened(!isLayersOpened());
                         }
                         setLayersOrderOpened(!isLayersOrderOpened());
                     }}
@@ -80,7 +87,7 @@ export function ToolbarNav(): JSX.Element {
                     icon={basemapTerrainOpenedIcon}
                     onClick={() => {
                         if (!isLayersOpened()) {
-                            setLayersOpened(!isLayersOpened())
+                            setLayersOpened(!isLayersOpened());
                         }
                         setBasemapTerrainOpened(!isBasemapTerrainOpened());
                     }}

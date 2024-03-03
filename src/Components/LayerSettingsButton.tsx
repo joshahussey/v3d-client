@@ -25,8 +25,9 @@ export function LayerSettingsButton(props: {
             if (layerSettingsMenuShown()) {
                 layerSettingsMenuRef.classList.remove("layer-settings-menu-hidden");
                 layerSettingsMenuRef.classList.add("layer-settings-menu");
-                layerSettingsMenuRef.style.top = `calc(${layerSettingsMenuButtonRef.getBoundingClientRect().top}px - 4rem)`
-                layerSettingsMenuRef.style.left = (layerSettingsMenuButtonRef.getBoundingClientRect().left - (layerSettingsMenuRef.getBoundingClientRect().right - layerSettingsMenuRef.getBoundingClientRect().left)) + "px"
+                layerSettingsMenuRef.style.top = `calc(${layerSettingsMenuButtonRef.getBoundingClientRect().top}px - 4rem)`;
+                layerSettingsMenuRef.style.left = layerSettingsMenuButtonRef.getBoundingClientRect().left - (layerSettingsMenuRef.getBoundingClientRect().right - layerSettingsMenuRef.getBoundingClientRect().left) + "px";
+                layerSettingsMenuRef.focus();
             } else {
                 layerSettingsMenuRef.classList.remove("layer-settings-menu");
                 layerSettingsMenuRef.classList.add("layer-settings-menu-hidden");
@@ -34,19 +35,17 @@ export function LayerSettingsButton(props: {
         }
     });
 
-    window.addEventListener('mouseup', function(event){
-        if (
-            (
-                !(event.target?.closest("#" + layerSettingsMenuRef.id)) && 
-                !(event.target?.closest("#layerSettingsMenuButton"))
-            ) || (
-                (event.target?.closest("#layerSettingsMenuButton")) &&
-                layerSettingsMenuRef.classList.contains("layer-settings-menu")
-            )
-        ) {
-            setLayerSettingsMenuShown(false)
+    function onFocusOutEvent() {
+        if (layerSettingsMenuShown()) {
+            window.addEventListener("click", cancelClickEvent, true);
+            setLayerSettingsMenuShown(false);
         }
-    });
+    }
+    function cancelClickEvent(event: MouseEvent) {
+        event.preventDefault();
+        event.stopPropagation();
+        window.removeEventListener("click", cancelClickEvent, true);
+    }
 
     return (
         <>
@@ -56,7 +55,7 @@ export function LayerSettingsButton(props: {
                 class="cesium-button dropdown-button layer-entry-button-flex"
                 disabled={isEnabled != undefined && !isEnabled}
                 onClick={() => {
-                    setLayerSettingsMenuShown(!layerSettingsMenuShown())
+                    setLayerSettingsMenuShown(!layerSettingsMenuShown());
                 }}
             >
                 {<>&#8230;</>}
@@ -69,6 +68,8 @@ export function LayerSettingsButton(props: {
                 primitiveLayer={primitiveLayer}
                 datasource={datasource}
                 isEnabled={true}
+                onFocusOutEvent={onFocusOutEvent}
+                setLayerSettingsMenuShown={setLayerSettingsMenuShown}
             />
         </>
     ) as Element;

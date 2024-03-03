@@ -11,17 +11,12 @@
 }
 .layer-settings-menu li {
     list-style: none;
-    margin: 0.3rem;
     font-size: medium;
     display: flex;
     align-items: center;
 }
 .layer-settings-menu li:hover {
-    color: white;
-    background-color: var(--gray);
-}
-.layer-settings-menu li:hover .layerSettingsMenuIcon {
-    fill: white;
+    background-color: var(--light-gray);
 }
 
 .layer-settings-menu-hidden {
@@ -35,8 +30,12 @@
 }
 
 .layerSettingsMenuIcon {
-    margin-right: 0.3rem;
+    margin: 0.3rem;
     fill: var(--gray);
     height: 1.50rem;
     width: 1.50rem;
+}
+
+.layerSettingsMenuText {
+    margin: 0.3rem
 }

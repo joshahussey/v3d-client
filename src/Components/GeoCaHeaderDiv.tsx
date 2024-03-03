@@ -21,7 +21,6 @@ export function GeoCaHeaderDiv(): JSX.Element {
             >
                 {"Search"}
             </button>
-            <button class="geo-ca-header-button geo-ca-mymap">{"MyMap"}</button>
             <button class="geo-ca-header-button geo-ca-lang">{"Language"}</button>
         </header>
     );
