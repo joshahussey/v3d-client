@@ -1,0 +1,5 @@
+#!/usr/bin/murex
+
+docker ps -qa -> foreach pid { docker rm -vf "$pid"}
+docker compose down --rmi all --remove-orphans
+docker compose up --force-recreate -d

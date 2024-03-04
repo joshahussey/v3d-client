@@ -12,7 +12,8 @@
         "lint": "eslint 'src/**/*.{ts,tsx,js}' 'src/*.{ts,tsx,js}'",
         "fix": "eslint 'src/**/*.{ts,tsx,js}' 'src/*.{ts,tsx,js}' --fix",
         "dev": "export ROOT_DIR_3D=. && export DOMAIN_NAME=localhost && export $(cat config/env | xargs) && ./backend/run.sh && ./server/run.sh",
-        "app": "export $(cat config/env | xargs) && ./backend/run.sh && ./server/run.sh"
+        "app": "export $(cat config/env | xargs) && ./backend/run.sh && ./server/run.sh",
+        "docker-frontend": "webpack --config ./config/webpack.master.config.js"
     },
     "keywords": [
         "3d",

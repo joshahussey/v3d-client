@@ -1,0 +1,41 @@
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      args:
+        BACKEND_PORT_ARG: &bp $BACKEND_PORT
+        DOMAIN_NAME_ARG: localhost
+        ROOT_DIR_3D_ARG: .
+        HTTP_PORT_ARG: &hp $HTTP_PORT
+        HTTPS_PORT_ARG: &hsp $HTTPS_PORT
+        ADMIN_PORT_ARG: &ap $ADMIN_PORT
+    ports:
+      - "$HTTP_PORT:$HTTP_PORT"
+      - "$HTTPS_PORT:$HTTPS_PORT"
+      - "$ADMIN_PORT:$ADMIN_PORT"
+    volumes:
+      - docker_web:/srv
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend-Dockerfile
+      args:
+        DOMAIN_NAME_ARG: localhost
+        ROOT_DIR_ARG: .
+        HTTP_PORT_ARG: *hp
+        HTTPS_PORT_ARG: *hsp
+        ADMIN_PORT_ARG: *ap
+    volumes:
+      - docker_web:/cslt/web
+  backend:
+    ports:
+      - "$BACKEND_PORT:$BACKEND_PORT"
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        BACKEND_PORT_ARG: *bp
+volumes: 
+  docker_web:
+    driver: local
