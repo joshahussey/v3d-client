@@ -114,6 +114,7 @@ func (cm *ClientManager) RemoveClient(sessionID string) {
 
 func main() {
     port := os.Getenv("BACKEND_PORT")
+	log.Println(fmt.Sprintf("Port: %s", port))
 	http.HandleFunc("/", HandleWebSocket)
 	http.HandleFunc("/add", HandleAdd)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
