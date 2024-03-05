@@ -1,4 +1,4 @@
-#!/usr/bin/murex
+#!/usr/bin/env murex
 
 docker ps -qa -> foreach pid { docker rm -vf "$pid"}
 docker compose down --rmi all --remove-orphans

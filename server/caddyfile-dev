@@ -1,6 +1,10 @@
 {
+    debug
     http_port {$CSLT_3D_HTTP_PORT}
     https_port {$CSLT_3D_HTTPS_PORT}
+    admin localhost:{$ADMIN_PORT} {
+        origins "http://localhost:2019"
+    }
 }
 
 {$DOMAIN_NAME}:{$CSLT_3D_HTTP_PORT} {
@@ -30,7 +34,7 @@
         output file {$ROOT_DIR_3D}/logs/cslt3d_https.log
     }
 
-    tls ./certs/{$TLS_CERT_LOC} ./certs/{$TLS_KEY_LOC}
+    #tls ./certs/{$TLS_CERT_LOC} ./certs/{$TLS_KEY_LOC}
 
     file_server {
         root /srv/
