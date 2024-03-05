@@ -16,7 +16,6 @@ COPY tsconfig.json /cslt/tsconfig.json
 COPY package-lock.json /cslt/package-lock.json
 COPY package.json /cslt/package.json
 COPY config/ /cslt/config/
-#COPY node_modules/ /cslt/node_modules/
 COPY src/ /cslt/src/
 COPY static/ /cslt/static/
 
