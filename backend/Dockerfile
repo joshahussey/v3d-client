@@ -14,5 +14,4 @@ WORKDIR /cslt/backend
 RUN [ "rm", "-rf", "backend.go" ]
 RUN [ "rm", "-rf", "go.mod" ]
 RUN [ "rm", "-rf", "go.sum" ]
-#CMD [ "/cslt/backend/cslt3d", ">", "/cslt/backend.log", "2>&1" ]
-CMD [ "/cslt/backend/cslt3d" ]
+CMD [ "/cslt/backend/cslt3d", ">", "/cslt/backend/logs/backend.log", "2>&1", "&"]

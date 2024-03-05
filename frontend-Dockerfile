@@ -10,7 +10,7 @@ ARG ADMIN_PORT_ARG=2019
 
 WORKDIR /cslt
 
-RUN [ "mkdir", "-p", "config", "node_modules", "src", "static" ]
+RUN [ "mkdir", "-p", "config", "src", "static" ]
 
 COPY tsconfig.json /cslt/tsconfig.json
 COPY package-lock.json /cslt/package-lock.json
