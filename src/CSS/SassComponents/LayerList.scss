@@ -12,12 +12,12 @@
     background: var(--white);
 }
 
+#layer-list > li:hover {
+    background-color: var(--light-gray);
+}
+
 .layer-list-layer-entry {
     display: flex;
     grid-column: 2/14;
     align-items: center;
-    background: var(--white);
-}
-.layer-list-layer-entry:hover {
-    background-color: var(--light-gray);
 }

@@ -1,5 +1,7 @@
 import { createContext, createSignal, useContext } from "solid-js";
+import { createStore } from "solid-js/store";
 
+export type ServiceStatusEntry = { serviceUid: string; serviceOpenedStatus: boolean };
 const ToolbarContext = createContext();
 export function ToolbarStateContext(props: any) {
     const [isLayersOpened, setLayersOpened] = createSignal(false);
@@ -10,6 +12,7 @@ export function ToolbarStateContext(props: any) {
     const [isEditOpened, setEditOpened] = createSignal(false);
     const [isLayersOrderOpened, setLayersOrderOpened] = createSignal(false);
     const [isBasemapTerrainOpened, setBasemapTerrainOpened] = createSignal(true);
+    const [serviceExpandedMap, setServiceExpandedMap] = createStore<ServiceStatusEntry[]>([]);
     return (
         <ToolbarContext.Provider
             value={{
@@ -28,7 +31,9 @@ export function ToolbarStateContext(props: any) {
                 isLayersOrderOpened,
                 setLayersOrderOpened,
                 isBasemapTerrainOpened,
-                setBasemapTerrainOpened
+                setBasemapTerrainOpened,
+                serviceExpandedMap,
+                setServiceExpandedMap
             }}
         >
             {props.children}

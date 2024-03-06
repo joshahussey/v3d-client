@@ -6,6 +6,9 @@ import { ServiceEntryInput } from "./LayersDiv";
 import { WesImageryLayer, Wes3DTileSet } from "../Wes";
 import WesDataSource from "../Datasources/WesDataSource";
 import { ImageryLayer, Cesium3DTileset } from "cesium";
+import { useToolbarStateContext, ServiceStatusEntry } from "../Context/ToolbarStateContext";
+import { GeoJsonDataSource } from "cesium";
+import SensorThingsDataSource from "../Datasources/SensorThingsDataSource";
 
 export type makeCheckboxStatus = () => void;
 
@@ -15,7 +18,56 @@ export type makeCheckboxStatus = () => void;
  * @returns {JSX.Element} A JSX element representing the service entry.
  */
 export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
-    const [opened, setOpened] = createSignal(true);
+    const { serviceExpandedMap, setServiceExpandedMap } = useToolbarStateContext() as any;
+    const isExpanded = getServiceExpandedStatus(entry.service.serviceId);
+    const [opened, setOpened] = createSignal(isExpanded != null ? isExpanded : true);
+    if (isExpanded === null) {
+        addServiceExpanded(entry.service.serviceId, true);
+    }
+
+    /**
+     * Adds a new entry to the list of service expansion objects
+     *
+     * @param {string} serviceUid Unique ID of a service
+     * @param {boolean} opened Whether the service is currently expanded or unexpanded.
+     * @returns {void}
+     */
+    function addServiceExpanded(serviceUid: string, opened: boolean): void {
+        if (serviceExpandedMap.findIndex((service: ServiceStatusEntry) => service.serviceUid === serviceUid) != -1) {
+            return;
+        }
+        setServiceExpandedMap([...serviceExpandedMap, { serviceUid: serviceUid, serviceOpenedStatus: opened }]);
+    }
+
+    /**
+     * Returns whether a service with the ID given is currently expanded or not in the service expansion list.
+     *
+     * @param {string} serviceUid Unique ID of a service
+     * @returns {boolean | null}
+     */
+    function getServiceExpandedStatus(serviceUid: string): boolean | null {
+        const service = serviceExpandedMap.find((service: ServiceStatusEntry) => service.serviceUid === serviceUid);
+        
+        if (service != undefined) {
+            return service.serviceOpenedStatus;
+        }
+        return null;
+    }
+
+    /**
+     * Sets the service status entry of the given service unique ID in the service expansion list.
+     *
+     * @param {string} serviceUid
+     * @param {boolean} opened
+     * @returns {void}
+     */
+    function setServiceExpanded(serviceUid: string, opened: boolean): void {
+        setServiceExpandedMap(
+            (service: ServiceStatusEntry) => service.serviceUid === serviceUid,
+            "serviceOpenedStatus",
+            opened
+        );
+    }
 
     //[0 = unchecked, 1 = checked, 2 = indeterminate]
     const [checkboxState, setCheckboxState] = createSignal(0);
@@ -40,7 +92,7 @@ export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
                     serviceCheckBoxState={checkboxState}
                 />
             );
-        } else if (layer instanceof WesDataSource) {
+        } else if ((layer instanceof WesDataSource) || (layer instanceof GeoJsonDataSource)) {
             allLayerDivs.push(
                 <DatasourceEntry
                     datasource={layer}
@@ -60,6 +112,9 @@ export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
 
     function makeCheckboxStatus() {
         function isShown(layer: WesImageryLayer | Wes3DTileSet | WesDataSource) {
+            if (layer instanceof SensorThingsDataSource) {
+                return (layer.show.Things && layer.show.FeaturesOfInterest && layer.show.ObservedAreas)
+            }
             return layer.show;
         }
         if (!entry.layers.every(isShown) && entry.layers.some(isShown)) {
@@ -95,7 +150,14 @@ export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
         <li>
             <div class="service-div">
                 <Show when={opened()} fallback={<></>}>
-                    <button class="cesium-button service-dropdown-button" onClick={() => setOpened(!opened())}>
+                    <button
+                        class="cesium-button service-dropdown-button"
+                        onClick={() => {
+                            const opnd = opened();
+                            setOpened(!opnd);
+                            setServiceExpanded(entry.service.serviceId, !opnd);
+                        }}
+                    >
                         <svg
                             width="24"
                             height="24"
@@ -110,7 +172,14 @@ export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
                     </button>
                 </Show>
                 <Show when={!opened()} fallback={<></>}>
-                    <button class="cesium-button service-dropdown-button" onClick={() => setOpened(!opened())}>
+                    <button
+                        class="cesium-button service-dropdown-button"
+                        onClick={() => {
+                            const opnd = opened();
+                            setOpened(!opnd);
+                            setServiceExpanded(entry.service.serviceId, !opnd);
+                        }}
+                    >
                         <svg
                             width="24"
                             height="24"

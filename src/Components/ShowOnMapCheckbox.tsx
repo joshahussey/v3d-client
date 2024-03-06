@@ -1,4 +1,4 @@
-import { Cesium3DTileset, ImageryLayer } from "cesium";
+import { Cesium3DTileset, GeoJsonDataSource, ImageryLayer } from "cesium";
 import { Wes3DTileSet, Wes3dMapLayer, WesImageryLayer } from "../Wes";
 import WesDataSource from "../Datasources/WesDataSource";
 import { JSX, createSignal, Accessor, createEffect } from "solid-js";
@@ -50,6 +50,9 @@ export function ShowOnMapCheckbox(props: {
             if (datasource instanceof CelestialBodyDataSource) {
                 datasource.setServiceRunning(isChecked);
             }
+        }
+        if (datasource && datasource instanceof GeoJsonDataSource) {
+            datasource.show = isChecked;
         }
         if (imageryLayer && imageryLayer instanceof ImageryLayer) {
             imageryLayer.show = isChecked;

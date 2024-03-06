@@ -1,5 +1,5 @@
 import { JSX, Show } from "solid-js";
-import { LayersDiv, LoadView, SaveView, CatalogView, Search } from "./Components";
+import { LayersDiv } from "./Components";
 import { useToolbarStateContext } from "../Context/ToolbarStateContext";
 
 /**
@@ -14,18 +14,6 @@ export function ExpandedMenu(): JSX.Element {
             <div id="ExpandedMenu" class="cslt-toolbar-expanded">
                 <Show when={isLayersOpened()}>
                     <LayersDiv />
-                </Show>
-                <Show when={isSaveOpened()}>
-                    <SaveView />
-                </Show>
-                <Show when={isLoadOpened()}>
-                    <LoadView />
-                </Show>
-                <Show when={isCatalogOpened()}>
-                    <CatalogView />
-                </Show>
-                <Show when={isSearchOpened()}>
-                    <Search />
                 </Show>
             </div>
         </Show>

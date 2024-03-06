@@ -176,9 +176,9 @@ type WesDataSourceObject = {
 type WesLayerPropertiesObject = WesImageryObject | WesDataSourceObject | WesPrimitiveObject | WesTerrainObject;
 
 type ServiceInfo = {
-    serviceTitle?: string;
-    serviceId?: string;
-    serviceUrl?: string;
+    serviceTitle: string;
+    serviceId: string;
+    serviceUrl: string;
 };
 
 type ImageryBounds = {
@@ -189,7 +189,15 @@ type ImageryBounds = {
 }
 
 interface WesGeoJsonDataSource extends GeoJsonDataSource {
-    serviceInfo?: ServiceInfo;
+    description: string;
+    uid: string;
+    name: string;
+    type: string;
+    url: string;
+    show: boolean;
+    id: string;
+    serviceInfo: ServiceInfo;
+    bounds: ImageryBounds;
 }
 
 interface WesImageryLayer extends ImageryLayer {

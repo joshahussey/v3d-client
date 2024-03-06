@@ -12,7 +12,7 @@
 .solid-select-container {
     display: flex;
     color: var(--dark-gray);
-    background: var(--white);
+    background: inherit;
     cursor: pointer;
     -moz-user-select: none;
     -webkit-user-select: none;
@@ -36,6 +36,7 @@
     min-width: fill-available;
     min-width: stretch;
     overflow-y: clip !important;
+    background-color: var(--white);
 }
 
 //When hovering on an individual select list option

@@ -38,7 +38,6 @@ import {
     WesImageryProvider,
     WesImagerylayers,
     WesPrimitiveObject,
-    WesGeoJsonDataSource,
     WesTerrainObject,
     WesWebMapTileServiceImageryProvider
 } from "./Wes";
@@ -49,6 +48,7 @@ import { handleAoiEvent } from "./Utils/Aoi";
 import { GeoCaUI } from "./UI/GeoCaUI";
 import { GeoCaHeaderDiv } from "./Components/GeoCaHeaderDiv";
 import { createReconnectingWS } from "@solid-primitives/websocket";
+import SensorThingsDataSource from "./Datasources/SensorThingsDataSource";
 
 const Controller = (window as CesiumWindow).Map3DController;
 
@@ -115,6 +115,7 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
     webSocket.addEventListener("message", e => {
         setLastMessage(e.data);
     });
+    // eslint-disable-next-line solid/reactivity
     createEffect(async () => {
         const message = lastMessage();
         console.log("Message:");
@@ -129,74 +130,97 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
                 Controller.addWMS(
                     args.uid,
                     args.url,
+                    args.title,
+                    args.abstract,
                     args.name,
-                    args.description,
-                    args.layers,
                     args.format,
                     args.credit,
-                    args.minX,
-                    args.minY,
-                    args.maxX,
-                    args.maxY,
-                    args.serviceTitle,
-                    args.serviceId,
-                    args.serviceUrl
+                    args.wgs84BoundingBox,
+                    args.serviceInfo
                 );
                 Controller.raiseMapStateChangedEvent();
                 break;
             case "WMTS":
                 Controller.addWMTS(
                     args.uid,
-                    args.url,
-                    args.name,
-                    args.description,
-                    args.layer,
-                    args.style,
+                    args.resourceUrlTemplate,
+                    args.title,
+                    args.abstract,
+                    args.layerIdentifier,
+                    args.styleIdentifier,
                     args.format,
-                    args.tileMatrixSetID,
+                    args.tileMatrixSetIdentifier,
                     args.maximumLevel,
                     args.credit,
-                    args.minX,
-                    args.minY,
-                    args.maxX,
-                    args.maxY,
-                    args.serviceTitle,
-                    args.serviceId,
-                    args.serviceUrl
+                    args.wgs84BoundingBox,
+                    args.serviceInfo
                 );
                 Controller.raiseMapStateChangedEvent();
                 break;
             case "OGCMAP":
                 Controller.addOgcMap(
                     args.uid,
-                    args.name,
+                    args.title,
                     args.url,
-                    args.minX,
-                    args.minY,
-                    args.maxX,
-                    args.maxY,
-                    args.serviceTitle,
-                    args.serviceId,
-                    args.serviceUrl
+                    args.wgs84BoundingBox,
+                    args.serviceInfo
                 );
                 Controller.raiseMapStateChangedEvent();
                 break;
-            case "DATASOURCE":
-                Controller.addDataSource(
+            case "FEATURE":
+                Controller.addOGCFeature(
+                    args.uid,
+                    args.url,
+                    args.title,
+                    args.description,
+                    args.wgs84BoundingBox,
+                    args.serviceInfo
+                );
+                Controller.raiseMapStateChangedEvent();
+                break;
+            case "COVERAGE":
+                Controller.addOGCCoverage(
+                    args.uid,
+                    args.url,
+                    args.title,
+                    args.description,
+                    args.sourceLayerIndex,
+                    args.id,
+                    args.wgs84BoundingBox,
+                    args.serviceInfo
+                );
+                Controller.raiseMapStateChangedEvent();
+                break;
+            case "CELESTIAL":
+                Controller.addCelestial(
                     args.uid,
                     args.url,
                     args.name,
                     args.description,
-                    args.type,
-                    args.sourceLayerIndex,
-                    args.id,
-                    args.minX,
-                    args.minY,
-                    args.maxX,
-                    args.maxY,
-                    args.serviceTitle,
-                    args.serviceId,
-                    args.serviceUrl
+                    args.wgs84BoundingBox,
+                    args.serviceInfo
+                );
+                Controller.raiseMapStateChangedEvent();
+                break;
+            case "SENSORTHINGS":
+                Controller.addSensorThings(
+                    args.uid,
+                    args.url,
+                    args.name,
+                    args.description,
+                    args.wgs84BoundingBox,
+                    args.serviceInfo
+                );
+                Controller.raiseMapStateChangedEvent();
+                break;
+            case "GEOJSON":
+                Controller.addGeoJSON(
+                    args.uid,
+                    args.urlOrGeoJsonObject,
+                    args.name,
+                    args.description,
+                    args.wgs84BoundingBox,
+                    args.serviceInfo
                 );
                 Controller.raiseMapStateChangedEvent();
                 break;
@@ -206,9 +230,7 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
                     args.url,
                     args.title,
                     args.description,
-                    args.serviceTitle,
-                    args.serviceId,
-                    args.serviceUrl
+                    args.serviceInfo
                 );
                 Controller.raiseMapStateChangedEvent();
                 break;
@@ -1043,15 +1065,16 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
         let createdDataSource;
         let serviceInfo;
         switch (type) {
-            //case "sensorthings":
-            //  createdDataSource = new SensorThingsDataSource(
-            //    dataSourceOption.description,
-            //    dataSourceOption.name,
-            //    dataSourceOption.url,
-            //    viewer,
-            //    dataSourceOption.uid
-            //  );
-            //  break;
+            case "sensorthings":
+              createdDataSource = new SensorThingsDataSource(
+                dataSourceOption.description,
+                dataSourceOption.name,
+                dataSourceOption.url,
+                viewer,
+                dataSourceOption.uid,
+                dataSourceOption.serviceInfo
+              );
+              break;
             case "feature":
                 {
                     //const temporal = await isLiveFeatures(dataSourceOption.url);
@@ -1104,11 +1127,15 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
                     createdDataSource = new cesium.GeoJsonDataSource(dataSourceOption.name);
                     createdDataSource.load(dataSourceOption.url);
                     createdDataSource.clustering.enabled = true;
-                    (createdDataSource as WesGeoJsonDataSource).serviceInfo = {
+                    (createdDataSource as any).serviceInfo = {
                         serviceId: dataSourceOption.serviceInfo?.serviceId,
                         serviceTitle: dataSourceOption.serviceInfo?.serviceTitle,
                         serviceUrl: dataSourceOption.serviceInfo?.serviceUrl
                     };
+                    (createdDataSource as any).uid = dataSourceOption.uid;
+                    (createdDataSource as any).description = dataSourceOption.description;
+                    (createdDataSource as any).name = dataSourceOption.name;
+                    (createdDataSource as any).url = dataSourceOption.url;
                 }
                 break;
             case "coverage":

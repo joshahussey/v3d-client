@@ -7,45 +7,56 @@ const Map3DController = window.Map3DController
            * If the uid exists then the existing layer is first removed.
            *
            * @param {String} uid unique identifier for the layer.
-           * @param {String} url WMS service endpoint.
+           * @param {String} resourceUrlTemplate WMTS service endpoint.
            * @param {String} title the label dispayed for the layer in the layer manager.
-           * @param {String} description the description dispayed for the layer in the layer manager.
-           * @param {String} layer the layer name from the service to be add to the map.
-           * @param {String} style the defined style name.
+           * @param {String} abstract the abstract displayed for the layer in the layer manager.
+           * @param {String} layerIdentifier the layer name from the service to be add to the map.
+           * @param {String} styleIdentifier the defined style name.
            * @param {String} format the format of the respose image/png .
-           * @param {String} tileMatrixSetID the id the tileMatrixSet that will also define projection.
+           * @param {String} tileMatrixSetIdentifier the id the tileMatrixSet that will also define projection.
            * @param {Number} maximumLevel max zoom level.
            * @param {String} credit discliamer for the source of the data.
-           * @param {String} minX Bounding Box Minimum X.
-           * @param {String} minY Bounding Box Minimum Y.
-           * @param {String} maxX Bounding Box Maximum X.
-           * @param {String} maxY Bounding Box Maximum Y. 
-           * @param {String} serviceTitle Title of the service 
-           * @param {String} serviceId Unique ID of the service
-           * @param {String} serviceUrl Url of the service
+           * @param {JSON} wgs84BoundingBox JSON Dictionary representing minimum bounding rectangle surrounding dataset,
+           *                                using WGS 84 CRS with decimal degrees and longitude before latitude.
+           *                                ie: {
+           *                                        "minX": -180,
+           *                                        "minY": -90,
+           *                                        "maxX": 180,
+           *                                        "maxY": 90
+           *                                    }
+           * @param {JSON} serviceInfo JSON Dictionary representing service information in the form:
+           *                           {
+           *                               "title":"Title Of Service",
+           *                               "id":"A Unique Service Identifier",
+           *                               "url":"The URL Corresponding To The Service",
+           *                           }
            */
-          addWMTS: (uid, url, name, description, layer, style, format, tileMatrixSetID, maximumLevel, credit, minX, minY, maxX, maxY, serviceTitle, serviceId, serviceUrl) => {
+          addWMTS: (
+              uid,
+              resourceUrlTemplate,
+              title,
+              abstract,
+              layerIdentifier,
+              styleIdentifier,
+              format,
+              tileMatrixSetIdentifier,
+              maximumLevel,
+              credit,
+              wgs84BoundingBox,
+              serviceInfo
+          ) => {
               const option = {
                   uid: uid,
                   type: "WMTS",
-                  name: name,
-                  description: description ? description : name,
-                  url: url,
-                  serviceInfo: {
-                      serviceTitle: serviceTitle,
-                      serviceId: serviceId,
-                      serviceUrl: serviceUrl
-                  },
-                  bounds: {
-                    minX: parseFloat(minX),
-                    minY: parseFloat(minY),
-                    maxX: parseFloat(maxX),
-                    maxY: parseFloat(maxY)
-                  },
-                  layer: layer,
-                  style: style,
+                  name: title,
+                  description: abstract ? abstract : title,
+                  url: resourceUrlTemplate,
+                  serviceInfo: serviceInfo,
+                  bounds: wgs84BoundingBox,
+                  layer: layerIdentifier,
+                  style: styleIdentifier,
                   format: format,
-                  tileMatrixSetID: tileMatrixSetID,
+                  tileMatrixSetID: tileMatrixSetIdentifier,
                   maximumLevel: maximumLevel,
                   credit: credit ? credit : "",
                   show: true,
@@ -66,34 +77,32 @@ const Map3DController = window.Map3DController
            * If the uid exists then the existing layer is first removed.
            *
            * @param {String} uid unique identifier for the layer.
+           * @param {String} title the label dispayed for the layer in the layer manager.
            * @param {String} url OGC Maps Restful endpoint.
-           * @param {String} name the label dispayed for the layer in the layer manager.
-           * @param {String} minX Bounding Box Minimum X.
-           * @param {String} minY Bounding Box Minimum Y.
-           * @param {String} maxX Bounding Box Maximum X.
-           * @param {String} maxY Bounding Box Maximum Y. 
-           * @param {String} serviceTitle Title of the service 
-           * @param {String} serviceId Unique ID of the service
-           * @param {String} serviceUrl Url of the service
+           * @param {Object} wgs84BoundingBox JSON Dictionary representing minimum bounding rectangle surrounding dataset,
+           *                                using WGS 84 CRS with decimal degrees and longitude before latitude.
+           *                                ie: {
+           *                                        "minX": -180,
+           *                                        "minY": -90,
+           *                                        "maxX": 180,
+           *                                        "maxY": 90
+           *                                    }
+           * @param {Object} serviceInfo JSON Dictionary representing service information in the form:
+           *                             {
+           *                                 "serviceTitle":"Title Of Service",
+           *                                 "serviceId":"A Unique Service Identifier",
+           *                                 "serviceUrl":"The URL Corresponding To The Service",
+           *                             }
            */
-          addOgcMap: (uid, name, url, minX, minY, maxX, maxY, serviceTitle, serviceId, serviceUrl) => {
+          addOgcMap: (uid, title, url, wgs84BoundingBox, serviceInfo) => {
               const option = {
                   type: "OgcMap",
                   uid: uid,
-                  name: name,
+                  name: title,
                   show: true,
                   url: url,
-                  bounds: {
-                    minX: parseFloat(minX),
-                    minY: parseFloat(minY),
-                    maxX: parseFloat(maxX),
-                    maxY: parseFloat(maxY)
-                  },
-                  serviceInfo: {
-                      serviceTitle: serviceTitle,
-                      serviceId: serviceId,
-                      serviceUrl: serviceUrl
-                  },
+                  serviceInfo: serviceInfo,
+                  bounds: wgs84BoundingBox
               };
               const mapState = Map3DController.getMapState();
               let imageLayers = mapState.imageLayers;
@@ -110,37 +119,35 @@ const Map3DController = window.Map3DController
            * @param {String} uid unique identifier for the layer.
            * @param {String} url WMTS GetTiles endpoint.
            * @param {String} title the label dispayed for the layer in the layer manager.
-           * @param {String} description the description dispayed for the layer in the layer manager.
-           * @param {String} layers the layer name from the service to be add to the map.
+           * @param {String} abstract the description dispayed for the layer in the layer manager.
+           * @param {String} name the layer name from the service to be add to the map.
            * @param {String} format the format of the respose image/png .
            * @param {String} credit discliamer for the source of the data.
-           * @param {String} minX Bounding Box Minimum X.
-           * @param {String} minY Bounding Box Minimum Y.
-           * @param {String} maxX Bounding Box Maximum X.
-           * @param {String} maxY Bounding Box Maximum Y.
-           * @param {String} serviceTitle Title of the service 
-           * @param {String} serviceId Unique ID of the service
-           * @param {String} serviceUrl Url of the service 
+           * @param {Object} wgs84BoundingBox JSON Dictionary representing minimum bounding rectangle surrounding dataset,
+           *                                  using WGS 84 CRS with decimal degrees and longitude before latitude.
+           *                                  ie: {
+           *                                      "minX": -180,
+           *                                      "minY": -90,
+           *                                      "maxX": 180,
+           *                                      "maxY": 90
+           *                                  }
+           * @param {Object} serviceInfo JSON Dictionary representing service information in the form:
+           *                             {
+           *                                 "serviceTitle":"Title Of Service",
+           *                                 "serviceId":"A Unique Service Identifier",
+           *                                 "serviceUrl":"The URL Corresponding To The Service",
+           *                             }
            */
-          addWMS: (uid, url, name, description, layers, format, credit, minX, minY, maxX, maxY, serviceTitle, serviceId, serviceUrl) => {
+          addWMS: (uid, url, title, abstract, name, format, credit, wgs84BoundingBox, serviceInfo) => {
               const option = {
                   uid: uid,
                   type: "WMS",
-                  name: name,
-                  description: description ? description : name,
+                  name: title,
+                  description: abstract ? abstract : title,
                   url: url,
-                  serviceInfo: {
-                      serviceTitle: serviceTitle,
-                      serviceId: serviceId,
-                      serviceUrl: serviceUrl
-                  },
-                  bounds: {
-                    minX: parseFloat(minX),
-                    minY: parseFloat(minY),
-                    maxX: parseFloat(maxX),
-                    maxY: parseFloat(maxY)
-                  },
-                  layers: layers,
+                  serviceInfo: serviceInfo,
+                  bounds: wgs84BoundingBox,
+                  layers: name,
                   parameters: {
                       transparent: "true",
                       format: format
@@ -165,22 +172,21 @@ const Map3DController = window.Map3DController
            * @param {String} url url to the tile set json.
            * @param {String} title the label dispayed for the layer in the layer manager.
            * @param {String} description the description dispayed for the layer in the layer manager.
-           * @param {String} serviceTitle Title of the service 
-           * @param {String} serviceId Unique ID of the service
-           * @param {String} serviceUrl Url of the service
+           * @param {Object} serviceInfo JSON Dictionary representing service information in the form:
+           *                             {
+           *                                 "serviceTitle":"Title Of Service",
+           *                                 "serviceId":"A Unique Service Identifier",
+           *                                 "serviceUrl":"The URL Corresponding To The Service",
+           *                             }
            */
-          add3DTiles: (uid, url, title, description, serviceTitle, serviceId, serviceUrl) => {
+          add3DTiles: (uid, urlOrGeoJsonObject, title, description, serviceInfo) => {
               const option = {
                   uid: uid,
                   type: "3D_TILES",
                   name: title,
                   description: description,
-                  url: url,
-                  serviceInfo: {
-                    serviceTitle: serviceTitle,
-                    serviceId: serviceId,
-                    serviceUrl: serviceUrl
-                  },
+                  url: urlOrGeoJsonObject,
+                  serviceInfo: serviceInfo,
                   show: true
               };
               const mapState = Map3DController.getMapState();
@@ -194,42 +200,192 @@ const Map3DController = window.Map3DController
           },
 
           /**
+           * Adds a SensorThings data source to the 3D map, replacing any existing data source with the same UID.
+           *
+           * @param {String} uid unique identifier for the layer.
+           * @param {String} url url to the layer.
+           * @param {String} title the label displayed for the layer in the layer manager.
+           * @param {String} description the description for the layer in the layer manager.
+           * @param {Object} wgs84BoundingBox JSON Dictionary representing minimum bounding rectangle surrounding dataset,
+           *                                  using WGS 84 CRS with decimal degrees and longitude before latitude.
+           *                                  ie: {
+           *                                      "minX": -180,
+           *                                      "minY": -90,
+           *                                      "maxX": 180,
+           *                                      "maxY": 90
+           *                                  }
+           * @param {Object} serviceInfo JSON Dictionary representing service information in the form:
+           *                             {
+           *                                 "serviceTitle":"Title Of Service",
+           *                                 "serviceId":"A Unique Service Identifier",
+           *                                 "serviceUrl":"The URL Corresponding To The Service",
+           *                             }
+           */
+          addSensorThings: (uid, url, name, description, wgs84BoundingBox, serviceInfo) => {
+              const option = {
+                  uid,
+                  type: "sensorthings",
+                  name: name,
+                  description,
+                  url,
+                  bounds: wgs84BoundingBox,
+                  serviceInfo: serviceInfo,
+              };
+              const mapState = Map3DController.getMapState();
+              let dataSources = mapState.dataSources;
+              dataSources = dataSources.filter(d => d.uid !== uid);
+              dataSources.push(option);
+              mapState.dataSources = dataSources;
+              Map3DController.setMapState(mapState);
+          },
+
+          /**
            * Adds a data source to the 3D map, replacing any existing data source with the same UID.
            *
            * @param {String} uid unique identifier for the layer.
            * @param {String} url url to the layer.
            * @param {String} title the label displayed for the layer in the layer manager.
-           * @param {String} type the datasource type
-           * @param {String} sourceLayerIndex the layer index of the layer
-           * @param {String} id the id of the layer
-           * @param {String} minX Bounding Box Minimum X.
-           * @param {String} minY Bounding Box Minimum Y.
-           * @param {String} maxX Bounding Box Maximum X.
-           * @param {String} maxY Bounding Box Maximum Y.
-           * @param {String} serviceTitle Title of the service 
-           * @param {String} serviceId Unique ID of the service
-           * @param {String} serviceUrl Url of the service
+           * @param {String} description the description for the layer in the layer manager.
+           * @param {Object} serviceInfo JSON Dictionary representing service information in the form:
+           *                             {
+           *                                 "serviceTitle":"Title Of Service",
+           *                                 "serviceId":"A Unique Service Identifier",
+           *                                 "serviceUrl":"The URL Corresponding To The Service",
+           *                             }
            */
-          addDataSource: (uid, url, name, description, type, sourceLayerIndex, id, minX, minY, maxX, maxY, serviceTitle, serviceId, serviceUrl) => {
+          //NOT CURRENTLY SUPPORTED
+          addCelestial: (uid, url, name, description, serviceInfo) => {
               const option = {
                   uid,
-                  type,
+                  type: "celestial",
                   name: name,
                   description,
                   url,
-                  bounds: {
-                    minX: parseFloat(minX),
-                    minY: parseFloat(minY),
-                    maxX: parseFloat(maxX),
-                    maxY: parseFloat(maxY)
-                  },
-                  serviceInfo: {
-                    serviceTitle: serviceTitle,
-                    serviceId: serviceId,
-                    serviceUrl: serviceUrl
-                  },
-                  sourceLayerIndex,
-                  id
+                  serviceInfo: serviceInfo,
+              };
+              const mapState = Map3DController.getMapState();
+              let dataSources = mapState.dataSources;
+              dataSources = dataSources.filter(d => d.uid !== uid);
+              dataSources.push(option);
+              mapState.dataSources = dataSources;
+              Map3DController.setMapState(mapState);
+          },
+
+          /**
+           * Adds a data source to the 3D map, replacing any existing data source with the same UID.
+           *
+           * @param {String} uid unique identifier for the layer.
+           * @param {String} urlOrGeoJsonObject url to the layer, or a geojson object.
+           * @param {String} title the label displayed for the layer in the layer manager.
+           * @param {String} description the description for the layer in the layer manager.
+           * @param {Object} wgs84BoundingBox JSON Dictionary representing minimum bounding rectangle surrounding dataset,
+           *                                  using WGS 84 CRS with decimal degrees and longitude before latitude.
+           *                                  ie: {
+           *                                      "minX": -180,
+           *                                      "minY": -90,
+           *                                      "maxX": 180,
+           *                                      "maxY": 90
+           *                                  }
+           * @param {Object} serviceInfo JSON Dictionary representing service information in the form:
+           *                             {
+           *                                 "serviceTitle":"Title Of Service",
+           *                                 "serviceId":"A Unique Service Identifier",
+           *                                 "serviceUrl":"The URL Corresponding To The Service",
+           *                             }
+           */
+          addGeoJSON: (uid, urlOrGeoJsonObject, name, description, wgs84BoundingBox, serviceInfo) => {
+              const option = {
+                  uid: uid,
+                  name: name,
+                  description: description,
+                  url: urlOrGeoJsonObject,
+                  type: "geojson",
+                  bounds: wgs84BoundingBox,
+                  serviceInfo: serviceInfo
+              };
+              const mapState = Map3DController.getMapState();
+              let dataSources = mapState.dataSources;
+              dataSources = dataSources.filter(d => d.uid !== uid);
+              dataSources.push(option);
+              mapState.dataSources = dataSources;
+              Map3DController.setMapState(mapState);
+          },
+
+          /**
+           * Adds a data source to the 3D map, replacing any existing data source with the same UID.
+           *
+           * @param {String} uid unique identifier for the layer.
+           * @param {String} url url to the layer.
+           * @param {String} title the label displayed for the layer in the layer manager.
+           * @param {String} description the description for the layer in the layer manager.
+           * @param {Object} wgs84BoundingBox JSON Dictionary representing minimum bounding rectangle surrounding dataset,
+           *                                  using WGS 84 CRS with decimal degrees and longitude before latitude.
+           *                                  ie: {
+           *                                      "minX": -180,
+           *                                      "minY": -90,
+           *                                      "maxX": 180,
+           *                                      "maxY": 90
+           *                                  }
+           * @param {Object} serviceInfo JSON Dictionary representing service information in the form:
+           *                             {
+           *                                 "serviceTitle":"Title Of Service",
+           *                                 "serviceId":"A Unique Service Identifier",
+           *                                 "serviceUrl":"The URL Corresponding To The Service",
+           *                             }
+           */
+          addOGCFeature: (uid, url, title, description, wgs84BoundingBox, serviceInfo) => {
+              const option = {
+                  uid: uid,
+                  type: "feature",
+                  name: title,
+                  description: description,
+                  url: url,
+                  bounds: wgs84BoundingBox,
+                  serviceInfo: serviceInfo,
+              };
+              const mapState = Map3DController.getMapState();
+              let dataSources = mapState.dataSources;
+              dataSources = dataSources.filter(d => d.uid !== uid);
+              dataSources.push(option);
+              mapState.dataSources = dataSources;
+              Map3DController.setMapState(mapState);
+          },
+
+          /**
+           * Adds a data source to the 3D map, replacing any existing data source with the same UID.
+           *
+           * @param {String} uid unique identifier for the layer.
+           * @param {String} url url to the layer.
+           * @param {String} title the label displayed for the layer in the layer manager.
+           * @param {String} description the description for the layer in the layer manager.
+           * @param {String} sourceLayerIndex the layer index of the layer
+           * @param {String} id the id of the layer
+           * @param {Object} wgs84BoundingBox JSON Dictionary representing minimum bounding rectangle surrounding dataset,
+           *                                  using WGS 84 CRS with decimal degrees and longitude before latitude.
+           *                                  ie: {
+           *                                      "minX": -180,
+           *                                      "minY": -90,
+           *                                      "maxX": 180,
+           *                                      "maxY": 90
+           *                                  }
+           * @param {Object} serviceInfo JSON Dictionary representing service information in the form:
+           *                             {
+           *                                 "serviceTitle":"Title Of Service",
+           *                                 "serviceId":"A Unique Service Identifier",
+           *                                 "serviceUrl":"The URL Corresponding To The Service",
+           *                             }
+           */
+          addOGCCoverage: (uid, url, title, description, sourceLayerIndex, id, wgs84BoundingBox, serviceInfo) => {
+              const option = {
+                  uid: uid,
+                  type: "coverage",
+                  name: title,
+                  description: description,
+                  url: url,
+                  bounds: wgs84BoundingBox,
+                  serviceInfo: serviceInfo,
+                  sourceLayerIndex: sourceLayerIndex,
+                  id: id
               };
               const mapState = Map3DController.getMapState();
               let dataSources = mapState.dataSources;
@@ -381,8 +537,8 @@ const Map3DController = window.Map3DController
           },
 
           raiseMapStateChangedEvent: () => {
-            const csltRegistry = window.csltWindowRegistry;
-            const cesiumWindow = csltRegistry ? csltRegistry.getWindow("3d") : window;
+              const csltRegistry = window.csltWindowRegistry;
+              const cesiumWindow = csltRegistry ? csltRegistry.getWindow("3d") : window;
               cesiumWindow.dispatchEvent(new Event("mapStateChanged"));
           },
 

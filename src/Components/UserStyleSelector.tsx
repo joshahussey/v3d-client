@@ -9,9 +9,9 @@ import WesDataSource from "../Datasources/WesDataSource";
  * @returns {JSX.Element} A JSX element representing the user style selector.
  */
 export function UserStyleSelector(layer: { datasource: WesDataSource }): JSX.Element {
-    const [userStyles, setUserStyles] = createSignal(layer.datasource._userStylesArray);
+    const [userStyles, setUserStyles] = createSignal(layer.datasource._userStylesArray != undefined ? layer.datasource._userStylesArray : []);
     const [selectedStyle, setSelectedStyle] = createSignal(
-        layer.datasource._userStylesArray[layer.datasource._userStyle]
+        layer.datasource._userStylesArray != undefined && layer.datasource._userStyle != undefined ? layer.datasource._userStylesArray[layer.datasource._userStyle] : undefined
     );
     const userStylesArray = userStyles();
     const properties = createOptions(userStylesArray, {

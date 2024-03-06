@@ -4,12 +4,14 @@ import { ServiceEntry } from "./ServiceEntry";
 import { ServiceInfo, WesImageryLayer, Wes3DTileSet } from "../Wes";
 import { ServiceEntryInput } from "./LayersDiv";
 import WesDataSource from "../Datasources/WesDataSource";
+import { useToolbarStateContext, ServiceStatusEntry } from "../Context/ToolbarStateContext";
 
 /**
  * Represents a component for displaying a list of all layers in reverse order.
  * @returns {JSX.Element} A JSX element representing the layers.
  */
 export function LayersListDiv(): JSX.Element {
+    const { serviceExpandedMap, setServiceExpandedMap } = useToolbarStateContext() as any;
     const { imageLayers, datasources, tileSets } = useInterfaceContext() as any;
 
     const [allLayers, setAllLayers] = createSignal(
@@ -19,6 +21,19 @@ export function LayersListDiv(): JSX.Element {
         }
     );
     const [serviceMap, setServiceMap] = createSignal(new Map());
+
+    /**
+     * Given a list of strings representing the unique service IDs of services in the service expansion list.
+     * 
+     * @param {string[]} servList 
+     * @returns {void}
+     */
+    function cleanServiceExpanded(servList: string[]): void {
+        setServiceExpandedMap([
+            ...(serviceExpandedMap.filter((service: ServiceStatusEntry) => servList.includes(service.serviceUid)))
+        ]);
+    }
+    cleanServiceExpanded(allLayers().map((serv: any) => serv.serviceInfo.serviceId))
 
     createEffect(() => {
         setAllLayers(imageLayers().slice().concat(datasources().slice(), tileSets().slice()));

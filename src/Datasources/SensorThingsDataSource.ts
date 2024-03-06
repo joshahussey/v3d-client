@@ -16,7 +16,7 @@ import {
 } from "cesium";
 import WesDataSource from "./WesDataSource";
 import GeoJsonDecoder from "../Utils/GeoJsonDecoder";
-import { OGCFeature } from "../Wes";
+import { OGCFeature, ServiceInfo } from "../Wes";
 import {
     showThings,
     showFeaturesOfInterest,
@@ -92,8 +92,8 @@ export default class SensorThingsDataSource extends WesDataSource {
     _showObservedAreas: boolean;
     _showDatastreams: boolean;
 
-    constructor(description: string, name: string, url: string, viewer: Viewer, uid: string) {
-        super(description, name, url, viewer, uid);
+    constructor(description: string, name: string, url: string, viewer: Viewer, uid: string, serviceInfo: ServiceInfo) {
+        super(description, name, url, viewer, uid, serviceInfo);
         this._type = "SensorThingsDataSource";
         this._links = new Object();
         this._supportedLocationTypes = ["application/geo+json", "application/vnd.geo+json"];
@@ -374,6 +374,7 @@ export default class SensorThingsDataSource extends WesDataSource {
                     }
                 } else {
                     datastreamEnt = new Entity({
+                        show: this._show,
                         id: observedPropsArr[i - 1].Datastreams[streamCount - 1]["@iot.id"],
                         name: observedPropsArr[i - 1].Datastreams[streamCount - 1].name
                     });
@@ -460,6 +461,7 @@ export default class SensorThingsDataSource extends WesDataSource {
                 const renderLocationAndType = this.getPositionRef(rawThingInfo);
                 if (renderLocationAndType != undefined && renderLocationAndType != false) {
                     const thing = new Entity({
+                        show: this._show,
                         id: rawThingInfo.iotId,
                         name: rawThingInfo.name,
                         description: rawThingInfo.description,

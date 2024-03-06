@@ -1,7 +1,7 @@
 import { JSX } from "solid-js";
 import { ToolbarStateContext } from "../Context/ToolbarStateContext";
 import { InterfaceProvider } from "../Context/UIContext";
-import { ExpandedMenu, ToolbarNav, ToolbarButton } from "../Components/Components";
+import { ExpandedMenu, ToolbarNav } from "../Components/Components";
 import { Slider } from "../Components/Slider";
 import { Legend } from "../Components/Legend";
 import { CesiumWindow } from "../Wes";
@@ -24,7 +24,7 @@ export function GeoCaUI(): JSX.Element {
             <header id="primary-header" class="cslt-primary-header flex">
                 <ToolbarStateContext>
                     <InterfaceProvider>
-                        <div style={{"display":"grid"}}>
+                        <div style={{ display: "grid" }}>
                             <div id="cslt-toolbar" class="cslt-toolbar-menu">
                                 <ToolbarNav />
                             </div>
@@ -46,7 +46,7 @@ export function GeoCaUI(): JSX.Element {
                     viewer.camera.flyHome(0.5);
                 }}
             >
-                <img src="./Icons/home.png" title="Home" style={buttonImageStyle} />
+                <img src="./Icons/home_black.png" title="Home" style={buttonImageStyle} />
             </button>
         </>
     );

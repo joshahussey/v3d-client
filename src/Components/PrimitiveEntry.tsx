@@ -32,9 +32,6 @@ export function PrimitiveEntry(props: {
                     setOpened={setOpened}
                     primitiveLayer={tileset}
                     isEnabled={tileset.enabled}/>
-                <Show when={tileset.uid != osmBuildingsUID}>
-                    <DeleteLayerButton primitiveLayer={tileset} isEnabled={tileset.enabled} />
-                </Show>
                 <Show when={tileset.enabled != undefined && !tileset.enabled}>
                     <button
                         class="cesium-button osm-warning-button"
