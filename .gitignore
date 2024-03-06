@@ -4,3 +4,4 @@
 /node_modules
 src/ComponentLibrary/*
 src/CSSLibrary/*
+rebuild_docker.mx
