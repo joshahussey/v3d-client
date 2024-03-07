@@ -101,11 +101,15 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
     switch (window.location.protocol) {
         case "http:":
             //eslint-disable-next-line
-            webSocket = createReconnectingWS(`ws://${window.location.hostname}:${process.env.CSLT_3D_HTTP_PORT}/map?sessionID=${sessionID}`);
+            webSocket = createReconnectingWS(
+                `ws://${window.location.hostname}/map?sessionID=${sessionID}`
+            );
             break;
         case "https:":
             //eslint-disable-next-line
-            webSocket = createReconnectingWS(`wss://${window.location.hostname}:${process.env.CSLT_3D_HTTPS_PORT}/map?sessionID=${sessionID}`);
+            webSocket = createReconnectingWS(
+                `wss://${window.location.hostname}/map?sessionID=${sessionID}`
+            );
             break;
         default:
             throw new Error("Unknown protocol -- cannot initialize web socket.");
@@ -118,8 +122,6 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
     // eslint-disable-next-line solid/reactivity
     createEffect(async () => {
         const message = lastMessage();
-        console.log("Message:");
-        console.log(message);
         if (!message) return;
 
         const parsedMessage = await JSON.parse(message);
@@ -195,7 +197,7 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
                 Controller.addCelestial(
                     args.uid,
                     args.url,
-                    args.name,
+                    args.title,
                     args.description,
                     args.wgs84BoundingBox,
                     args.serviceInfo
@@ -206,7 +208,7 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
                 Controller.addSensorThings(
                     args.uid,
                     args.url,
-                    args.name,
+                    args.title,
                     args.description,
                     args.wgs84BoundingBox,
                     args.serviceInfo
@@ -217,7 +219,7 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
                 Controller.addGeoJSON(
                     args.uid,
                     args.urlOrGeoJsonObject,
-                    args.name,
+                    args.title,
                     args.description,
                     args.wgs84BoundingBox,
                     args.serviceInfo
@@ -225,13 +227,7 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
                 Controller.raiseMapStateChangedEvent();
                 break;
             case "3DTILES":
-                Controller.add3DTiles(
-                    args.uid,
-                    args.url,
-                    args.title,
-                    args.description,
-                    args.serviceInfo
-                );
+                Controller.add3DTiles(args.uid, args.url, args.title, args.description, args.serviceInfo);
                 Controller.raiseMapStateChangedEvent();
                 break;
             default:

@@ -183,7 +183,7 @@ export default class CoverageApiDataSource extends WesDataSource {
         };
         this._maxResolution = MAX_COVERAGE_RESOLUTION;
         this._heightExaggeration = HEIGHT_SCALE_FACTOR;
-        this._parameterKey = index.toString();
+        this._parameterKey = id;
         this.initialize(Number.POSITIVE_INFINITY);
         this._selectedTime = 0;
         this._elementSize = 0;

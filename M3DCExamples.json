@@ -118,7 +118,7 @@
                 }
             ]
         },
-        "name": "Test GeoJSON",
+        "title": "Test GeoJSON",
         "description": "Test Description",
         "wgs84BoundingBox": { "minX": 101.95, "minY": 0.45, "maxX": 102.05, "maxY": 0.55 },
         "serviceInfo": {
@@ -134,7 +134,7 @@
     "args": {
         "uid": "11ed569d-9868-4149-985a-52dc0cd8e508",
         "urlOrGeoJsonObject": "https://localhost:2016/polygon-samples.geojson",
-        "name": "Test GeoJSON URL",
+        "title": "Test GeoJSON URL",
         "description": "Test Description URL",
         "wgs84BoundingBox": { "minX": 101.95, "minY": 0.45, "maxX": 102.05, "maxY": 0.55 },
         "serviceInfo": {
@@ -150,7 +150,7 @@
     "args": {
         "uid": "0c4c6747-8ea5-414b-bbca-666f9bf83e30",
         "url": "https://node1.webenterprisesuite.com/SensorHub/SensorThings/v1.0",
-        "name": "0c4c6747-8ea5-414b-bbca-666f9bf83e30",
+        "title": "0c4c6747-8ea5-414b-bbca-666f9bf83e30",
         "description": "SensorThings: https://node1.webenterprisesuite.com/SensorHub/SensorThings/v1.0",
         "wgs84BoundingBox": { "minX": null, "minY": null, "maxX": null, "maxY": null },
         "serviceInfo": {

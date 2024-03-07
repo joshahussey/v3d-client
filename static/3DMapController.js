@@ -169,7 +169,7 @@ const Map3DController = window.Map3DController
            * If the uid exists then the existing layer is first removed.
            *
            * @param {String} uid unique identifier for the layer.
-           * @param {String} url url to the tile set json.
+           * @param {String} urlOrGeoJsonObject url to the tile set json.
            * @param {String} title the label dispayed for the layer in the layer manager.
            * @param {String} description the description dispayed for the layer in the layer manager.
            * @param {Object} serviceInfo JSON Dictionary representing service information in the form:
@@ -221,15 +221,15 @@ const Map3DController = window.Map3DController
            *                                 "serviceUrl":"The URL Corresponding To The Service",
            *                             }
            */
-          addSensorThings: (uid, url, name, description, wgs84BoundingBox, serviceInfo) => {
+          addSensorThings: (uid, url, title, description, wgs84BoundingBox, serviceInfo) => {
               const option = {
                   uid,
                   type: "sensorthings",
-                  name: name,
+                  name: title,
                   description,
                   url,
                   bounds: wgs84BoundingBox,
-                  serviceInfo: serviceInfo,
+                  serviceInfo: serviceInfo
               };
               const mapState = Map3DController.getMapState();
               let dataSources = mapState.dataSources;
@@ -254,14 +254,14 @@ const Map3DController = window.Map3DController
            *                             }
            */
           //NOT CURRENTLY SUPPORTED
-          addCelestial: (uid, url, name, description, serviceInfo) => {
+          addCelestial: (uid, url, title, description, serviceInfo) => {
               const option = {
                   uid,
                   type: "celestial",
-                  name: name,
+                  name: title,
                   description,
                   url,
-                  serviceInfo: serviceInfo,
+                  serviceInfo: serviceInfo
               };
               const mapState = Map3DController.getMapState();
               let dataSources = mapState.dataSources;
@@ -293,10 +293,10 @@ const Map3DController = window.Map3DController
            *                                 "serviceUrl":"The URL Corresponding To The Service",
            *                             }
            */
-          addGeoJSON: (uid, urlOrGeoJsonObject, name, description, wgs84BoundingBox, serviceInfo) => {
+          addGeoJSON: (uid, urlOrGeoJsonObject, title, description, wgs84BoundingBox, serviceInfo) => {
               const option = {
                   uid: uid,
-                  name: name,
+                  name: title,
                   description: description,
                   url: urlOrGeoJsonObject,
                   type: "geojson",
@@ -341,7 +341,7 @@ const Map3DController = window.Map3DController
                   description: description,
                   url: url,
                   bounds: wgs84BoundingBox,
-                  serviceInfo: serviceInfo,
+                  serviceInfo: serviceInfo
               };
               const mapState = Map3DController.getMapState();
               let dataSources = mapState.dataSources;
@@ -398,7 +398,7 @@ const Map3DController = window.Map3DController
           /**
            * If the uid exists then the existing layer is removed.
            *
-           * @param {String} uid unique identifier for the layer.
+           * @param {string} uid unique identifier for the layer.
            */
           remove: uid => {
               const mapState = Map3DController.getMapState();
@@ -419,7 +419,7 @@ const Map3DController = window.Map3DController
           /**
            * Return the current map state as json. if the layer dosn't exist then it will load it.
            *
-           * @returns Return the current map state as json.
+           * @returns {JSON | null} Return the current map state as json.
            */
           getMapState: () => {
               const mapStateString = localStorage.getItem("cesiumMapState");
@@ -435,8 +435,8 @@ const Map3DController = window.Map3DController
 
           /**
            * Resets the map to the default state.
+           * @returns {JSON | null} return the new map state.
            *
-           * @returns return the new map state.
            */
           restMap: () => {
               const mapState = Map3DController.getDefaultState();
@@ -460,7 +460,7 @@ const Map3DController = window.Map3DController
           /**
            * Return the default map state as json. The default State must be fetched first by fetchDefaultMapState.
            *
-           * @returns Return the default map state as json.
+           * @returns {JSON | null} Return the default map state as json.
            */
           getDefaultState: () => {
               let mapState = JSON.parse(localStorage.getItem("cesiumMapStateDefault"));
@@ -472,13 +472,12 @@ const Map3DController = window.Map3DController
 
           /**
            * Retrieves the latest version of of the map state from the server using url stored at 'localStoreage.Default3dMapUrl'.
-           *
-           * @returns The default Map State from the server.
+           * @param {*} force
+           * @returns {JSON | null} The default Map State from the server.
            */
           fetchDefaultMapState: async function (force) {
               let url = localStorage.Default3dMapUrl;
               if (!url) {
-                  console.log("Using State.json");
                   url = "state.json";
               }
               let response = await fetch(url);
@@ -505,11 +504,12 @@ const Map3DController = window.Map3DController
                   console.log("Failed to load Default Map State from ", url, " with a status code ", response.status);
               }
           },
+
           /**
            * The map state might need to be loaded from the server, calling this method will ensure the map is loaded before performing any actions.
            *
            * @param {boolean} force will force the map state to be loaded from the server.
-           * @returns The Map State after it is loaded which might be from the server.
+           * @returns {JSON | null}The Map State after it is loaded which might be from the server.
            */
           onLoad: async function (force) {
               const mapState = Map3DController.getMapState();
@@ -525,6 +525,7 @@ const Map3DController = window.Map3DController
                   return mapState;
               }
           },
+
           /**
            * Open the 3D Client in a new window.
            */
@@ -536,18 +537,27 @@ const Map3DController = window.Map3DController
               );
           },
 
+          /**
+           * Raise the map state changed event.
+           */
           raiseMapStateChangedEvent: () => {
               const csltRegistry = window.csltWindowRegistry;
               const cesiumWindow = csltRegistry ? csltRegistry.getWindow("3d") : window;
               cesiumWindow.dispatchEvent(new Event("mapStateChanged"));
           },
 
+          /**
+           * Raise the map state saved event.
+           */
           raiseMapStateSavedEvent: () => {
               const csltRegistry = window.csltWindowRegistry;
               const cesiumWindow = csltRegistry ? csltRegistry.getWindow("3d") : window;
               cesiumWindow.dispatchEvent(new Event("mapStateSaved"));
           },
 
+          /**
+           * Raise the map state loaded event.
+           */
           raiseMapStateLoadedEvent: () => {
               const csltRegistry = window.csltWindowRegistry;
               const cesiumWindow = csltRegistry ? csltRegistry.getWindow("3d") : window;
