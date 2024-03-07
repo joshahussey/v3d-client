@@ -5,3 +5,5 @@
 src/ComponentLibrary/*
 src/CSSLibrary/*
 rebuild_docker.mx
+/deploy/
+prep.mx
