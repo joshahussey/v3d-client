@@ -45,9 +45,12 @@ pipeline {
         }
     stage('Cleanup') {
             steps {
-                sh 'docker rm -vf $(docker ps -qa --filter "ancestor=standalone3d-frontend")'
-                sh 'docker rm -vf $(docker ps -qa --filter "ancestor=standalone3d-backend")'
-                sh 'docker rm -vf $(docker ps -qa --filter "ancestor=standalone3d-server")'
+                echo 'Cleaning up...'
+                catchError {
+                    sh 'docker rm -vf $(docker ps -qa --filter "ancestor=standalone3d-frontend")'
+                    sh 'docker rm -vf $(docker ps -qa --filter "ancestor=standalone3d-backend")'
+                    sh 'docker rm -vf $(docker ps -qa --filter "ancestor=standalone3d-server")'
+                }
             }
         }
     }
