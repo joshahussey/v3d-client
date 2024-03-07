@@ -1,31 +1,9 @@
 {
 	debug
-	http_port {$CSLT_3D_HTTP_PORT}
 	https_port {$CSLT_3D_HTTPS_PORT}
 }
 
-{$DOMAIN_NAME}:{$CSLT_3D_HTTP_PORT} {
-	log {
-		format console
-		output file {$ROOT_DIR_3D}/logs/cslt3d_http.log
-	}
-
-	file_server {
-		root /srv/
-	}
-
-	route /map* {
-		handle {
-			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
-		}
-	}
-	route /add* {
-		handle {
-			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
-		}
-	}
-}
-{$DOMAIN_NAME}:{$CSLT_3D_HTTPS_PORT} {
+{$DOMAIN_NAME} {
 	log {
 		format console
 		output file {$ROOT_DIR_3D}/logs/cslt3d_https.log
