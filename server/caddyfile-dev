@@ -3,7 +3,7 @@
 	https_port {$CSLT_3D_HTTPS_PORT}
 }
 
-{$DOMAIN_NAME} {
+{$DOMAIN_NAME} {$DOMAIN_NAME}:{$CSLT_3D_HTTPS_PORT} {
 	log {
 		format console
 		output file {$ROOT_DIR_3D}/logs/cslt3d_https.log
