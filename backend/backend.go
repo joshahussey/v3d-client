@@ -117,11 +117,12 @@ func HandlePost(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%s: SessionID: %s: Error writing message: %s\n", r.RemoteAddr, sessionID, writeErr)
 		return
 	}
+    w.WriteHeader(http.StatusOK)
 }
 
 // Handle Get request on /add
 func HandleGet(w http.ResponseWriter, r *http.Request) {
-    fmt.Println("HandleGet")
+	fmt.Println("HandleGet")
 	http.Error(w, fmt.Sprintf("Attempt to make %s request, please use POST, PATCH, or connect a Websocket\n", r.Method), http.StatusBadRequest)
 	log.Printf("%s: Attempt to make %s request, please use POST, PATCH, or connect a Websocket\n", r.Method, r.RemoteAddr)
 }
@@ -141,6 +142,7 @@ func HandlePatch(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%s: SessionID: %s: Error writing message: %s\n", r.RemoteAddr, sessionID, writeErr)
 		return
 	}
+    w.WriteHeader(http.StatusOK)
 }
 
 // Handle Put request on /add
@@ -152,9 +154,10 @@ func HandlePut(w http.ResponseWriter, r *http.Request) {
 
 // Handle Head request on /add
 func HandleHead(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("HandlePut")
-	http.Error(w, fmt.Sprintf("Attempt to make %s request, please use POST, PATCH, or connect a Websocket\n", r.Method), http.StatusBadRequest)
-	log.Printf("%s: Attempt to make %s request, please use POST, PATCH, or connect a Websocket\n", r.Method, r.RemoteAddr)
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, PATCH, WS, WSS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.WriteHeader(http.StatusOK)
 }
 
 // Handle Delete request on /add
