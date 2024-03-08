@@ -7,6 +7,7 @@ import { Feature } from "geojson";
 import { Geometry } from "geojson";
 import { FeatureCollection } from "geojson";
 import { GeometryCollection } from "geojson";
+import { translate as t } from "../i18n/Translator";
 
 type indexedPoint = [GeoJSON.Point["coordinates"], number];
 type indexedLine = [GeoJSON.LineString["coordinates"], number];
@@ -533,7 +534,7 @@ export function hexToRgbA(hex: string) {
         c = `0x${c.join("")}` as unknown as number;
         return [(c >> 16) & 255, (c >> 8) & 255, c & 255, 255];
     }
-    throw new Error("Bad Hex");
+    throw new Error(t("utilsHexToRgbAError1"));
 }
 
 /**

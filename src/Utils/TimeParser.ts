@@ -1,4 +1,5 @@
 import { Resource } from "cesium";
+import { translate as t } from "../i18n/Translator";
 
 let wmsDoc: XMLDocument;
 
@@ -137,7 +138,7 @@ export async function createLiveWmsTimesArray(name: string, url: string): Promis
 
 export async function createLiveWmsPeriodString(name: string): Promise<{ iso8601: string; start: Date; end: Date }> {
     if (!wmsDoc) {
-        throw new Error("No document loaded");
+        throw new Error(t("timeParserCreateLiveWmsPeriodStringError1"));
     }
     const layers = wmsDoc.getElementsByTagName("Layer");
     const topLevelLayers = [];
@@ -154,7 +155,7 @@ export async function createLiveWmsPeriodString(name: string): Promise<{ iso8601
         }
     }
     if (!thisLayer) {
-        throw new Error("No layer found");
+        throw new Error(t("timeParserCreateLiveWmsPeriodStringError2"));
     }
     const dimension = thisLayer.getElementsByTagName("Dimension")[0];
     const timeRange = dimension.innerHTML.split("/");

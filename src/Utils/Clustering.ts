@@ -86,12 +86,9 @@ export default class FeatureClusters {
     }
 
     getClusterSpaceDifference(windowPosition1: Cartesian2, windowPosition2: Cartesian2) {
-        console.log(`pos1x ${windowPosition1.x}`);
-        console.log(`pos2x ${windowPosition2.x}`);
         const xDifference = Math.abs(windowPosition1.x - windowPosition2.x);
         const yDifference = Math.abs(windowPosition1.y - windowPosition2.y);
         const windowDistance = Math.hypot(xDifference, yDifference);
-        console.log(`windowDistance ${windowDistance}`);
         return windowDistance;
     }
 
@@ -236,7 +233,6 @@ export default class FeatureClusters {
         const height = 0;
         const latLong = this.getMapCenter();
         if (latLong == null) {
-            console.log("Must be looking at world to cluster");
             return;
         }
         const lat = latLong[1];
@@ -251,12 +247,10 @@ export default class FeatureClusters {
         );
         const pickRay = this._viewer.scene.camera.getPickRay(windowPosition);
         if (pickRay == null) {
-            console.log("PickRay Required");
             return;
         }
         const pickPosition = this._viewer.scene.globe.pick(pickRay, this._viewer.scene);
         if (pickPosition == null) {
-            console.log("PickPosition required");
             return;
         }
         const pickPositionCartographic = this._viewer.scene.globe.ellipsoid.cartesianToCartographic(pickPosition);
@@ -299,8 +293,6 @@ export default class FeatureClusters {
                     this._scene,
                     new Cartesian3(this._clusters[i][3], this._clusters[i][4], 0)
                 );
-                console.log(`clusterPos1 ${clusterPosition}`);
-                console.log(`clusterPos2 ${clusterPosition2}`);
                 if (this.getClusterSpaceDifference(clusterPosition, clusterPosition2) < 60) {
                     cluster[2] = cluster[2] + this._clusters[i][2];
                     this._clusters.splice(i, 1);

@@ -1,6 +1,7 @@
 import { CesiumWindow, WesDatasources } from "../Wes";
 import AoiDataSource from "../Datasources/AoiDataSource";
 import { standAloneLayersServiceLabel, standAloneLayersServiceUID, standAloneLayersServiceUrl } from "../Constants";
+import { translate as t } from "../i18n/Translator";
 
 export async function handleAoiEvent(event: string) {
     const eventContent = decodeURIComponent(decodeURIComponent(event));
@@ -8,7 +9,7 @@ export async function handleAoiEvent(event: string) {
 
     const aoisContent = params.get("AOIS");
     if (!aoisContent) {
-        console.error("Received AOI update event without AOI key.");
+        console.error(t("aoiHandleAoiEventError1"));
         return;
     }
     const aoisArr = JSON.parse(aoisContent);

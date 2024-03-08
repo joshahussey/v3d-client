@@ -4,6 +4,7 @@ import { useInterfaceContext } from "../Context/UIContext";
 import { JSX } from "solid-js";
 import { cesiumBuiltInUID, googlePhotorealisticUID, osmBuildingsUID } from "../Constants";
 import { useToolbarStateContext } from "../Context/ToolbarStateContext";
+import { translate as t } from "../i18n/Translator";
 
 /**
  * Represents a component for selecting a terrain layer from available terrain sets.
@@ -50,9 +51,12 @@ export function TerrainSelector(): JSX.Element {
         }
         if (refresh) {
             // On the next UI tick, close and reopen the layer panel to refresh the UI.
+            
+            // eslint-disable-next-line no-undef
             process.nextTick(() => {
                 setLayersOpened(false);
             });
+            // eslint-disable-next-line no-undef
             process.nextTick(() => {
                 setLayersOpened(true);
             });
@@ -62,11 +66,13 @@ export function TerrainSelector(): JSX.Element {
     return (
         <li>
             <label class="selector-layer-label" for="terrain">
-                Terrain:{" "}
+                {t("terrainSelectorLabel")}
             </label>
             <Select
                 class="selector-layer"
                 initialValue={selectedTerrain()}
+                placeholder={t("selectPlaceholder")}
+                emptyPlaceholder={t("selectEmptyListPlaceholder")}
                 name="terrain"
                 {...properties}
                 onChange={setSelectedTerrain}

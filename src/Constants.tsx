@@ -1,4 +1,5 @@
 import { Cesium3DTileStyle, Color } from "cesium";
+import { translate as t } from "./i18n/Translator";
 
 export const BLUE_TILE_STYLE = new Cesium3DTileStyle({
     color: { conditions: [["true", "color('#165284FF')"]] }
@@ -43,7 +44,7 @@ export const AOI_COLOR = Color.HOTPINK;
 export const AOI_DRAW_PIXEL_WIDTH = 10;
 export const BUFFER_COLOR = Color.AQUA.withAlpha(0.5);
 
-export const standAloneLayersServiceLabel = "Overlays";
+export const standAloneLayersServiceLabel = t("constantsOverlaysLabel");
 export const standAloneLayersServiceUID = "56179caa-20b4-497b-a09e-719fd5705a91";
 export const standAloneLayersServiceUrl = "";
 

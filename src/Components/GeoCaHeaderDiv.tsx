@@ -1,4 +1,5 @@
 import { JSX } from "solid-js";
+import { translate as t } from "../i18n/Translator";
 
 /**
  * Represents a component for displaying the Wes logo.
@@ -19,9 +20,9 @@ export function GeoCaHeaderDiv(): JSX.Element {
                 class="geo-ca-header-button geo-ca-search"
                 onClick={() => window.open("https://app.geo.ca/", "_self")}
             >
-                {"Search"}
+                {t("geoHeaderSearchButton")}
             </button>
-            <button class="geo-ca-header-button geo-ca-lang">{"Language"}</button>
+            <button class="geo-ca-header-button geo-ca-lang">{t("geoHeaderLanguageButton")}</button>
         </header>
     );
 }

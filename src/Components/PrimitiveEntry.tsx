@@ -7,6 +7,7 @@ import { ZoomToLayerButton } from "./ZoomToLayerButton";
 import { osmBuildingsUID } from "../Constants";
 import { makeCheckboxStatus } from "./ServiceEntry";
 import { LayerSettingsButton } from "./LayerSettingsButton";
+import { translate as t } from "../i18n/Translator";
 
 /**
  * Represents a component for displaying an entry for a primitive layer (3D tileset) in a list.
@@ -35,7 +36,7 @@ export function PrimitiveEntry(props: {
                 <Show when={tileset.enabled != undefined && !tileset.enabled}>
                     <button
                         class="cesium-button osm-warning-button"
-                        title="Open Street Map Buildings can only be utilized when the selected terrain is 'Cesium Builtin Terrain'"
+                        title={t("primitiveEntryOsmWarningButton")}
                         disabled={true}
                     >
                         &#9888;

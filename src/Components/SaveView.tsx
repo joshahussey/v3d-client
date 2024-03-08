@@ -4,6 +4,7 @@ import { CesiumWindow } from "../Wes";
 import { createSignal } from "solid-js";
 import { MAX_CHARS_100, MAX_CHARS_1024, VIEWS_SERVLET_URL } from "../Constants";
 import { JSX } from "solid-js";
+import { translate as t } from "../i18n/Translator";
 
 /**
  * @returns {JSX.Element} - A JSX Element containing the Save View panel
@@ -17,7 +18,7 @@ export function SaveView(): JSX.Element {
     return (
         <div class="save-view">
             <div class="save-view-label-div">
-                <span class="save-view-label"> Save View </span>
+                <span class="save-view-label"> {t("saveViewSaveView")} </span>
             </div>
             <form
                 class="save-view-form"
@@ -51,7 +52,7 @@ export function SaveView(): JSX.Element {
                     placeholder="Description"
                 />
                 <button type="submit" class="save-view-form-save-button">
-                    Save
+                    {t("saveViewSave")}
                 </button>
                 <button
                     onClick={() => {
@@ -62,7 +63,7 @@ export function SaveView(): JSX.Element {
                     type="button"
                     class="save-view-form-cancel-button"
                 >
-                    Cancel
+                    {t("saveViewCancel")}
                 </button>
             </form>
         </div>
@@ -71,12 +72,12 @@ export function SaveView(): JSX.Element {
 
 async function submitSave(title: string, description: string): Promise<boolean> {
     if (!title || title.match("/^s*$/")) {
-        alert("A title is required to save a view.");
+        alert(t("saveViewSubmitSaveError1"));
         return false;
     } else if (title.length > MAX_CHARS_100) {
-        alert(`Error: Title must not exceed ${MAX_CHARS_100} characters.`);
+        alert(t("saveViewSubmitSaveError2", [MAX_CHARS_100.toString()]));
     } else if (description.length > MAX_CHARS_1024) {
-        alert(`Error: Description must not exceed ${MAX_CHARS_1024} characters.`);
+        alert(t("saveViewSubmitSaveError3", [MAX_CHARS_1024.toString()]));
     }
 
     const cesiumWindow = window as CesiumWindow;
@@ -101,7 +102,7 @@ async function submitSave(title: string, description: string): Promise<boolean> 
 
     const status = response.status;
     if (status < 200 || status > 300) {
-        alert("Saving view failed.");
+        alert(t("saveViewSubmitSaveError4"));
         return false;
     }
     return true;

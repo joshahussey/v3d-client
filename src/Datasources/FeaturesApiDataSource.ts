@@ -47,6 +47,7 @@ import { LabelGraphics } from "cesium";
 import { buildLine, buildPoint, buildPolygon } from "../Utils/Utils";
 import FastFeatureClusters from "../Utils/FastClustering";
 import { getTddRuleMatches } from "../Utils/tddparser";
+import { translate as t } from "../i18n/Translator";
 
 //Boolean Properties//
 const TRUE_PROPERTY = new ConstantProperty(true);
@@ -414,21 +415,21 @@ export default class FeaturesApiDataSource extends WesDataSource {
         featureIdsToRenderSet?.forEach(async featureId => {
             let feature = this._entityCollection.getById(featureId);
             if (!feature && this._renderedFeatureIdSet.has(featureId)) {
-                console.log(`${featureId} does not exist but is in the RenderedSet. Dubious.`);
+                console.log(t("featuresDatasourceFastClusterUpdateLoopError1", [featureId]));
                 return;
             }
             if (featureIdsToJsonMap == null) {
-                console.log("ID to JSON Map Null.");
+                console.log(t("featuresDatasourceFastClusterUpdateLoopError2"));
                 return;
             }
             const ogcFeature = featureIdsToJsonMap.get(featureId);
             if (ogcFeature == null) {
-                console.log("ogcFeature is null.");
+                console.log(t("featuresDatasourceFastClusterUpdateLoopError3"));
                 return;
             }
             const location = this.getLocation(ogcFeature);
             if (!(location instanceof Cartesian3)) {
-                console.log("Feature is not point. Cannot be model clustered");
+                console.log(t("featuresDatasourceFastClusterUpdateLoopError4"));
                 return;
             }
             const matchedStyles = [];

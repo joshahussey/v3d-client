@@ -15,6 +15,7 @@ import {
 import WesDataSource from "./WesDataSource";
 import { AOI_COLOR, AOI_DATASOURCE_ID, AOI_DRAW_PIXEL_WIDTH, BUFFER_COLOR } from "../Constants";
 import { CesiumWindow, GeoJsonAoi, ServiceInfo } from "../Wes";
+import { translate as t } from "../i18n/Translator";
 
 type AoiDrawables = {
     entities: Entity[];
@@ -25,7 +26,7 @@ export default class AoiDataSource extends WesDataSource {
     _aoiObject?: GeoJsonAoi;
 
     constructor(viewer: Viewer, aoiObject: GeoJsonAoi, serviceInfo: ServiceInfo) {
-        super("Area of Interest", "AOI", "", viewer, AOI_DATASOURCE_ID, serviceInfo);
+        super(t("aoiDatasourceAreaOfInterest"), "AOI", "", viewer, AOI_DATASOURCE_ID, serviceInfo);
         this._type = "AOIDataSource";
         this._aoiObject = aoiObject;
         const cesiumWindow = window as CesiumWindow;
@@ -60,6 +61,7 @@ export default class AoiDataSource extends WesDataSource {
         switch (type) {
             case "Point": {
                 const coords = coordsUncasted as number[];
+                // eslint-disable-next-line no-undef
                 process.nextTick(() => {
                     entities.suspendEvents();
                     const drawables = this._getPointDrawables(coords, ids.next().value, buffer);
@@ -74,6 +76,7 @@ export default class AoiDataSource extends WesDataSource {
             }
             case "MultiPoint": {
                 const coords = coordsUncasted as number[][];
+                // eslint-disable-next-line no-undef
                 process.nextTick(() => {
                     entities.suspendEvents();
                     for (const position of coords) {
@@ -91,6 +94,7 @@ export default class AoiDataSource extends WesDataSource {
             }
             case "LineString": {
                 const coords = coordsUncasted as number[][];
+                // eslint-disable-next-line no-undef
                 process.nextTick(() => {
                     entities.suspendEvents();
                     const drawables = this._getPolygonDrawables([coords], ids.next().value, buffer);
@@ -105,6 +109,7 @@ export default class AoiDataSource extends WesDataSource {
             }
             case "MultiLineString": {
                 const coords = coordsUncasted as number[][][];
+                // eslint-disable-next-line no-undef
                 process.nextTick(() => {
                     entities.suspendEvents();
                     for (const lineStringCoords of coords) {
@@ -121,6 +126,7 @@ export default class AoiDataSource extends WesDataSource {
             }
             case "Polygon": {
                 const coords = coordsUncasted as number[][][];
+                // eslint-disable-next-line no-undef
                 process.nextTick(() => {
                     entities.suspendEvents();
                     const drawables = this._getPolygonDrawables(coords, ids.next().value);
@@ -135,6 +141,7 @@ export default class AoiDataSource extends WesDataSource {
             }
             case "MultiPolygon": {
                 const coords = coordsUncasted as number[][][][];
+                // eslint-disable-next-line no-undef
                 process.nextTick(() => {
                     entities.suspendEvents();
                     for (const polygon of coords) {
@@ -150,7 +157,7 @@ export default class AoiDataSource extends WesDataSource {
                 break;
             }
             case "GeometryCollection":
-                console.error("Unsupported AOI GeoJSON type: GeometryCollection.");
+                console.error(t("aoiDatasourceLoadServiceError1"));
                 break;
         }
 

@@ -31,6 +31,7 @@ import {
     buildPoint,
     buildPolygon
 } from "../Utils/Utils";
+import { translate as t } from "../i18n/Translator";
 
 type CheckDataTypeInfoObj = {
     id: string;
@@ -258,7 +259,7 @@ export default class SensorThingsDataSource extends WesDataSource {
     getRoot() {
         //keep
         if (!defined(this._url)) {
-            throw new DeveloperError("Must define URL");
+            throw new DeveloperError(t("sensorthingsDatasourceGetRootError1"));
         }
         const url = this._url;
         if (url.endsWith("/")) {
@@ -274,7 +275,7 @@ export default class SensorThingsDataSource extends WesDataSource {
         return new Promise((resolve, reject) => {
             if (rootData == null) {
                 this._setLoading(false);
-                reject("Service Root Invalid/Undefined");
+                reject(t("sensorthingsDatasourceGetLinksError1"));
             } else {
                 rootData.value.forEach((element: any, index: number) => {
                     const keyArr = Object.keys(rootData.value[index]);
@@ -528,7 +529,7 @@ export default class SensorThingsDataSource extends WesDataSource {
 
         switch (numberOfLocations) {
             case 0:
-                console.warn("Thing Locations empty");
+                console.warn(t("sensorthingsDatasourceGetPositionRefError1"));
                 return false;
             case 1: {
                 const isSupportedType = this.locationSupportCheck(rawThing.Locations[0]);
@@ -537,16 +538,16 @@ export default class SensorThingsDataSource extends WesDataSource {
                     if (thingLocationAndType !== false) {
                         return thingLocationAndType;
                     } else {
-                        console.warn("Thing location invalid. (Correct Encoding, but contains no suitable geometry)");
+                        console.warn(t("sensorthingsDatasourceGetPositionRefError2"));
                         return false;
                     }
                 } else {
-                    console.warn("encodingType not supported");
+                    console.warn(t("sensorthingsDatasourceGetPositionRefError3"));
                     return false;
                 }
             }
             case "default": {
-                console.warn("Thing has multiple Locations. Rendering at first Supported");
+                console.warn(t("sensorthingsDatasourceGetPositionRefError4"));
                 let locationCount = numberOfLocations;
                 while (locationCount) {
                     const i = locationCount - 1;
@@ -560,11 +561,11 @@ export default class SensorThingsDataSource extends WesDataSource {
                     locationCount--;
                 }
 
-                console.warn("Thing locations are invalid. (Correct Encoding, but contains no suitable geometries)");
+                console.warn(t("sensorthingsDatasourceGetPositionRefError5"));
                 return false;
             }
             default: {
-                console.error("Thing locations did not match any expected values.");
+                console.error(t("sensorthingsDatasourceGetPositionRefError6"));
                 return false;
             }
         }

@@ -5,6 +5,7 @@ import { ExpandedMenu, ToolbarNav } from "../Components/Components";
 import { Slider } from "../Components/Slider";
 import { Legend } from "../Components/Legend";
 import { CesiumWindow } from "../Wes";
+import { translate as t } from "../i18n/Translator";
 
 /**
  * Represents the root of the UI elements.
@@ -46,7 +47,7 @@ export function GeoCaUI(): JSX.Element {
                     viewer.camera.flyHome(0.5);
                 }}
             >
-                <img src="./Icons/home_black.png" title="Home" style={buttonImageStyle} />
+                <img src="./Icons/home_black.png" title={t("geoCaHomeButtonTitle")} style={buttonImageStyle} />
             </button>
         </>
     );

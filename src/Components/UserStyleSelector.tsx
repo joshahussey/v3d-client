@@ -1,6 +1,7 @@
 import { Select, createOptions } from "@thisbeyond/solid-select";
 import { JSX, createSignal } from "solid-js";
 import WesDataSource from "../Datasources/WesDataSource";
+import { translate as t } from "../i18n/Translator";
 
 /**
  * Represents a component for selecting a user-defined style for a map layer.
@@ -32,11 +33,13 @@ export function UserStyleSelector(layer: { datasource: WesDataSource }): JSX.Ele
         <>
             <div class="selector-grid selector-row-one">
                 <label class="selector-label" for="styles">
-                    Style:{" "}
+                    {t("layerSettingsStyleSelectorLabel")}
                 </label>
                 <Select
                     class="selector"
                     initialValue={selectedStyle()}
+                    placeholder={t("selectPlaceholder")}
+                    emptyPlaceholder={t("selectEmptyListPlaceholder")}
                     name="styles"
                     {...properties}
                     onChange={selectStyle}

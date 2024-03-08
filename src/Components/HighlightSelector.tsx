@@ -1,6 +1,7 @@
 import { Select, createOptions } from "@thisbeyond/solid-select";
 import { JSX, createSignal } from "solid-js";
 import FeaturesApiDataSource from "../Datasources/FeaturesApiDataSource";
+import { translate as t } from "../i18n/Translator";
 
 /**
  * Represents a component for selecting highlighting options for a FeaturesApiDataSource layer.
@@ -12,14 +13,14 @@ export function HighlightSelector(layer: { datasource: FeaturesApiDataSource }):
     const [isHighlighted, setIsHighlighted] = createSignal((layer.datasource as any).isHighlighted);
     const properties = createOptions(
         [
-            { name: "On", value: true },
-            { name: "Off", value: false }
+            { name: t("highlightSelectorOn"), value: true },
+            { name: t("highlightSelectorOff"), value: false }
         ],
         {
             key: "name"
         }
     );
-    const initialValue = isHighlighted() == true ? { name: "On", value: true } : { name: "Off", value: false };
+    const initialValue = isHighlighted() == true ? { name: t("highlightSelectorOn"), value: true } : { name: t("highlightSelectorOff"), value: false };
     const selectHighlighting = (highlighted: any) => {
         if (highlighted == null) return;
         setIsHighlighted(highlighted);
@@ -29,11 +30,13 @@ export function HighlightSelector(layer: { datasource: FeaturesApiDataSource }):
         <>
             <div class="selector-grid selector-highlight">
                 <label class="selector-label" for="styles">
-                    Highlighting:{" "}
+                    {t("highlightSelectorHighlighting")}
                 </label>
                 <Select
                     class="selector"
                     initialValue={initialValue}
+                    placeholder={t("selectPlaceholder")}
+                    emptyPlaceholder={t("selectEmptyListPlaceholder")}
                     name="styles"
                     {...properties}
                     onChange={selectHighlighting}

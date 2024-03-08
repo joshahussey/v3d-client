@@ -20,6 +20,7 @@ import {
 } from "../Wes";
 import WesDataSource from "../Datasources/WesDataSource";
 import CoverageApiDataSource from "../Datasources/CoverageApiDataSource";
+import { translate as t } from "../i18n/Translator";
 
 type Symbolizer =
     | CesiumTextSymbolizerObject
@@ -151,9 +152,6 @@ export async function SldParse(url: string, caller: WesDataSource, layerName?: s
 
             const innerName = nameElem[0].textContent;
 
-            //            console.log("!!!!!!!!!!");
-            //            console.log(innerName);
-            //            console.log(nameElem);
             if (innerName === layerName) {
                 return [
                     userStylesDefinitionArray(layer as unknown as XMLDocument, caller),
@@ -1053,7 +1051,7 @@ function checkForFilterMatch(filter: FilterObject, rawFeature: OGCFeature) {
                 isLiteralMatch = checkForFilterMatch(comparison, rawFeature);
                 break;
             case "default":
-                console.error("Unknown comparison operator", comparison.operator);
+                console.error(t("wes3dSldStyleError1", comparison.operator));
                 break;
         }
         //Set isMatch to isLiteralMatch

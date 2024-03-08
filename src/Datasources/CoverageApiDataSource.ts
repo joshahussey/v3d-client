@@ -33,6 +33,7 @@ import {
     ImageryBounds
 } from "../Wes";
 import { SldParse } from "../Utils/Wes3dSldStyler";
+import { translate as t } from "../i18n/Translator"
 
 type QueryParameters = {
     [key: string]: string;
@@ -546,7 +547,7 @@ export default class CoverageApiDataSource extends WesDataSource {
             const xDeg = this._xStart + x * this._xIncrement;
             const yDeg = this._yStart + y * this._yIncrement;
             if (x == null || y == null) {
-                console.error("X or Y returned a null index");
+                console.error(t("coverageDatasourcePopulateTreeError1"));
                 return;
             }
             this._tree.add(xDeg, yDeg);
@@ -691,7 +692,7 @@ export default class CoverageApiDataSource extends WesDataSource {
             this._xIncrement == null ||
             this._yIncrement == null
         ) {
-            throw new Error("Values, xStart, yStart, xIncrement, or yIncrement is null");
+            throw new Error(t("coverageDatasourceGetCatesianAndColorError1"));
         }
         let x = this._xStart + (centerX + offsetX) * this._xIncrement;
         if (isLastX) {
@@ -746,7 +747,7 @@ export default class CoverageApiDataSource extends WesDataSource {
                 const xHighest = this.flatToMultiIndexCorrect(highestIndex, "x");
                 const yHighest = this.flatToMultiIndexCorrect(highestIndex, "y");
                 if (xLowest == null || xHighest == null || yLowest == null || yHighest == null) {
-                    console.error("xLowest or xHighest or yLowest or yHighest returned a null index");
+                    console.error(t("coverageDatasourceRenderCoverageError1"));
                     return;
                 }
                 const xLength = Math.abs(xHighest - xLowest) + this._elementSize - 1;
@@ -1144,26 +1145,23 @@ export default class CoverageApiDataSource extends WesDataSource {
         for (const band of Object.keys(ranges)) {
             const parameter = ranges[band];
             if (parameter.axisNames.length !== parameter.shape.length) {
-                console.error(`Axis Names and Shape are different lengths. Malformed coverage`);
+                console.error(t("coverageDatasourceValidateResponseError1"));
                 return false;
             }
             if (parameter.values.length !== parameter.shape.reduce((a, b) => a * b)) {
-                console.error(
-                    `Shape produces different number of values than the length of the values array.  Malformed coverage`
-                );
+                console.error(t("coverageDatasourceValidateResponseError2"));
                 return false;
             }
             for (const axis of Object.keys(response.domain.axes)) {
                 if (axis === "t") continue;
                 if (!parameter.axisNames.includes(axis)) {
-                    console.error(`Axis ${axis} is not included in the axis names.  Malformed coverage`);
+                    console.error(t("coverageDatasourceValidateResponseError3", [axis]));
                     return false;
                 }
                 const axisValue = response.domain.axes[axis];
                 if (axisValue && (axisValue as number[]).length == null) {
                     if ((axisValue as AxesRange).num !== parameter.shape[parameter.axisNames.indexOf(axis)]) {
-                        console.error(
-                            `Axis ${axis} has a different number of values than the shape indicates.  Malformed coverage`
+                        console.error(t("coverageDatasourceValidateResponseError4", [axis])
                         );
                         return false;
                     }
@@ -1171,7 +1169,7 @@ export default class CoverageApiDataSource extends WesDataSource {
             }
             return true;
         }
-        console.error(`No ranges found in coverage`);
+        console.error(t("coverageDatasourceValidateResponseError5"));
         return false;
     }
 
@@ -1256,7 +1254,7 @@ export default class CoverageApiDataSource extends WesDataSource {
         let index = 0;
         if (axisName === "x") index = this._xIndex;
         else if (axisName === "y") index = this._yIndex;
-        else console.error("This function is to be used to find X and Y values only");
+        else console.error(t("coverageDatasourceFlatToMultiIndexError1"));
         const a = shape[0];
         const b = shape[1];
         const c = shape[2] || 1;
@@ -1271,7 +1269,7 @@ export default class CoverageApiDataSource extends WesDataSource {
             case 3:
                 return Math.floor(flatIndex / d) % d; // W dimension
             default:
-                throw new Error("Invalid dimension requested");
+                throw new Error(t("coverageDatasourceFlatToMultiIndexError2"));
         }
     }
 
@@ -1289,7 +1287,7 @@ export default class CoverageApiDataSource extends WesDataSource {
         let index = 0;
         if (axisName === "x") index = this._xIndex;
         else if (axisName === "y") index = this._yIndex;
-        else console.error("This function is to be used to find X and Y values only");
+        else console.error(t("coverageDatasourceFlatToMultiIndexCorrectError1"));
         const cSize = shape[1];
         const bSize = shape[2] || 1;
         const aSize = shape[3] || 1;
@@ -1303,7 +1301,7 @@ export default class CoverageApiDataSource extends WesDataSource {
             case 3:
                 return flatIndex % aSize;
             default:
-                throw new Error("Invalid dimension requested");
+                throw new Error(t("coverageDatasourceFlatToMultiIndexCorrectError2"));
         }
     }
 
@@ -1345,7 +1343,7 @@ export default class CoverageApiDataSource extends WesDataSource {
         let index = 0;
         if (axisName === "x") index = this._xIndex;
         else if (axisName === "y") index = this._yIndex;
-        else console.error("This function is to be used to find X and Y values only");
+        else console.error(t("coverageDatasourceColumnflatToMultiIndexError1"));
         const a = shape[0];
         const b = shape[1];
         const c = shape[2] || 1;
@@ -1363,7 +1361,7 @@ export default class CoverageApiDataSource extends WesDataSource {
             case 3:
                 return Math.floor(flatIndex / abc) % d;
             default:
-                throw new Error("Invalid dimension requested");
+                throw new Error(t("coverageDatasourceColumnflatToMultiIndexError2"));
         }
     }
 }

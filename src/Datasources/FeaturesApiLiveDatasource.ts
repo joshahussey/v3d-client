@@ -31,9 +31,7 @@ export default class FeaturesApiLiveDataSource extends WesDataSource {
     }
 
     async loadService() {
-        console.log("Loading Features API");
-        const rawFeaturesArray = await requestFeatures(this._bbox, this._url);
-        console.log(rawFeaturesArray);
+        await requestFeatures(this._bbox, this._url);
     }
 }
 

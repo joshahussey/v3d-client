@@ -4,7 +4,7 @@ import "../node_modules/cesium/Build/Cesium/Widgets/widgets.css";
 import "./CSS/cslt.scss";
 import "./CSS/style.scss";
 import FeaturesApiDataSource from "./Datasources/FeaturesApiDataSource";
-//import SensorThingsDataSource from "./Datasources/SensorThingsDataSource";
+import SensorThingsDataSource from "./Datasources/SensorThingsDataSource";
 import { Accessor, createEffect, createSignal } from "solid-js";
 import { render } from "solid-js/web";
 import {
@@ -48,16 +48,16 @@ import { handleAoiEvent } from "./Utils/Aoi";
 import { GeoCaUI } from "./UI/GeoCaUI";
 import { GeoCaHeaderDiv } from "./Components/GeoCaHeaderDiv";
 import { createReconnectingWS } from "@solid-primitives/websocket";
-import SensorThingsDataSource from "./Datasources/SensorThingsDataSource";
+import { translate as t } from "./i18n/Translator";
 
 const Controller = (window as CesiumWindow).Map3DController;
 
 localStorage.setItem("cesiumOpened", "true");
-window.onbeforeunload = function() {
+window.onbeforeunload = function () {
     localStorage.setItem("cesiumOpened", "false");
 };
 
-const load = async function(mapState: MapState): Promise<cesium.Viewer> {
+const load = async function (mapState: MapState): Promise<cesium.Viewer> {
     //Setup
     const dataSourcesToBeAdded: Set<WesDataSourceObject> = new Set();
     const imageryLayersToBeAdded: Set<WesImageryObject> = new Set();
@@ -79,7 +79,12 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
         clockRange: cesium.ClockRange.CLAMPED
     });
     const clockModel = new cesium.ClockViewModel(clock);
-    cesium.Camera.DEFAULT_VIEW_RECTANGLE = cesium.Rectangle.fromDegrees(-140.99778, 41.6751050889, -52.6480987209, 83.23324);
+    cesium.Camera.DEFAULT_VIEW_RECTANGLE = cesium.Rectangle.fromDegrees(
+        -140.99778,
+        41.6751050889,
+        -52.6480987209,
+        83.23324
+    );
     cesium.Camera.DEFAULT_VIEW_FACTOR = 0;
     const initCameraViewport = localStorage.getItem("initCameraViewport");
     if (initCameraViewport) {
@@ -112,7 +117,7 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
             );
             break;
         default:
-            throw new Error("Unknown protocol -- cannot initialize web socket.");
+            throw new Error(t("3dMapLoadError1"));
     }
 
     const [lastMessage, setLastMessage] = createSignal<string>("", { equals: false });
@@ -160,13 +165,7 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
                 Controller.raiseMapStateChangedEvent();
                 break;
             case "OGCMAP":
-                Controller.addOgcMap(
-                    args.uid,
-                    args.title,
-                    args.url,
-                    args.wgs84BoundingBox,
-                    args.serviceInfo
-                );
+                Controller.addOgcMap(args.uid, args.title, args.url, args.wgs84BoundingBox, args.serviceInfo);
                 Controller.raiseMapStateChangedEvent();
                 break;
             case "FEATURE":
@@ -250,6 +249,12 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
         clockViewModel: clockModel
     });
 
+    //Cesium wont let you change the text in the tooltip of the fullscreen button, so we do it manually.
+    try {
+        const fullscreenButton = document.getElementsByClassName("cesium-fullscreenButton");
+        (fullscreenButton[0] as HTMLButtonElement).title = t("3dMapfullscreenButtonTooltip");
+    } catch { console.log("No Cesium fullscreen button found.") }
+
     (window as CesiumWindow).Map3DViewer = viewer;
     viewer.scene.globe.depthTestAgainstTerrain = true;
     const primitiveLayers = viewer.scene.primitives;
@@ -267,9 +272,9 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
         enableZoomControls: true,
         enableDistanceLegend: true,
         enableCompassOuterRing: true,
-        resetTooltip: "Zoom To Home",
-        zoomInTooltip: "Zoom In",
-        zoomOutTooltip: "Zoom Out"
+        resetTooltip: t("3dMapZoomToHome"),
+        zoomInTooltip: t("3dMapZoomIn"),
+        zoomOutTooltip: t("3dMapZoomOut")
     };
     new CesiumNavigation(viewer, navOptions);
     viewer.selectedEntityChanged.addEventListener(showEntityProperties);
@@ -772,7 +777,7 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
 
         switch (terrainUID) {
             case wgsEllipsoidUID: {
-                (viewer.scene.primitives as any)._primitives.forEach(function(primitive: Wes3DTileSet) {
+                (viewer.scene.primitives as any)._primitives.forEach(function (primitive: Wes3DTileSet) {
                     if ((primitive as any)._url && (primitive as any)._url.includes("google")) {
                         primitive.show = false;
                     }
@@ -783,7 +788,7 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
                 break;
             }
             case cesiumBuiltInUID: {
-                (viewer.scene.primitives as any)._primitives.forEach(function(primitive: Wes3DTileSet) {
+                (viewer.scene.primitives as any)._primitives.forEach(function (primitive: Wes3DTileSet) {
                     if ((primitive as any)._url && (primitive as any)._url.includes("google")) {
                         primitive.show = false;
                     }
@@ -808,7 +813,7 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
                 break;
             }
             default: {
-                (viewer.scene.primitives as any)._primitives.forEach(function(primitive: Wes3DTileSet) {
+                (viewer.scene.primitives as any)._primitives.forEach(function (primitive: Wes3DTileSet) {
                     if ((primitive as any)._url && primitive._url.includes("google")) {
                         primitive.show = false;
                     }
@@ -945,7 +950,7 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
                     } as any);
 
                 default:
-                    throw "Error: Unrecognized Cesium builtin option";
+                    throw t("3dMapGetImageryProviderError1");
             }
         }
         return null;
@@ -1062,15 +1067,15 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
         let serviceInfo;
         switch (type) {
             case "sensorthings":
-              createdDataSource = new SensorThingsDataSource(
-                dataSourceOption.description,
-                dataSourceOption.name,
-                dataSourceOption.url,
-                viewer,
-                dataSourceOption.uid,
-                dataSourceOption.serviceInfo
-              );
-              break;
+                createdDataSource = new SensorThingsDataSource(
+                    dataSourceOption.description,
+                    dataSourceOption.name,
+                    dataSourceOption.url,
+                    viewer,
+                    dataSourceOption.uid,
+                    dataSourceOption.serviceInfo
+                );
+                break;
             case "feature":
                 {
                     //const temporal = await isLiveFeatures(dataSourceOption.url);
@@ -1149,9 +1154,9 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
                 createdDataSource._name = `${dataSourceOption.name}`;
                 break;
             case null:
-                throw `Error: Datasource type is null`;
+                throw t("3dMapAddDatasourceError1");
             default:
-                throw `Error: Unrecognized data source type: ${dataSourceOption.type}`;
+                throw t("3dMapAddDatasourceError2", [dataSourceOption.type]);
         }
         if (createdDataSource != undefined) {
             const map = optionsMap();
@@ -1247,9 +1252,9 @@ const load = async function(mapState: MapState): Promise<cesium.Viewer> {
 
     //Toolbar element
     function GeoCaHeader() {
-        return <GeoCaHeaderDiv/>;
+        return <GeoCaHeaderDiv />;
     }
-    render(GeoCaHeader, document.getElementById("geoCaBorder")!)
+    render(GeoCaHeader, document.getElementById("geoCaBorder")!);
     render(App, document.getElementById("WesUserInterface")!);
 
     return viewer;

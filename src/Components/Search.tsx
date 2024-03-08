@@ -5,6 +5,7 @@ import { Geocoder } from "cesium";
 import ClickOutsideToolbar from "./Directives/ClickOutsideToolbar";
 import { USE_CESIUM_GEOCODER } from "../Constants";
 import WesGeoCoderService from "../Utils/WesGeoCoderService";
+import { translate as t } from "../i18n/Translator";
 
 /**
  * Represents a component for handling search functionality and toggling search state.
@@ -47,7 +48,7 @@ export function Search(): JSX.Element {
     return (
         <div class="search-panel" use:ClickOutsideToolbar={() => setSearchOpened(false)}>
             <div class="search-panel-header-div">
-                <span class="search-panel-header-label"> Search </span>
+                <span class="search-panel-header-label"> {t("searchPanelSearch")} </span>
             </div>
             <div ref={searchRef} id="SearchInput" class="cslt-search-input" />
         </div>

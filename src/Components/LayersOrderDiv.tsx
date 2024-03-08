@@ -1,5 +1,6 @@
 import { JSX, For, createSignal, createEffect, Setter } from "solid-js";
 import { useInterfaceContext } from "../Context/UIContext";
+import { translate as t } from "../i18n/Translator";
 
 /**
  * @param {Object} props - An object containing the parameters
@@ -147,7 +148,7 @@ export function LayersOrderDiv(props: { closeLayerOrderPanel: Setter<boolean> })
                     &#9660;
                 </button>
                 <button class="cesium-button" onClick={() => closeLayerOrderPanel(false)}>
-                    Close
+                    {t("layersOrderDivClose")}
                 </button>
             </div>
         </div>

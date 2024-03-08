@@ -1,5 +1,6 @@
 import { Select, createOptions } from "@thisbeyond/solid-select";
 import { useInterfaceContext } from "../Context/UIContext";
+import { translate as t } from "../i18n/Translator";
 
 /**
  * @description
@@ -17,12 +18,14 @@ export function BasemapSelector() {
     return (
         <li id="baseMapListItem">
             <label class="selector-layer-label" id="baseMapSelectListLabel" for="basemaps">
-                Basemap:{" "}
+                {t("basemapSelectorLabel")}
             </label>
             <Select
                 class="selector-layer"
                 id="baseMapSelectList"
                 initialValue={selectedLayer()}
+                placeholder={t("selectPlaceholder")}
+                emptyPlaceholder={t("selectEmptyListPlaceholder")}
                 name="basemaps"
                 {...properties}
                 onChange={setSelectedLayer}

@@ -4,6 +4,7 @@ import { WesImageryLayer } from "../Wes";
 import { ShowOnMapCheckbox } from "./ShowOnMapCheckbox";
 import { makeCheckboxStatus } from "./ServiceEntry";
 import { LayerSettingsButton } from "./LayerSettingsButton";
+import { translate as t } from "../i18n/Translator";
 
 /**
  * Represents a component for displaying an entry for an imagery layer in a list.
@@ -45,7 +46,7 @@ export function ImageryEntry(props: {
             <Show when={opened()}>
                 <div class="selector-grid selector-highlight">
                     <label class="selector-label" for="alpha">
-                        Transparency:{" "}
+                        {t("layerSettingsTransparencySliderLabel")}
                     </label>
                     <input
                         class="selector"

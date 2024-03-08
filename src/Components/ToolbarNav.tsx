@@ -1,6 +1,7 @@
 import { JSX } from "solid-js";
 import { useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { ToolbarButton } from "./Components";
+import { translate as t } from "../i18n/Translator";
 
 /**
  * Represents a component for rendering the toolbar navigation with various buttons.
@@ -69,10 +70,10 @@ export function ToolbarNav(): JSX.Element {
                         setLayersOpened(!isLayersOpened());
                     }}
                 >
-                    Layers
+                    {t("toolbarNavLayers")}
                 </span>
                 <ToolbarButton
-                    id="Layers"
+                    id="LayerOrderButton"
                     icon={layerOrderIcon}
                     onClick={() => {
                         if (!isLayersOpened()) {
@@ -80,10 +81,9 @@ export function ToolbarNav(): JSX.Element {
                         }
                         setLayersOrderOpened(!isLayersOrderOpened());
                     }}
-                    text="Layers"
                 />
                 <ToolbarButton
-                    id="Layers"
+                    id="BasemapTerrainButton"
                     icon={basemapTerrainOpenedIcon}
                     onClick={() => {
                         if (!isLayersOpened()) {
@@ -91,15 +91,13 @@ export function ToolbarNav(): JSX.Element {
                         }
                         setBasemapTerrainOpened(!isBasemapTerrainOpened());
                     }}
-                    text="Layers"
                 />
                 <ToolbarButton
-                    id="Layers"
+                    id="LayersButton"
                     icon={layersOpened}
                     onClick={() => {
                         setLayersOpened(!isLayersOpened());
                     }}
-                    text="Layers"
                 />
             </div>
         </div>

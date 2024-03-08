@@ -2,6 +2,7 @@ import { JSX, Show } from "solid-js";
 import { createStore } from "solid-js/store";
 import WesDataSource from "../Datasources/WesDataSource";
 import CoverageApiDataSource from "../Datasources/CoverageApiDataSource";
+import { translate as t } from "../i18n/Translator";
 
 /**
  * Represents a component for controlling settings related to a Coverage API data source.
@@ -25,7 +26,7 @@ export function CoverageApiDropdown(datasource: { datasource: WesDataSource }): 
             <div class="grid-break" />
             <div class="selector-grid selector-row-two">
                 <label class="selector-label" for="alpha">
-                    Transparency:{" "}
+                    {t("layerSettingsTransparencySliderLabel")}
                 </label>
                 <input
                     class="selector"
@@ -40,7 +41,7 @@ export function CoverageApiDropdown(datasource: { datasource: WesDataSource }): 
             </div>
             <div class="selector-grid selector-row-three">
                 <label class="selector-label" for="Height Scale">
-                    Height Scale:{" "}
+                    {t("layerSettingsHeightScaleSliderLabel")}
                 </label>
                 <input
                     class="selector"
@@ -55,7 +56,7 @@ export function CoverageApiDropdown(datasource: { datasource: WesDataSource }): 
             </div>
             <div class="selector-grid selector-row-four">
                 <label class="selector-label" for="Resolution">
-                    Resolution:{" "}
+                    {t("layerSettingsResolutionSliderLabel")}
                 </label>
                 <input
                     class="selector"

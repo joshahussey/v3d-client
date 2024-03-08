@@ -13,6 +13,7 @@ import {
 } from "cesium";
 import { BBox } from "geojson";
 import { UserStyleDefinition, ServiceInfo } from "../Wes";
+import { translate as t } from "../i18n/Translator";
 
 const MOVEMENT_DELAY_MS = 50;
 
@@ -145,7 +146,7 @@ export default class WesDataSource extends CustomDataSource {
                 },
                 set: function (value) {
                     if (!defined(value)) {
-                        throw new DeveloperError("value must be defined.");
+                        throw new DeveloperError(t("wesDatasourceClusteringSetError1"));
                     }
                     this._entityCluster = value;
                 }
@@ -219,7 +220,7 @@ export default class WesDataSource extends CustomDataSource {
 
     fetchJson(url: string, queryOptions: object) {
         if (!defined(url)) {
-            throw "Url is not defined";
+            throw t("wesDatasourceFetchJsonError1");
         }
         const signal = this._fetchRequestAbortController.signal;
         const options =
