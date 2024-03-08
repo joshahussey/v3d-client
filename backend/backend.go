@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/gorilla/websocket"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"sync"
+
+	"github.com/gorilla/websocket"
 )
 
 // Types
@@ -107,12 +109,12 @@ func HandlePost(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("HandlePost")
 	sessionID := r.URL.Query().Get("sessionID")
 	client := ClientMgr.clients[sessionID]
-	_, p, err := client.conn.ReadMessage()
-	if err != nil {
-		log.Printf("%s: SessionID: %s: Error reading message: %s\n", r.RemoteAddr, sessionID, err)
-		return
-	}
-	writeErr := client.conn.WriteMessage(1, p)
+    body, err := io.ReadAll(r.Body)
+    if err != nil {
+        log.Printf("%s: SessionID: %s: Error reading message: %s\n", r.RemoteAddr, sessionID, err)
+        return
+    }
+	writeErr := client.conn.WriteMessage(1, body)
 	if writeErr != nil {
 		log.Printf("%s: SessionID: %s: Error writing message: %s\n", r.RemoteAddr, sessionID, writeErr)
 		return
@@ -132,12 +134,12 @@ func HandlePatch(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("HandlePatch")
 	sessionID := r.URL.Query().Get("sessionID")
 	client := ClientMgr.clients[sessionID]
-	_, p, err := client.conn.ReadMessage()
-	if err != nil {
-		log.Printf("%s: SessionID: %s: Error reading message: %s\n", r.RemoteAddr, sessionID, err)
-		return
-	}
-	writeErr := client.conn.WriteMessage(1, p)
+    body, err := io.ReadAll(r.Body)
+    if err != nil {
+        log.Printf("%s: SessionID: %s: Error reading message: %s\n", r.RemoteAddr, sessionID, err)
+        return
+    }
+	writeErr := client.conn.WriteMessage(1, body)
 	if writeErr != nil {
 		log.Printf("%s: SessionID: %s: Error writing message: %s\n", r.RemoteAddr, sessionID, writeErr)
 		return
