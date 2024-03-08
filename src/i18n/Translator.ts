@@ -40,7 +40,7 @@ function getUserLanguage() {
     let userLanguage;
     const userLangLocalStorage = localStorage.getItem("userLanguage");
     if (userLangLocalStorage != null) {
-        userLanguage = JSON.parse(userLangLocalStorage);
+        userLanguage = userLangLocalStorage;
     }
     if (userLanguage != undefined) {
         return userLanguage;

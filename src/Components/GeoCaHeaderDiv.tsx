@@ -6,6 +6,18 @@ import { translate as t } from "../i18n/Translator";
  * @returns {JSX.Element} A JSX element representing the Wes logo.
  */
 export function GeoCaHeaderDiv(): JSX.Element {
+    let languageButtonRef: HTMLButtonElement | undefined;
+    function setLanguage() {
+        if (languageButtonRef != undefined) {
+            if ((languageButtonRef.textContent || languageButtonRef.innerText) === "English") {
+                localStorage.setItem("userLanguage", "en");
+            } else {
+                localStorage.setItem("userLanguage", "fr");
+            }
+            window.location.reload();
+        }
+    }
+
     return (
         <header class="geo-ca-header">
             <a class="geo-ca-logo" href={`https://geo.ca/home/index.html`}>
@@ -22,7 +34,9 @@ export function GeoCaHeaderDiv(): JSX.Element {
             >
                 {t("geoHeaderSearchButton")}
             </button>
-            <button class="geo-ca-header-button geo-ca-lang">{t("geoHeaderLanguageButton")}</button>
+            <button ref={languageButtonRef} class="geo-ca-header-button geo-ca-lang" onClick={setLanguage}>
+                {t("geoHeaderLanguageButton")}
+            </button>
         </header>
     );
 }
