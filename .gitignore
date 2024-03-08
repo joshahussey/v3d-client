@@ -1,9 +1,11 @@
-/web/
-/backend/cslt3d
-/logs/*
-/node_modules
+web/
+backend/cslt3d
+logs/*
+node_modules
 src/ComponentLibrary/*
 src/CSSLibrary/*
 rebuild_docker.mx
-/deploy/
+deploy/
 prep.mx
+rebuild_docker.mx
+.envrc

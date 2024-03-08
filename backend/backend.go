@@ -5,10 +5,12 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"os"
 	"sync"
-    "os"
 )
 
+// Types
+// Upgrader is a buffer for a websocket connection
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
@@ -26,11 +28,16 @@ type ClientManager struct {
 	mutex   sync.Mutex
 }
 
-// HandleWebSocket handles WebSocket connections.
-func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
+// HandleNewClient
+func HandleNewClient(w http.ResponseWriter, r *http.Request) {
+	if _, upgrade := r.Header["Upgrade"]; !upgrade {
+		http.Error(w, "This endpoint is for websockets only\n", http.StatusBadRequest)
+		log.Printf("%s: Attempt to connect to websocket endpoint with non-websocket request\n", r.RemoteAddr)
+		return
+	}
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println(err)
+		log.Printf("%s: Error upgrading to websocket: %s\n", r.RemoteAddr, err)
 		return
 	}
 	sessionID := r.URL.Query().Get("sessionID")
@@ -39,12 +46,42 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 		sessionID: sessionID,
 	}
 	ClientMgr.AddClient(sessionID, client)
-	fmt.Printf("Connected client %s.\n", sessionID)
+	log.Printf("%s: Connected client %s.\n", r.RemoteAddr, sessionID)
 	go client.Listen()
 }
 
 func HandleAdd(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("handleadd")
+	fmt.Println("HandleAdd")
+	if _, upgrade := r.Header["Upgrade"]; upgrade {
+		HandleAddWs(w, r)
+	} else {
+		switch r.Method {
+		case "POST":
+			HandlePost(w, r)
+		case "GET":
+			HandleGet(w, r)
+		case "PATCH":
+			HandlePatch(w, r)
+		case "PUT":
+			HandlePut(w, r)
+		case "OPTIONS":
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "POST, PATCH, WS, WSS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+			w.WriteHeader(http.StatusOK)
+		case "DELETE":
+			HandleDelete(w, r)
+		case "HEAD":
+			HandleHead(w, r)
+		default:
+			HandleUnknownRequest(w, r)
+		}
+	}
+}
+
+// Handle Websocket request on /add
+func HandleAddWs(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("HandleAddWs")
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
@@ -57,13 +94,81 @@ func HandleAdd(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	fmt.Printf("This is not fit: %s", string(p))
 	client := ClientMgr.clients[sessionID]
 	writeErr := client.conn.WriteMessage(1, p)
 	if writeErr != nil {
 		log.Println(writeErr)
 		return
 	}
+}
+
+// Handle Post request on /add
+func HandlePost(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("HandlePost")
+	sessionID := r.URL.Query().Get("sessionID")
+	client := ClientMgr.clients[sessionID]
+	_, p, err := client.conn.ReadMessage()
+	if err != nil {
+		log.Printf("%s: SessionID: %s: Error reading message: %s\n", r.RemoteAddr, sessionID, err)
+		return
+	}
+	writeErr := client.conn.WriteMessage(1, p)
+	if writeErr != nil {
+		log.Printf("%s: SessionID: %s: Error writing message: %s\n", r.RemoteAddr, sessionID, writeErr)
+		return
+	}
+}
+
+// Handle Get request on /add
+func HandleGet(w http.ResponseWriter, r *http.Request) {
+    fmt.Println("HandleGet")
+	http.Error(w, fmt.Sprintf("Attempt to make %s request, please use POST, PATCH, or connect a Websocket\n", r.Method), http.StatusBadRequest)
+	log.Printf("%s: Attempt to make %s request, please use POST, PATCH, or connect a Websocket\n", r.Method, r.RemoteAddr)
+}
+
+// Handle Patch request on /add
+func HandlePatch(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("HandlePatch")
+	sessionID := r.URL.Query().Get("sessionID")
+	client := ClientMgr.clients[sessionID]
+	_, p, err := client.conn.ReadMessage()
+	if err != nil {
+		log.Printf("%s: SessionID: %s: Error reading message: %s\n", r.RemoteAddr, sessionID, err)
+		return
+	}
+	writeErr := client.conn.WriteMessage(1, p)
+	if writeErr != nil {
+		log.Printf("%s: SessionID: %s: Error writing message: %s\n", r.RemoteAddr, sessionID, writeErr)
+		return
+	}
+}
+
+// Handle Put request on /add
+func HandlePut(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("HandlePut")
+	http.Error(w, fmt.Sprintf("Attempt to make %s request, please use POST, PATCH, or connect a Websocket\n", r.Method), http.StatusBadRequest)
+	log.Printf("%s: Attempt to make %s request, please use POST, PATCH, or connect a Websocket\n", r.Method, r.RemoteAddr)
+}
+
+// Handle Head request on /add
+func HandleHead(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("HandlePut")
+	http.Error(w, fmt.Sprintf("Attempt to make %s request, please use POST, PATCH, or connect a Websocket\n", r.Method), http.StatusBadRequest)
+	log.Printf("%s: Attempt to make %s request, please use POST, PATCH, or connect a Websocket\n", r.Method, r.RemoteAddr)
+}
+
+// Handle Delete request on /add
+func HandleDelete(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("HandlePut")
+	http.Error(w, fmt.Sprintf("Attempt to make %s request, please use POST, PATCH, or connect a Websocket\n", r.Method), http.StatusBadRequest)
+	log.Printf("%s: Attempt to make %s request, please use POST, PATCH, or connect a Websocket\n", r.Method, r.RemoteAddr)
+}
+
+// Handle Unknown request on /add
+func HandleUnknownRequest(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("HandlePut")
+	http.Error(w, fmt.Sprintf("Attempt to make %s request, please use POST, PATCH, or connect a Websocket\n", r.Method), http.StatusBadRequest)
+	log.Printf("%s: Attempt to make %s request, please use POST, PATCH, or connect a Websocket\n", r.Method, r.RemoteAddr)
 }
 
 // Listen listens for incoming messages from the client.
@@ -113,9 +218,9 @@ func (cm *ClientManager) RemoveClient(sessionID string) {
 }
 
 func main() {
-    port := os.Getenv("BACKEND_PORT")
-	log.Println(fmt.Sprintf("Port: %s", port))
-	http.HandleFunc("/", HandleWebSocket)
+	port := os.Getenv("BACKEND_PORT")
+	log.Printf("Port: %s", port)
+	http.HandleFunc("/map", HandleNewClient)
 	http.HandleFunc("/add", HandleAdd)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }
