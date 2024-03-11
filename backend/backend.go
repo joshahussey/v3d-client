@@ -176,6 +176,50 @@ func HandleUnknownRequest(w http.ResponseWriter, r *http.Request) {
 	log.Printf("%s: Attempt to make %s request, please use POST, PATCH, or connect a Websocket\n", r.Method, r.RemoteAddr)
 }
 
+func HandleShape(w http.ResponseWriter, r *http.Request) {
+    fmt.Println("HandleShape")
+    err := r.ParseMultipartForm(32 << 20)
+    if err != nil {
+        log.Println("Error in parsing form")
+        log.Println(err)
+        return
+    }
+    file, handler, err := r.FormFile("file")
+    if err != nil {
+        log.Println("Error in getting file")
+        log.Println(err)
+        return
+    }
+    defer file.Close()
+    fmt.Printf("Uploaded File: %+v\n", handler.Filename)
+    fmt.Printf("File Size: %+v\n", handler.Size)
+    fmt.Printf("MIME Header: %+v\n", handler.Header)
+
+    cacheFile, err := os.Create("/tmp/" + handler.Filename)
+    if err != nil {
+        log.Println("Error in creating file")
+        log.Println(err)
+        return
+    }
+    defer cacheFile.Close()
+    bytes, err := io.ReadAll(file)
+    if err != nil {
+        log.Println("Error in reading file")
+        log.Println(err)
+        return
+    }
+    bytesWritten, error := cacheFile.Write(bytes)
+    if error != nil {
+        log.Println("Error in writing file")
+        log.Println(err)
+        return
+    }
+    fmt.Printf("Wrote %d bytes to %s\n", bytesWritten, cacheFile.Name())
+    w.WriteHeader(http.StatusOK)
+}
+
+
+
 // Listen listens for incoming messages from the client.
 func (c *Client) Listen() {
 	defer func() {
@@ -227,5 +271,6 @@ func main() {
 	log.Printf("Port: %s", port)
 	http.HandleFunc("/map", HandleNewClient)
 	http.HandleFunc("/add", HandleAdd)
+    http.HandleFunc("/shape", HandleShape)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }
