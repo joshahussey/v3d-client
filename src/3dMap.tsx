@@ -103,7 +103,7 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
     if (!sessionID) {
         sessionID = sessionStorage.getItem("sessionID");
         if (!sessionID){
-           sessionID = new Date().valueOf().toString();
+           sessionID = self.crypto.randomUUID();
         }
     }
     sessionStorage.setItem("sessionID", sessionID);
