@@ -36,9 +36,10 @@
 
 // The scroll panel containing the layers list
 .layers-view-layer-list-scroll {
-    max-height: 35rem;
+    max-height: calc(100vh - 9.5rem);
     width: 100%;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .layers-view-layer-list-container {
@@ -71,7 +72,8 @@
 }
 // The scroll panel containing the layers list
 .layers-view-layer-order-scroll {
-    max-height: 35rem;
+    max-height: calc(100vh - 9.5rem);
     width: 100%;
     overflow-y: auto;
+    overflow-x: hidden;
 }
