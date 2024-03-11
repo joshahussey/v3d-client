@@ -313,14 +313,14 @@ func addShape(shpName string, sessionId string) {
     wgs84BoundingBox.Maxx = -180
     wgs84BoundingBox.Maxy = -90
 
-
+    serviceUid := uuid.New().String()
 	for _, file := range files {
 		message := shape2message(path, file.Name())
         message.Args.Title = file.Name()
         message.Args.Description = fmt.Sprintf("Contents of %s", file.Name())
         message.Args.Wgs84BoundingBox = wgs84BoundingBox
         message.Args.ServiceInfo.ServiceTitle = shpName
-        message.Args.ServiceInfo.ServiceId = uuid.New().String()
+        message.Args.ServiceInfo.ServiceId = serviceUid
         message.Args.ServiceInfo.ServiceUrl = "UploadedFile"
         jsonMessage, err := json.Marshal(message)
         log.Printf("Sending message: %s\n", string(jsonMessage[:]))
