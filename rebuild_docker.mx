@@ -1,9 +1,8 @@
 #!/usr/bin/env murex
 
-docker ps -q --filter "ancestor=standalone3d-frontend" -> set frontendId
-docker ps -q --filter "ancestor=standalone3d-backend" -> set backendId
-docker ps -q --filter "ancestor=standalone3d-server" -> set serverId
-docker rm -vf $frontendId $backendId $serverId
+docker compose down -v --rmi all --remove-orphans
+docker image ls -qa -> xargs docker image rm -f
+docker buildx prune -a -f
+docker rm -fav
 rm -rf ./logs/*
-docker compose down --rmi all --remove-orphans
 docker compose up --force-recreate -d

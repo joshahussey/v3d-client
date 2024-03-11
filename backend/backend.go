@@ -234,14 +234,13 @@ func HandleShape(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("MIME Header: %+v\n", handler.Header)
 
 	pathPrefix := "/cslt/cache/shapefiles/" + handler.Filename
-	err = os.MkdirAll(pathPrefix+"/layers", 0777) //TODO
+	err = os.MkdirAll(pathPrefix+"/layers", 0777)
 	if err != nil {
 		log.Println("Error creating shapefile directory")
 		log.Println(err)
 	}
-
-	shpPath := pathPrefix + "/" + handler.Filename
-	cacheFile, err := os.Create(shpPath)
+	shpPath:= pathPrefix + "/" + handler.Filename
+		cacheFile, err := os.Create(shpPath)
 	if err != nil {
 		log.Println("Error in creating file")
 		log.Println(err)
@@ -261,10 +260,11 @@ func HandleShape(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	log.Printf("Wrote %d bytes to %s\n", bytesWritten, cacheFile.Name())
+	log.Printf("Wrote %d bytes to %s MOTHERFUCKER\n", bytesWritten, cacheFile.Name())
 
 	filesList := []string{}
 
+	log.Printf("Path: %s\n", shpPath)
 	zipReader, err := zip.OpenReader(shpPath)
 	if err != nil {
 		log.Println("Error getting zip reader for file.")
@@ -274,6 +274,7 @@ func HandleShape(w http.ResponseWriter, r *http.Request) {
 	defer zipReader.Close()
 
 	for _, shp := range zipReader.File {
+		fmt.Printf("Path: %s\n", shp.Name)
 		nameComponents := strings.Split(shp.Name, ".")
 		if len(nameComponents) < 2 {
 			log.Printf("Error: Invalid shapefile archive member name: %s\nSkipping.\n", shp.Name)
@@ -285,6 +286,7 @@ func HandleShape(w http.ResponseWriter, r *http.Request) {
 		}
 
 		filesList = append(filesList, nameComponents[0])
+		fmt.Printf("old: %s\nnew: %s\nnc0: %s\n", shpPath, pathPrefix+"/layers/"+nameComponents[0]+".zip", nameComponents[0])
 		err = os.Symlink(shpPath, pathPrefix+"/layers/"+nameComponents[0]+".zip")
         if err != nil {
             log.Println(err)
@@ -292,7 +294,7 @@ func HandleShape(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sessionID := r.URL.Query().Get("sessionID")
-	addShape(shpPath, sessionID)
+	addShape(handler.Filename, sessionID)
 
 	w.WriteHeader(http.StatusOK)
 }
