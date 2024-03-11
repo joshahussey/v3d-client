@@ -102,8 +102,8 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
     let sessionID = urlParams.get("sessionID");
     if (!sessionID) {
         sessionID = sessionStorage.getItem("sessionID");
-        if (!sessionID){
-           sessionID = new Date().valueOf().toString();
+        if (!sessionID) {
+            sessionID = new Date().valueOf().toString();
         }
     }
     sessionStorage.setItem("sessionID", sessionID);
@@ -111,15 +111,11 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
     switch (window.location.protocol) {
         case "http:":
             //eslint-disable-next-line
-            webSocket = createReconnectingWS(
-                `ws://${window.location.hostname}/map?sessionID=${sessionID}`
-            );
+            webSocket = createReconnectingWS(`ws://${window.location.hostname}/map?sessionID=${sessionID}`);
             break;
         case "https:":
             //eslint-disable-next-line
-            webSocket = createReconnectingWS(
-                `wss://${window.location.hostname}/map?sessionID=${sessionID}`
-            );
+            webSocket = createReconnectingWS(`wss://${window.location.hostname}/map?sessionID=${sessionID}`);
             break;
         default:
             throw new Error(t("3dMapLoadError1"));
@@ -132,9 +128,11 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
     // eslint-disable-next-line solid/reactivity
     createEffect(async () => {
         const message = lastMessage();
+        console.log("Received raw message.");
         if (!message) return;
 
         const parsedMessage = await JSON.parse(message);
+        console.log("Recieved message", parsedMessage);
         const args = parsedMessage.args;
 
         switch (parsedMessage.type) {
@@ -220,6 +218,7 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                 Controller.raiseMapStateChangedEvent();
                 break;
             case "GEOJSON":
+                console.log("GOT HERERERERERERERERE");
                 Controller.addGeoJSON(
                     args.uid,
                     args.urlOrGeoJsonObject,
@@ -258,7 +257,9 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
     try {
         const fullscreenButton = document.getElementsByClassName("cesium-fullscreenButton");
         (fullscreenButton[0] as HTMLButtonElement).title = t("3dMapfullscreenButtonTooltip");
-    } catch { console.log("No Cesium fullscreen button found.") }
+    } catch {
+        console.log("No Cesium fullscreen button found.");
+    }
 
     (window as CesiumWindow).Map3DViewer = viewer;
     viewer.scene.globe.depthTestAgainstTerrain = true;

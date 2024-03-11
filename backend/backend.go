@@ -323,10 +323,12 @@ func addShape(shpName string, sessionId string) {
         message.Args.ServiceInfo.ServiceId = uuid.New().String()
         message.Args.ServiceInfo.ServiceUrl = "UploadedFile"
         jsonMessage, err := json.Marshal(message)
+        log.Printf("Sending message: %s\n", string(jsonMessage[:]))
         if err != nil {
             log.Fatal(err)
         }
-		err = client.conn.WriteJSON(jsonMessage)
+//		err = client.conn.WriteJSON(jsonMessage)
+		err = client.conn.WriteMessage(1, jsonMessage)
         if err != nil {
             log.Fatal(err)
         }
