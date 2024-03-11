@@ -1,13 +1,19 @@
 package main
 
 import (
+	"archive/zip"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"slices"
+	"strings"
 	"sync"
 
+	"github.com/everystreet/go-shapefile"
+	"github.com/everystreet/go-geojson/v2"
 	"github.com/gorilla/websocket"
 )
 
@@ -109,17 +115,17 @@ func HandlePost(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("HandlePost")
 	sessionID := r.URL.Query().Get("sessionID")
 	client := ClientMgr.clients[sessionID]
-    body, err := io.ReadAll(r.Body)
-    if err != nil {
-        log.Printf("%s: SessionID: %s: Error reading message: %s\n", r.RemoteAddr, sessionID, err)
-        return
-    }
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("%s: SessionID: %s: Error reading message: %s\n", r.RemoteAddr, sessionID, err)
+		return
+	}
 	writeErr := client.conn.WriteMessage(1, body)
 	if writeErr != nil {
 		log.Printf("%s: SessionID: %s: Error writing message: %s\n", r.RemoteAddr, sessionID, writeErr)
 		return
 	}
-    w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusOK)
 }
 
 // Handle Get request on /add
@@ -134,17 +140,17 @@ func HandlePatch(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("HandlePatch")
 	sessionID := r.URL.Query().Get("sessionID")
 	client := ClientMgr.clients[sessionID]
-    body, err := io.ReadAll(r.Body)
-    if err != nil {
-        log.Printf("%s: SessionID: %s: Error reading message: %s\n", r.RemoteAddr, sessionID, err)
-        return
-    }
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("%s: SessionID: %s: Error reading message: %s\n", r.RemoteAddr, sessionID, err)
+		return
+	}
 	writeErr := client.conn.WriteMessage(1, body)
 	if writeErr != nil {
 		log.Printf("%s: SessionID: %s: Error writing message: %s\n", r.RemoteAddr, sessionID, writeErr)
 		return
 	}
-    w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusOK)
 }
 
 // Handle Put request on /add
@@ -174,6 +180,165 @@ func HandleUnknownRequest(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("HandlePut")
 	http.Error(w, fmt.Sprintf("Attempt to make %s request, please use POST, PATCH, or connect a Websocket\n", r.Method), http.StatusBadRequest)
 	log.Printf("%s: Attempt to make %s request, please use POST, PATCH, or connect a Websocket\n", r.Method, r.RemoteAddr)
+}
+
+func HandleShape(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("HandleShape")
+	err := r.ParseMultipartForm(32 << 20)
+	if err != nil {
+		log.Println("Error in parsing form")
+		log.Println(err)
+		return
+	}
+	file, handler, err := r.FormFile("file")
+	if err != nil {
+		log.Println("Error in getting file")
+		log.Println(err)
+		return
+	}
+	defer file.Close()
+	fmt.Printf("Uploaded File: %+v\n", handler.Filename)
+	fmt.Printf("File Size: %+v\n", handler.Size)
+	fmt.Printf("MIME Header: %+v\n", handler.Header)
+
+	pathPrefix := "/cslt/cache/shapefiles/" + handler.Filename
+	err = os.MkdirAll(pathPrefix+"/layers", 777) //TODO
+	if err != nil {
+		log.Println("Error creating shapefile directory")
+		log.Println(err)
+	}
+
+	shpPath := pathPrefix + "/" + handler.Filename
+	cacheFile, err := os.Create(shpPath)
+	if err != nil {
+		log.Println("Error in creating file")
+		log.Println(err)
+		return
+	}
+	defer cacheFile.Close()
+
+	bytes, err := io.ReadAll(file)
+	if err != nil {
+		log.Println("Error in reading file")
+		log.Println(err)
+		return
+	}
+	bytesWritten, error := cacheFile.Write(bytes)
+	if error != nil {
+		log.Println("Error in writing file")
+		log.Println(err)
+		return
+	}
+	log.Printf("Wrote %d bytes to %s\n", bytesWritten, cacheFile.Name())
+
+	filesList := []string{}
+
+	zipReader, err := zip.OpenReader(shpPath)
+	if err != nil {
+		log.Println("Error getting zip reader for file.")
+		log.Println(err)
+		return
+	}
+	defer zipReader.Close()
+
+	for _, shp := range zipReader.File {
+		nameComponents := strings.Split(shp.Name, ".")
+		if len(nameComponents) < 2 {
+			log.Printf("Error: Invalid shapefile archive member name: %s\nSkipping.\n", shp.Name)
+			continue
+		}
+
+		if slices.Contains(filesList, nameComponents[0]) {
+			continue
+		}
+
+		filesList = append(filesList, nameComponents[0])
+		err = os.Symlink(shpPath, pathPrefix+"/layers/"+nameComponents[0]+".zip")
+	}
+
+	sessionID := r.URL.Query().Get("sessionID")
+	addShape(shpPath, sessionID)
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func addShape(shpName string, sessionId string) {
+	path := "/cslt/cache/shapefiles/" + shpName + "/layers/"
+	files, err := os.ReadDir(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	client := ClientMgr.clients[sessionId]
+
+	for _, file := range files {
+		message, err := shape2Json(file)
+		if err != nil {
+			//TODO
+		}
+		client.conn.WriteJSON(message)
+	}
+}
+
+func shape2Json(path string, file string) (string, err) {
+		shp, err := os.Open(path + file.Name())
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer shp.Close()
+		stat, err := shp.Stat()
+		if err != nil {
+			log.Fatal(err)
+		}
+	
+		scanner, err := shapefile.NewZipScanner(shp, stat.Size(), shpName)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Start the scanner
+		err = scanner.Scan()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		type GeoJsonFeatureCollection struct {
+			type string
+			features *geojson.Feature
+		}
+
+		type ShapefileArgs struct {
+			uid string
+			urlOrGeoJsonObject string
+			
+		}
+
+		const geojsonType = "GEOJSON"
+		type ShapefileMessage struct {
+			type string
+			args ShapefileArgs
+		}
+
+		// Call Record() to get each record in turn, until either the end of the file, or an error occurs
+		for {
+			record := scanner.Record()
+			if record == nil {
+				break
+			}
+			feature := record.GeoJSONFeature()
+
+			jsonData, err := json.Marshal(feature)
+			if err != nil {
+				fmt.Println(err)
+			}
+			fmt.Print(string(jsonData))
+			// Each record contains a shape (from .shp file) and attributes (from .dbf file)
+			// Err() returns the first error encountered during calls to Record()
+			err = scanner.Err()
+			if err != nil {
+				log.Fatal(err)
+			}
+	}
 }
 
 // Listen listens for incoming messages from the client.
@@ -227,5 +392,6 @@ func main() {
 	log.Printf("Port: %s", port)
 	http.HandleFunc("/map", HandleNewClient)
 	http.HandleFunc("/add", HandleAdd)
+	http.HandleFunc("/shape", HandleShape)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }
