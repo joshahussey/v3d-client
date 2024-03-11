@@ -97,11 +97,16 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
         );
         localStorage.removeItem("initCameraViewport");
     }
-    let sessionID = sessionStorage.getItem("sessionID");
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    let sessionID = urlParams.get("sessionID");
     if (!sessionID) {
-        sessionID = new Date().valueOf().toString();
-        sessionStorage.setItem("sessionID", sessionID);
+        sessionID = sessionStorage.getItem("sessionID");
+        if (!sessionID){
+           sessionID = new Date().valueOf().toString();
+        }
     }
+    sessionStorage.setItem("sessionID", sessionID);
     let webSocket;
     switch (window.location.protocol) {
         case "http:":
