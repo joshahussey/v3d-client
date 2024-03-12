@@ -4,10 +4,6 @@ import (
 	"archive/zip"
 	"encoding/json"
 	"fmt"
-	"github.com/everystreet/go-geojson/v2"
-	"github.com/everystreet/go-shapefile"
-	"github.com/google/uuid"
-	"github.com/gorilla/websocket"
 	"io"
 	"log"
 	"net/http"
@@ -15,6 +11,12 @@ import (
 	"slices"
 	"strings"
 	"sync"
+
+	"github.com/everystreet/go-geojson/v2"
+	"github.com/everystreet/go-shapefile"
+	"github.com/google/uuid"
+	"github.com/gorilla/websocket"
+	"github.com/lukeroth/gdal"
 )
 
 // Types
@@ -293,6 +295,21 @@ func HandleShape(w http.ResponseWriter, r *http.Request) {
 	for _, shp := range zipReader.File {
 		linkWg.Add(1)
 		go makeSymLink(sessionID, shp.Name, shpPath, pathPrefix, &filesList, &errorList, &linkWg, &linkMut)
+		os.Mkdir(pathPrefix + "/temp/", 0777)
+		destHandle, err := os.Create(pathPrefix + "/temp/" + shp.Name)
+		if err != nil {
+			logE(sessionID, err, "OpenDestHandleGdal")
+		}
+		shpHandle, err := shp.Open()
+		if err != nil {
+			logE(sessionID, err, "OpenShpHandleGdal")
+		}
+		_, err = io.Copy(destHandle, shpHandle)
+		ds, err := gdal.Open(pathPrefix + "/temp/" + shp.Name, gdal.ReadOnly)
+		if err != nil {
+			logE(sessionID, err, "OpenDatasetGdal")
+		}
+		gdal.Translate(pathPrefix + "/temp/" + shp.Name + ".json", ds, []string{})
 	}
 	linkWg.Wait()
     serviceErrorList := []string{}

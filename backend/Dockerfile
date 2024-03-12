@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
 
-FROM node:20-alpine
+FROM ghcr.io/osgeo/gdal:alpine-small-3.8.4
+#FROM node:20-alpine
 COPY --from=golang:1.21 /usr/local/go /usr/local/go
 ENV PATH="/usr/local/go/bin:${PATH}"
 ARG BACKEND_PORT_ARG=8080
@@ -9,6 +10,8 @@ RUN [ "mkdir", "-p", "./backend" ]
 COPY . ./backend
 EXPOSE $BACKEND_PORT_ARG
 ENV BACKEND_PORT $BACKEND_PORT_ARG
+#RUN [ "apk", "add", "--no-cache", "gdal", "gdal-dev" ]
+#RUN [ "rm", "-rf", "/var/cache/apk*" ]
 RUN [ "go", "build", "-C", "./backend", "-v", "-x" ]
 WORKDIR /cslt/backend
 RUN [ "rm", "-rf", "backend.go" ]
