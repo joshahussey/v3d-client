@@ -25,4 +25,10 @@
 			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
 		}
 	}
+	
+	route /shape* {
+		handle {
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
+		}
+	}
 }

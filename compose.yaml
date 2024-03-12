@@ -46,6 +46,7 @@ services:
         BACKEND_PORT_ARG: $BACKEND_PORT
     volumes:
       - ./logs/:/cslt/backend/logs
+      - docker_web:/cslt/web
 volumes: 
   docker_web:
     driver: local
