@@ -290,31 +290,43 @@ func HandleShape(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer zipReader.Close()
-
+    
+    linkWg := sync.WaitGroup{}
+    var linkMut sync.Mutex
 	for _, shp := range zipReader.File {
-		fmt.Printf("Path: %s\n", shp.Name)
-		nameComponents := strings.Split(shp.Name, ".")
-		if len(nameComponents) < 2 {
-			log.Printf("Error: Invalid shapefile archive member name: %s\nSkipping.\n", shp.Name)
-			continue
-		}
-
-		if slices.Contains(filesList, nameComponents[0]) {
-			continue
-		}
-
-		filesList = append(filesList, nameComponents[0])
-		fmt.Printf("old: %s\nnew: %s\nnc0: %s\n", shpPath, pathPrefix+"/layers/"+nameComponents[0]+".zip", nameComponents[0])
-		err = os.Symlink(shpPath, pathPrefix+"/layers/"+nameComponents[0]+".zip")
-        if err != nil {
-            log.Println(err)
-        }
+        linkWg.Add(1)
+        go makeSymLink(shp.Name, shpPath, pathPrefix, &filesList, &linkWg, &linkMut)
 	}
-
+    linkWg.Wait()
 	sessionID := r.URL.Query().Get("sessionID")
 	makeShapeServices(handler.Filename, sessionID)
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func makeSymLink(name string, shpPath string, pathPrefix string, filesList *[]string, wg *sync.WaitGroup, mutex *sync.Mutex) {
+		nameComponents := strings.Split(name, ".")
+		if len(nameComponents) < 2 {
+			log.Printf("Error: Invalid shapefile archive member name: %s\nSkipping.\n", name)
+		    wg.Done()
+            return
+		}
+        mutex.Lock()
+		if slices.Contains(*filesList, nameComponents[0]) {
+            mutex.Unlock()
+            wg.Done()
+            return
+		}
+		*filesList = append(*filesList, nameComponents[0])
+        mutex.Unlock()
+		fmt.Printf("old: %s\nnew: %s\nnc0: %s\n", shpPath, pathPrefix+"/layers/"+nameComponents[0]+".zip", nameComponents[0])
+        err := os.Symlink(shpPath, pathPrefix+"/layers/"+nameComponents[0]+".zip")
+        if err != nil {
+            log.Println(err)
+            wg.Done()
+            return
+        }
+        wg.Done()
 }
 
 func makeShapeServices(shpName string, sessionId string) {
@@ -333,36 +345,51 @@ func makeShapeServices(shpName string, sessionId string) {
     wgs84BoundingBox.Maxy = -90
 
     serviceUid := uuid.New().String()
+    var wg sync.WaitGroup
 	for _, file := range files {
-        message := ShapefileUrlMessage{}
-		message.Kind = "GEOJSON" 
-        message.Args.Uid = uuid.New().String()
-        message.Args.UrlOrGeoJsonObject = "./services/shapefiles/" + shpName + "/" + file.Name() + ".geojson" 
-        message.Args.Title = file.Name()
-        message.Args.Description = fmt.Sprintf("Contents of %s", file.Name())
-        message.Args.Wgs84BoundingBox = wgs84BoundingBox
-        message.Args.ServiceInfo.ServiceTitle = shpName
-        message.Args.ServiceInfo.ServiceId = serviceUid
-        message.Args.ServiceInfo.ServiceUrl = "UploadedFile"
-        featureCollection := shape2json(path, file.Name())
-        collectionJson, err := json.Marshal(featureCollection)
-        if err != nil {
-            log.Fatal(err)
-        }
-        err = os.WriteFile(servicePrefix + "/" + file.Name() + ".geojson", collectionJson, 0777)
-        if err != nil {
-            log.Fatal(err)
-        }
-        jsonMessage, err := json.Marshal(message)
-        log.Printf("Sending message: %s\n", string(jsonMessage[:]))
-        if err != nil {
-            log.Fatal(err)
-        }
-		err = client.conn.WriteMessage(1, jsonMessage)
-        if err != nil {
-            log.Fatal(err)
-        }
+        wg.Add(1)
+        go sendMessage(shpName, servicePrefix, file.Name(), wgs84BoundingBox, serviceUid, path, &client, &wg)
 	}
+    wg.Wait()
+}
+
+func sendMessage(shpName string, servicePrefix string, fileName string, bbox Wgs84BoundingBox, serviceUid string, path string, client *Client, wg *sync.WaitGroup) {
+    message := ShapefileUrlMessage{}
+    message.Kind = "GEOJSON" 
+    message.Args.Uid = uuid.New().String()
+    message.Args.UrlOrGeoJsonObject = "./services/shapefiles/" + shpName + "/" + fileName + ".geojson" 
+    message.Args.Title = fileName
+    message.Args.Description = fmt.Sprintf("Contents of %s", fileName)
+    message.Args.Wgs84BoundingBox = bbox
+    message.Args.ServiceInfo.ServiceTitle = shpName
+    message.Args.ServiceInfo.ServiceId = serviceUid
+    message.Args.ServiceInfo.ServiceUrl = "UploadedFile"
+    featureCollection := shape2json(path, fileName)
+    collectionJson, err := json.Marshal(featureCollection)
+    if err != nil {
+        wg.Done()
+        log.Fatal(err)
+        return
+    }
+    err = os.WriteFile(servicePrefix + "/" + fileName + ".geojson", collectionJson, 0777)
+    if err != nil {
+        wg.Done()
+        log.Fatal(err)
+        return
+    }
+    jsonMessage, err := json.Marshal(message)
+    log.Printf("Sending message: %s\n", string(jsonMessage[:]))
+    if err != nil {
+        wg.Done()
+        log.Fatal(err)
+        return
+    }
+    err = client.conn.WriteMessage(1, jsonMessage)
+    if err != nil {
+        wg.Done()
+        log.Fatal(err)
+    }
+    wg.Done()
 }
 
 func addShapeDirect(shpName string, sessionId string) {
