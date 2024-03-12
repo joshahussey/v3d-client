@@ -41,6 +41,15 @@ type GeoJsonFeatureCollection struct {
 	Features *[]geojson.Feature `json:"features"`
 }
 
+type ShapefileUrlArgs struct {
+	Uid                string `json:"uid"`
+	UrlOrGeoJsonObject string `json:"urlOrGeoJsonObject"`
+    Title              string `json:"title"`
+    Description        string `json:"description"`
+    Wgs84BoundingBox   Wgs84BoundingBox `json:"wgs84BoundingBox"`
+    ServiceInfo        ServiceInfo `json:"serviceInfo"`
+}
+
 type ShapefileArgs struct {
 	Uid                string `json:"uid"`
 	UrlOrGeoJsonObject GeoJsonFeatureCollection `json:"urlOrGeoJsonObject"`
@@ -54,6 +63,10 @@ type ServiceInfo struct {
     ServiceTitle string `json:"serviceTitle"`
     ServiceId    string `json:"serviceId"`
     ServiceUrl   string `json:"serviceUrl"`
+}
+type ShapefileUrlMessage struct {
+    Kind string           `json:"type"`
+    Args ShapefileUrlArgs `json:"args"`
 }
 
 type ShapefileMessage struct {
@@ -235,8 +248,13 @@ func HandleShape(w http.ResponseWriter, r *http.Request) {
 
 	pathPrefix := "/cslt/cache/shapefiles/" + handler.Filename
 	err = os.MkdirAll(pathPrefix+"/layers", 0777)
+    if err != nil {
+        log.Println("Error creating shapefile directory")
+        log.Println(err)
+    }
+	err = os.MkdirAll("/cslt/web/services/shapefiles/" + handler.Filename, 0777)
 	if err != nil {
-		log.Println("Error creating shapefile directory")
+		log.Println("Error creating shapefile service directory")
 		log.Println(err)
 	}
 	shpPath:= pathPrefix + "/" + handler.Filename
@@ -294,13 +312,14 @@ func HandleShape(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sessionID := r.URL.Query().Get("sessionID")
-	addShape(handler.Filename, sessionID)
+	makeShapeServices(handler.Filename, sessionID)
 
 	w.WriteHeader(http.StatusOK)
 }
 
-func addShape(shpName string, sessionId string) {
+func makeShapeServices(shpName string, sessionId string) {
 	path := "/cslt/cache/shapefiles/" + shpName + "/layers/"
+    servicePrefix := "/cslt/web/services/shapefiles/" + shpName
 	files, err := os.ReadDir(path)
 	if err != nil {
 		log.Fatal(err)
@@ -315,7 +334,54 @@ func addShape(shpName string, sessionId string) {
 
     serviceUid := uuid.New().String()
 	for _, file := range files {
-		message := shape2message(path, file.Name())
+        message := ShapefileUrlMessage{}
+		message.Kind = "GEOJSON" 
+        message.Args.Uid = uuid.New().String()
+        message.Args.UrlOrGeoJsonObject = "./services/shapefiles/" + shpName + "/" + file.Name() + ".geojson" 
+        message.Args.Title = file.Name()
+        message.Args.Description = fmt.Sprintf("Contents of %s", file.Name())
+        message.Args.Wgs84BoundingBox = wgs84BoundingBox
+        message.Args.ServiceInfo.ServiceTitle = shpName
+        message.Args.ServiceInfo.ServiceId = serviceUid
+        message.Args.ServiceInfo.ServiceUrl = "UploadedFile"
+        featureCollection := shape2json(path, file.Name())
+        collectionJson, err := json.Marshal(featureCollection)
+        if err != nil {
+            log.Fatal(err)
+        }
+        err = os.WriteFile(servicePrefix + "/" + file.Name() + ".geojson", collectionJson, 0777)
+        if err != nil {
+            log.Fatal(err)
+        }
+        jsonMessage, err := json.Marshal(message)
+        log.Printf("Sending message: %s\n", string(jsonMessage[:]))
+        if err != nil {
+            log.Fatal(err)
+        }
+		err = client.conn.WriteMessage(1, jsonMessage)
+        if err != nil {
+            log.Fatal(err)
+        }
+	}
+}
+
+func addShapeDirect(shpName string, sessionId string) {
+    path := "/cslt/cache/shapefiles/" + shpName + "/layers/"
+    files, err := os.ReadDir(path)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    client := ClientMgr.clients[sessionId]
+    var wgs84BoundingBox Wgs84BoundingBox
+    wgs84BoundingBox.Minx = -180
+    wgs84BoundingBox.Miny = -90
+    wgs84BoundingBox.Maxx = -180
+    wgs84BoundingBox.Maxy = -90
+
+    serviceUid := uuid.New().String()
+    for _, file := range files {
+        message := shape2message(path, file.Name())
         message.Args.Title = file.Name()
         message.Args.Description = fmt.Sprintf("Contents of %s", file.Name())
         message.Args.Wgs84BoundingBox = wgs84BoundingBox
@@ -327,12 +393,46 @@ func addShape(shpName string, sessionId string) {
         if err != nil {
             log.Fatal(err)
         }
-//		err = client.conn.WriteJSON(jsonMessage)
-		err = client.conn.WriteMessage(1, jsonMessage)
+        err = client.conn.WriteMessage(1, jsonMessage)
         if err != nil {
             log.Fatal(err)
         }
-	}
+    }
+} 
+
+func shape2json(path string, file string) GeoJsonFeatureCollection {
+    shp, err := os.Open(path + file)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer shp.Close()
+    stat, err := shp.Stat()
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    scanner, err := shapefile.NewZipScanner(shp, stat.Size(), file)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    // Start the scanner
+    err = scanner.Scan()
+    if err != nil {
+        log.Fatal(err)
+    }
+    
+    var features []geojson.Feature
+    for {
+        record := scanner.Record()
+        if record == nil {
+            break
+        }
+        feature := record.GeoJSONFeature()
+        features = append(features, *feature)
+    }
+    featureCollection := GeoJsonFeatureCollection{Kind: "FeatureCollection", Features: &features}
+    return featureCollection
 }
 
 func shape2message(path string, file string) ShapefileMessage {
