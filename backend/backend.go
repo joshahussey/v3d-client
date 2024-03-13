@@ -366,6 +366,7 @@ func makeSymLink(sessionID string, name string, shpPath string, pathPrefix strin
 func makeJsonFromShape(sessionID string, shapeServiceDir string, name string, file *zip.File, pathPrefix string, filesList *[]string, errorList *[]string, wg *sync.WaitGroup, mutex *sync.Mutex) {
 	pathComponents := strings.Split(name, "/")
     fileName := pathComponents[len(pathComponents)-1]
+    logD(sessionID, fmt.Sprintf("Processing file: %s\n", fileName), "makeJsonFromShape")
     if "shp" != path.Ext(fileName) { return }
     shapeFile, err := file.Open();
     if err != nil {
@@ -376,6 +377,7 @@ func makeJsonFromShape(sessionID string, shapeServiceDir string, name string, fi
         wg.Done()
         return
     }
+    logD(sessionID, fmt.Sprintf("Creating file: %s\n", pathPrefix + "/temp/" + fileName), "makeJsonFromShape")
     defer shapeFile.Close()
     destHandle, err := os.Create(pathPrefix + "/temp/" + fileName)
     if err != nil {
@@ -386,6 +388,8 @@ func makeJsonFromShape(sessionID string, shapeServiceDir string, name string, fi
         wg.Done()
         return
     }
+    defer destHandle.Close()
+    logD(sessionID, fmt.Sprintf("Copying file: %s\n", pathPrefix + "/temp/" + fileName), "makeJsonFromShape")
     _, err = io.Copy(destHandle, shapeFile)
     if err != nil {
         logE(sessionID, err, "makeJsonFromShapeCopy")
@@ -395,6 +399,7 @@ func makeJsonFromShape(sessionID string, shapeServiceDir string, name string, fi
         wg.Done()
         return
     }
+    logD(sessionID, fmt.Sprintf("Calling shape2json with args: %s, %s\n", pathPrefix + "/temp/" + fileName, shapeServiceDir + "/" + fileName + ".json"), "makeJsonFromShape")
     shpPath := pathPrefix + "/temp/" + fileName
     jsonPath := shapeServiceDir + "/" + fileName + ".json"
     cInputShapeFile := C.CString(shpPath)
@@ -406,6 +411,7 @@ func makeJsonFromShape(sessionID string, shapeServiceDir string, name string, fi
     *filesList = append(*filesList, fileName)
     mutex.Unlock()
     wg.Done()
+    logD(sessionID, fmt.Sprintf("Finished processing file: %s\n", fileName), "makeJsonFromShape")
 }
 
 func makeShapeServices(shpName string, sessionId string, errorList *[]string, shapeServiceDir string) (error) {
