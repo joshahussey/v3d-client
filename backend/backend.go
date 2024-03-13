@@ -1,5 +1,12 @@
 package main
 
+//#cgo CFLAGS: -g -Wall
+//#cgo LDFLAGS: -L. -lgdal
+//#include <stdlib.h>
+//#include "shape2json.h"
+import "C"
+
+import "unsafe"
 import (
 	"archive/zip"
 	"encoding/json"
@@ -11,12 +18,11 @@ import (
 	"slices"
 	"strings"
 	"sync"
-
+    
+    "github.com/everystreet/go-shapefile"
 	"github.com/everystreet/go-geojson/v2"
-	"github.com/everystreet/go-shapefile"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
-	"github.com/lukeroth/gdal"
 )
 
 // Types
@@ -295,8 +301,16 @@ func HandleShape(w http.ResponseWriter, r *http.Request) {
 	for _, shp := range zipReader.File {
 		linkWg.Add(1)
 		go makeSymLink(sessionID, shp.Name, shpPath, pathPrefix, &filesList, &errorList, &linkWg, &linkMut)
-		os.Mkdir(pathPrefix + "/temp/", 0777)
-		destHandle, err := os.Create(pathPrefix + "/temp/" + shp.Name)
+        err = os.Mkdir(pathPrefix + "/temp/", 0777)
+        if err != nil {
+            logE(sessionID, err, "HandleShapeMkdirTemp")
+            http.Error(w, "Error creating temp directory\n", http.StatusBadRequest)
+            return
+        }
+
+        shpPath := pathPrefix + "/temp/" + shp.Name 
+        jsonPath := pathPrefix + "/temp/" + shp.Name + ".json"
+		destHandle, err := os.Create(shpPath)
 		if err != nil {
 			logE(sessionID, err, "OpenDestHandleGdal")
 		}
@@ -305,11 +319,14 @@ func HandleShape(w http.ResponseWriter, r *http.Request) {
 			logE(sessionID, err, "OpenShpHandleGdal")
 		}
 		_, err = io.Copy(destHandle, shpHandle)
-		ds, err := gdal.Open(pathPrefix + "/temp/" + shp.Name, gdal.ReadOnly)
-		if err != nil {
-			logE(sessionID, err, "OpenDatasetGdal")
-		}
-		gdal.Translate(pathPrefix + "/temp/" + shp.Name + ".json", ds, []string{})
+        if err != nil {
+            logE(sessionID, err, "CopyShpHandleGdal")
+        }
+        cInputShapeFile := C.CString(shpPath)
+        cOutputJsonFile := C.CString(jsonPath)
+        defer C.free(unsafe.Pointer(cInputShapeFile))
+        defer C.free(unsafe.Pointer(cOutputJsonFile))
+        C.shape2json(cInputShapeFile, cOutputJsonFile)
 	}
 	linkWg.Wait()
     serviceErrorList := []string{}
