@@ -6,7 +6,6 @@ package main
 //#include "shape2json.h"
 import "C"
 
-import "unsafe"
 import (
 	"archive/zip"
 	"encoding/json"
@@ -15,13 +14,14 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path"
 	"slices"
 	"strings"
 	"sync"
-    "path"
-    
-    "github.com/everystreet/go-shapefile"
+	"unsafe"
+
 	"github.com/everystreet/go-geojson/v2"
+	"github.com/everystreet/go-shapefile"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
@@ -254,8 +254,8 @@ func HandleShape(w http.ResponseWriter, r *http.Request) {
 	}
 	defer uploadedFile.Close()
 	logI(sessionID, fmt.Sprintf("Uploaded File: %+v\nFile Size: %+v\nMIME Header: %+v\n", upload.Filename, upload.Size, upload.Header), "HandleShapeFormFile")
-	pathPrefix := "/cslt/cache/shapefiles/" + upload.Filename  // /cslt/cache/shapefiles/example.zip
-    shapeServiceDir := "/cslt/web/services/shapefiles/" + upload.Filename
+	pathPrefix := "/cslt/cache/shapefiles/" + upload.Filename // /cslt/cache/shapefiles/example.zip
+	shapeServiceDir := "/cslt/web/services/shapefiles/" + upload.Filename
 	err = os.MkdirAll(pathPrefix+"/layers", 0777)
 	if err != nil {
 		logE(sessionID, err, "HandleShapeMkdirAllCache")
@@ -269,76 +269,75 @@ func HandleShape(w http.ResponseWriter, r *http.Request) {
 	shpPath := pathPrefix + "/" + upload.Filename // /cslt/cache/shapefiles/example.zip/example.zip
 	cacheFile, err := os.Create(shpPath)
 	if err != nil {
-        logE(sessionID, err, "HandleShapeCreateFile")
-        http.Error(w, "Error creating cache file\n", http.StatusBadRequest)
+		logE(sessionID, err, "HandleShapeCreateFile")
+		http.Error(w, "Error creating cache file\n", http.StatusBadRequest)
 		return
 	}
 	defer cacheFile.Close()
 
 	bytes, err := io.ReadAll(uploadedFile)
 	if err != nil {
-        logE(sessionID, err, "HandleShapeReadFile")
-        http.Error(w, "Error reading file\n", http.StatusBadRequest)
+		logE(sessionID, err, "HandleShapeReadFile")
+		http.Error(w, "Error reading file\n", http.StatusBadRequest)
 		return
 	}
 	bytesWritten, error := cacheFile.Write(bytes)
 	if error != nil {
-        logE(sessionID, error, "HandleShapeWriteFile")
-        http.Error(w, "Error writing file\n", http.StatusBadRequest)
+		logE(sessionID, error, "HandleShapeWriteFile")
+		http.Error(w, "Error writing file\n", http.StatusBadRequest)
 		return
 	}
-    logI(sessionID, fmt.Sprintf("Wrote %d bytes to %s\n", bytesWritten, cacheFile.Name()), "HandleShapeWriteFile")
+	logI(sessionID, fmt.Sprintf("Wrote %d bytes to %s\n", bytesWritten, cacheFile.Name()), "HandleShapeWriteFile")
 
 	zipReader, err := zip.OpenReader(shpPath)
 	if err != nil {
-        logE(sessionID, err, "HandleShapeOpenReader")
-        http.Error(w, "Error getting zip reader for file\n", http.StatusBadRequest)
+		logE(sessionID, err, "HandleShapeOpenReader")
+		http.Error(w, "Error getting zip reader for file\n", http.StatusBadRequest)
 		return
 	}
 	defer zipReader.Close()
 
 	linkWg := sync.WaitGroup{}
 	var linkMut sync.Mutex
-    filesList := []string{}
-    errorList := []string{}
+	errorList := []string{}
 
-    err = os.MkdirAll(pathPrefix + "/temp", 0777)
-    if err != nil {
-        logE(sessionID, err, "HandleShapeMkdirTemp")
-        http.Error(w, "Error creating temp directory\n", http.StatusBadRequest)
-        return
-    }
+	err = os.MkdirAll(pathPrefix+"/temp", 0777)
+	if err != nil {
+		logE(sessionID, err, "HandleShapeMkdirTemp")
+		http.Error(w, "Error creating temp directory\n", http.StatusBadRequest)
+		return
+	}
 	for _, shp := range zipReader.File {
 		linkWg.Add(1)
-        go makeJsonFromShape(sessionID, shp.Name, shapeServiceDir, shp, pathPrefix, &filesList, &errorList, &linkWg, &linkMut)
+		go makeJsonFromShape(sessionID, shapeServiceDir, shp, pathPrefix, &errorList, &linkWg, &linkMut)
 	}
 	linkWg.Wait()
-    serviceErrorList := []string{}
-    err = makeShapeServices(upload.Filename, sessionID, &serviceErrorList, shapeServiceDir)
-    if err != nil {
-        logE(sessionID, err, "HandleShapeMakeServices")
-        http.Error(w, "Error creating shape services\n", http.StatusBadRequest)
-        return
-    }
-    if len(errorList) > 0 || len(serviceErrorList) > 0 {
-        logE(sessionID, fmt.Errorf("Error creating GeoJSON for the following files: %s", strings.Join(errorList, ", ")), "HandleShapeMakeSymLink")
-        _, err := w.Write([]byte(fmt.Sprintf("Error creating GeoJSON for the following files: %s\nError creating services for the following files: %s", strings.Join(errorList, ", "), strings.Join(serviceErrorList, ", "))))
-        if err != nil {
-            logE(sessionID, err, "HandleShapeWriteError")
-            http.Error(w, "Error writing error message\n", http.StatusBadRequest)
-        }
-        return
-    }
+	serviceErrorList := []string{}
+	err = makeShapeServices(upload.Filename, sessionID, &serviceErrorList, shapeServiceDir, &linkMut)
+	if err != nil {
+		logE(sessionID, err, "HandleShapeMakeServices")
+		http.Error(w, "Error creating shape services\n", http.StatusBadRequest)
+		return
+	}
+	if len(errorList) > 0 || len(serviceErrorList) > 0 {
+		logE(sessionID, fmt.Errorf("Error creating GeoJSON for the following files: %s", strings.Join(errorList, ", ")), "HandleShapeMakeSymLink")
+		_, err := w.Write([]byte(fmt.Sprintf("Error creating GeoJSON for the following files: %s\nError creating services for the following files: %s", strings.Join(errorList, ", "), strings.Join(serviceErrorList, ", "))))
+		if err != nil {
+			logE(sessionID, err, "HandleShapeWriteError")
+			http.Error(w, "Error writing error message\n", http.StatusBadRequest)
+		}
+		return
+	}
 	w.WriteHeader(http.StatusOK)
 }
 
 func makeSymLink(sessionID string, name string, shpPath string, pathPrefix string, filesList *[]string, errorList *[]string, wg *sync.WaitGroup, mutex *sync.Mutex) {
 	nameComponents := strings.Split(name, ".")
-    mutex.Lock()
+	mutex.Lock()
 	if len(nameComponents) < 2 {
-        logI(sessionID, fmt.Sprintf("Error: Invalid shapefile archive member name: %s\nSkipping.\n", name), "makeSymLink")
-        *errorList = append(*errorList, name)
-        mutex.Unlock()
+		logI(sessionID, fmt.Sprintf("Error: Invalid shapefile archive member name: %s\nSkipping.\n", name), "makeSymLink")
+		*errorList = append(*errorList, name)
+		mutex.Unlock()
 		wg.Done()
 		return
 	}
@@ -349,79 +348,78 @@ func makeSymLink(sessionID string, name string, shpPath string, pathPrefix strin
 	}
 	*filesList = append(*filesList, nameComponents[0])
 	mutex.Unlock()
-    logI(sessionID, fmt.Sprintf("Creating symlink for %s\n", name), "makeSymLink")
-    logD(sessionID, fmt.Sprintf("source: %s\ndestination: %s\nnc0: %s\n", shpPath, pathPrefix+"/layers/"+nameComponents[0]+".zip", nameComponents[0]), "makeSymLink")
+	logI(sessionID, fmt.Sprintf("Creating symlink for %s\n", name), "makeSymLink")
+	logD(sessionID, fmt.Sprintf("source: %s\ndestination: %s\nnc0: %s\n", shpPath, pathPrefix+"/layers/"+nameComponents[0]+".zip", nameComponents[0]), "makeSymLink")
 	err := os.Symlink(shpPath, pathPrefix+"/layers/"+nameComponents[0]+".zip")
 	if err != nil {
-        logE(sessionID, err, "makeSymLink")
-        mutex.Lock()
-        *errorList = append(*errorList, name)
-        mutex.Unlock()
+		logE(sessionID, err, "makeSymLink")
+		mutex.Lock()
+		*errorList = append(*errorList, name)
+		mutex.Unlock()
 		wg.Done()
 		return
 	}
 	wg.Done()
 }
 
-func makeJsonFromShape(sessionID string, shapeServiceDir string, name string, file *zip.File, pathPrefix string, filesList *[]string, errorList *[]string, wg *sync.WaitGroup, mutex *sync.Mutex) {
-	pathComponents := strings.Split(name, "/")
-    fileName := pathComponents[len(pathComponents)-1]
-    logD(sessionID, fmt.Sprintf("Processing file: %s\n", fileName), "makeJsonFromShape")
-    if "shp" != path.Ext(fileName) { return }
-    shapeFile, err := file.Open();
-    if err != nil {
-        logE(sessionID, err, "makeJsonFromShapeOpen")
-        mutex.Lock()
-        *errorList = append(*errorList, fileName)
-        mutex.Unlock()
-        wg.Done()
-        return
-    }
-    logD(sessionID, fmt.Sprintf("Creating file: %s\n", pathPrefix + "/temp/" + fileName), "makeJsonFromShape")
-    defer shapeFile.Close()
-    destHandle, err := os.Create(pathPrefix + "/temp/" + fileName)
-    if err != nil {
-        logE(sessionID, err, "makeJsonFromShapeCreate")
-        mutex.Lock()
-        *errorList = append(*errorList, fileName)
-        mutex.Unlock()
-        wg.Done()
-        return
-    }
-    defer destHandle.Close()
-    logD(sessionID, fmt.Sprintf("Copying file: %s\n", pathPrefix + "/temp/" + fileName), "makeJsonFromShape")
-    _, err = io.Copy(destHandle, shapeFile)
-    if err != nil {
-        logE(sessionID, err, "makeJsonFromShapeCopy")
-        mutex.Lock()
-        *errorList = append(*errorList, fileName)
-        mutex.Unlock()
-        wg.Done()
-        return
-    }
-    logD(sessionID, fmt.Sprintf("Calling shape2json with args: %s, %s\n", pathPrefix + "/temp/" + fileName, shapeServiceDir + "/" + fileName + ".json"), "makeJsonFromShape")
-    shpPath := pathPrefix + "/temp/" + fileName
-    jsonPath := shapeServiceDir + "/" + fileName + ".json"
-    cInputShapeFile := C.CString(shpPath)
-    cOutputJsonFile := C.CString(jsonPath)
-    defer C.free(unsafe.Pointer(cInputShapeFile))
-    defer C.free(unsafe.Pointer(cOutputJsonFile))
-    C.shape2json(cInputShapeFile, cOutputJsonFile)
-    mutex.Lock()
-    *filesList = append(*filesList, fileName)
-    mutex.Unlock()
-    wg.Done()
-    logD(sessionID, fmt.Sprintf("Finished processing file: %s\n", fileName), "makeJsonFromShape")
+func makeJsonFromShape(sessionID string, shapeServiceDir string, file *zip.File, pathPrefix string, errorList *[]string, wg *sync.WaitGroup, mutex *sync.Mutex) {
+	pathComponents := strings.Split(file.Name, "/")
+	fileName := pathComponents[len(pathComponents)-1]
+	logD(sessionID, fmt.Sprintf("Processing file: %s\nExtension: %s\n", fileName, path.Ext(fileName)), "makeJsonFromShape")
+	if ".shp" != path.Ext(fileName) {
+		logD(sessionID, "Returning", "makeJsonFromShape Extension Return")
+		wg.Done()
+		return
+	}
+	shapeFile, err := file.Open()
+	if err != nil {
+		logE(sessionID, err, "makeJsonFromShapeOpen")
+		mutex.Lock()
+		*errorList = append(*errorList, fileName)
+		mutex.Unlock()
+		wg.Done()
+		return
+	}
+	logD(sessionID, fmt.Sprintf("Creating file: %s\n", pathPrefix+"/temp/"+fileName), "makeJsonFromShape")
+	defer shapeFile.Close()
+	destHandle, err := os.Create(pathPrefix + "/temp/" + fileName)
+	if err != nil {
+		logE(sessionID, err, "makeJsonFromShapeCreate")
+		mutex.Lock()
+		*errorList = append(*errorList, fileName)
+		mutex.Unlock()
+		wg.Done()
+		return
+	}
+	defer destHandle.Close()
+	logD(sessionID, fmt.Sprintf("Copying file: %s\n", pathPrefix+"/temp/"+fileName), "makeJsonFromShape")
+	_, err = io.Copy(destHandle, shapeFile)
+	if err != nil {
+		logE(sessionID, err, "makeJsonFromShapeCopy")
+		mutex.Lock()
+		*errorList = append(*errorList, fileName)
+		mutex.Unlock()
+		wg.Done()
+		return
+	}
+	logD(sessionID, fmt.Sprintf("Calling shape2json with args: %s, %s\n", pathPrefix+"/temp/"+fileName, shapeServiceDir+"/"+fileName+".json"), "makeJsonFromShape")
+	shpPath := pathPrefix + "/temp/" + fileName
+	jsonPath := shapeServiceDir + "/" + fileName + ".json"
+	cInputShapeFile := C.CString(shpPath)
+	cOutputJsonFile := C.CString(jsonPath)
+	defer C.free(unsafe.Pointer(cInputShapeFile))
+	defer C.free(unsafe.Pointer(cOutputJsonFile))
+	C.shape2json(cInputShapeFile, cOutputJsonFile)
+	wg.Done()
+	logD(sessionID, fmt.Sprintf("Finished processing file: %s\n", fileName), "makeJsonFromShape")
 }
 
-func makeShapeServices(shpName string, sessionId string, errorList *[]string, shapeServiceDir string) (error) {
-	pathComponents := strings.Split(shpName, "/")
-    fileName := pathComponents[len(pathComponents)-1]
-	serviceUrl := shapeServiceDir + fileName 
+func makeShapeServices(shpName string, sessionId string, errorList *[]string, shapeServiceDir string, mutex *sync.Mutex) error {
+	logD(sessionId, "Entered", "makeShapeServices")
 	files, err := os.ReadDir(shapeServiceDir)
 	if err != nil {
-        logE(sessionId, err, "makeShapeServicesReadDir")
-        return err
+		logE(sessionId, err, "makeShapeServicesReadDir")
+		return err
 	}
 
 	client := ClientMgr.clients[sessionId]
@@ -434,18 +432,20 @@ func makeShapeServices(shpName string, sessionId string, errorList *[]string, sh
 	serviceUid := uuid.New().String()
 	var wg sync.WaitGroup
 	for _, file := range files {
+		logD(sessionId, file.Name(), "makeShapeServices File Loop")
 		wg.Add(1)
-		go sendGeoJsonMessage(shpName, serviceUrl, file.Name(), wgs84BoundingBox, serviceUid, &client, &wg, errorList)
+		go sendGeoJsonMessage(shpName, file.Name(), wgs84BoundingBox, serviceUid, &client, &wg, errorList, mutex)
 	}
 	wg.Wait()
-    return nil
+	return nil
 }
 
-func sendGeoJsonMessage(shpName string, serviceUrl string, fileName string, bbox Wgs84BoundingBox, serviceUid string, client *Client, wg *sync.WaitGroup, errorList *[]string) {
+func sendGeoJsonMessage(shpName string, fileName string, bbox Wgs84BoundingBox, serviceUid string, client *Client, wg *sync.WaitGroup, errorList *[]string, mutex *sync.Mutex) {
+	logD(client.sessionID, "Entered", "sendGeoJsonMessage")
 	message := ShapefileUrlMessage{}
 	message.Kind = "GEOJSON"
 	message.Args.Uid = uuid.New().String()
-	message.Args.UrlOrGeoJsonObject = serviceUrl
+	message.Args.UrlOrGeoJsonObject = "./services/shapefiles/" + shpName + "/" + fileName
 	message.Args.Title = fileName
 	message.Args.Description = fmt.Sprintf("Contents of %s", fileName)
 	message.Args.Wgs84BoundingBox = bbox
@@ -453,19 +453,21 @@ func sendGeoJsonMessage(shpName string, serviceUrl string, fileName string, bbox
 	message.Args.ServiceInfo.ServiceId = serviceUid
 	message.Args.ServiceInfo.ServiceUrl = "UploadedFile"
 	jsonMessage, err := json.Marshal(message)
-    logI(client.sessionID, fmt.Sprintf("Sending message: %s\n", string(jsonMessage[:])), "sendMessage")
+	logI(client.sessionID, fmt.Sprintf("Sending message: %s\n", string(jsonMessage[:])), "sendMessage")
 	if err != nil {
-        logE(client.sessionID, err, "sendMessageMarshal")
-        *errorList = append(*errorList, fileName)
+		logE(client.sessionID, err, "sendMessageMarshal")
+		*errorList = append(*errorList, fileName)
 		wg.Done()
 		return
 	}
+	mutex.Lock()
 	err = client.conn.WriteMessage(1, jsonMessage)
+	mutex.Unlock()
 	if err != nil {
-        logE(client.sessionID, err, "sendMessageWriteMessage")
-        *errorList = append(*errorList, fileName)
+		logE(client.sessionID, err, "sendMessageWriteMessage")
+		*errorList = append(*errorList, fileName)
 		wg.Done()
-        return
+		return
 	}
 	wg.Done()
 }
@@ -508,27 +510,27 @@ func addShapeDirect(shpName string, sessionId string) {
 func shape2json(path string, file string) (GeoJsonFeatureCollection, error) {
 	shp, err := os.Open(path + file)
 	if err != nil {
-        logE("shape2json", err, "shape2jsonOpen")
-        return GeoJsonFeatureCollection{}, err
+		logE("shape2json", err, "shape2jsonOpen")
+		return GeoJsonFeatureCollection{}, err
 	}
 	defer shp.Close()
 	stat, err := shp.Stat()
 	if err != nil {
-        logE("shape2json", err, "shape2jsonStat")
-        return GeoJsonFeatureCollection{}, err
+		logE("shape2json", err, "shape2jsonStat")
+		return GeoJsonFeatureCollection{}, err
 	}
 
 	scanner, err := shapefile.NewZipScanner(shp, stat.Size(), file)
 	if err != nil {
-        logE("shape2json", err, "shape2jsonNewZipScanner")
-        return GeoJsonFeatureCollection{}, err
+		logE("shape2json", err, "shape2jsonNewZipScanner")
+		return GeoJsonFeatureCollection{}, err
 	}
 
 	// Start the scanner
 	err = scanner.Scan()
 	if err != nil {
-        logE("shape2json", err, "shape2jsonScan")
-        return GeoJsonFeatureCollection{}, err
+		logE("shape2json", err, "shape2jsonScan")
+		return GeoJsonFeatureCollection{}, err
 	}
 
 	var features []geojson.Feature
@@ -633,13 +635,13 @@ func (cm *ClientManager) RemoveClient(sessionID string) {
 }
 
 func main() {
-    f, err := os.OpenFile("/cslt/logs/backend.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-    if err != nil {
-        logE("LOCAL", err, "Cannot open log file, logging to stdout/stderr")
-    } else {
-        log.SetOutput(f)
-    }
-    defer f.Close()
+	f, err := os.OpenFile("/cslt/logs/backend.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		logE("LOCAL", err, "Cannot open log file, logging to stdout/stderr")
+	} else {
+		log.SetOutput(f)
+	}
+	defer f.Close()
 	port := os.Getenv("BACKEND_PORT")
 	log.Printf("Port: %s", port)
 	http.HandleFunc("/map", HandleNewClient)
@@ -657,5 +659,5 @@ func logI(sessionID string, message string, step string) {
 }
 
 func logD(sessionID string, message string, step string) {
-    log.Printf("[DEBUG] SessionID: %s: Step: %s\n\t %s", sessionID, step, message)
+	log.Printf("[DEBUG] SessionID: %s: Step: %s\n\t %s", sessionID, step, message)
 }
