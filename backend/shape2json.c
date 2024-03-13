@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "gdal.h"
 #include "ogr_api.h"
+#include "cpl_conv.h"
 #include "shape2json.h"
 int shape2json(char *inputFile, char *outputFile) {
 

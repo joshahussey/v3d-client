@@ -301,7 +301,7 @@ func HandleShape(w http.ResponseWriter, r *http.Request) {
 	for _, shp := range zipReader.File {
 		linkWg.Add(1)
 		go makeSymLink(sessionID, shp.Name, shpPath, pathPrefix, &filesList, &errorList, &linkWg, &linkMut)
-        err = os.Mkdir(pathPrefix + "/temp/", 0777)
+        err = os.MkdirAll(pathPrefix + "/temp", 0777)
         if err != nil {
             logE(sessionID, err, "HandleShapeMkdirTemp")
             http.Error(w, "Error creating temp directory\n", http.StatusBadRequest)
