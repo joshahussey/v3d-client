@@ -13,7 +13,7 @@ ENV BACKEND_PORT $BACKEND_PORT_ARG
 #RUN [ "apk", "add", "--no-cache", "gdal", "gdal-dev" ]
 #RUN [ "rm", "-rf", "/var/cache/apk*" ]
 WORKDIR /cslt/backend
-RUN [ "apk", "add", "build-base" ]
+RUN [ "apk", "add", "gcc", "musl-dev" ]
 RUN [ "go", "build" ]
 RUN [ "rm", "-rf", "backend.go" ]
 RUN [ "rm", "-rf", "go.mod" ]
