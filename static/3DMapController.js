@@ -278,14 +278,6 @@ const Map3DController = window.Map3DController
            * @param {String} urlOrGeoJsonObject url to the layer, or a geojson object.
            * @param {String} title the label displayed for the layer in the layer manager.
            * @param {String} description the description for the layer in the layer manager.
-           * @param {Object} wgs84BoundingBox JSON Dictionary representing minimum bounding rectangle surrounding dataset,
-           *                                  using WGS 84 CRS with decimal degrees and longitude before latitude.
-           *                                  ie: {
-           *                                      "minX": -180,
-           *                                      "minY": -90,
-           *                                      "maxX": 180,
-           *                                      "maxY": 90
-           *                                  }
            * @param {Object} serviceInfo JSON Dictionary representing service information in the form:
            *                             {
            *                                 "serviceTitle":"Title Of Service",
@@ -293,14 +285,13 @@ const Map3DController = window.Map3DController
            *                                 "serviceUrl":"The URL Corresponding To The Service",
            *                             }
            */
-          addGeoJSON: (uid, urlOrGeoJsonObject, title, description, wgs84BoundingBox, serviceInfo) => {
+          addGeoJSON: (uid, urlOrGeoJsonObject, title, description, serviceInfo) => {
               const option = {
                   uid: uid,
                   name: title,
                   description: description,
                   url: urlOrGeoJsonObject,
                   type: "geojson",
-                  bounds: wgs84BoundingBox,
                   serviceInfo: serviceInfo
               };
               const mapState = Map3DController.getMapState();
@@ -310,6 +301,37 @@ const Map3DController = window.Map3DController
               mapState.dataSources = dataSources;
               Map3DController.setMapState(mapState);
           },
+
+          /**
+           * Adds a data source to the 3D map, replacing any existing data source with the same UID.
+           *
+           * @param {String} uid unique identifier for the layer.
+           * @param {String} url url to the kml file.
+           * @param {String} title the label displayed for the layer in the layer manager.
+           * @param {String} description the description for the layer in the layer manager.
+           * @param {Object} serviceInfo JSON Dictionary representing service information in the form:
+           *                             {
+           *                                 "serviceTitle":"Title Of Service",
+           *                                 "serviceId":"A Unique Service Identifier",
+           *                                 "serviceUrl":"The URL Corresponding To The Service",
+           *                             }
+           */
+          addKml: (uid, url, title, description, serviceInfo) => {
+            const option = {
+                uid: uid,
+                name: title,
+                description: description,
+                url: url,
+                type: "kml",
+                serviceInfo: serviceInfo
+            };
+            const mapState = Map3DController.getMapState();
+            let dataSources = mapState.dataSources;
+            dataSources = dataSources.filter(d => d.uid !== uid);
+            dataSources.push(option);
+            mapState.dataSources = dataSources;
+            Map3DController.setMapState(mapState);
+        },
 
           /**
            * Adds a data source to the 3D map, replacing any existing data source with the same UID.

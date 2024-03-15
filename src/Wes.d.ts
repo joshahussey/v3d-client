@@ -147,7 +147,7 @@ type WesImageryObject = {
     layers: string;
     parameters: { [key: string]: string };
     IonResourceAssetId: number;
-    serviceInfo?: ServiceInfo;
+    serviceInfo: ServiceInfo;
     bounds: ImageryBounds;
 };
 
@@ -157,7 +157,7 @@ type WesPrimitiveObject = {
     type: string;
     show: boolean;
     url: string;
-    serviceInfo?: ServiceInfo;
+    serviceInfo: ServiceInfo;
 };
 
 type WesDataSourceObject = {

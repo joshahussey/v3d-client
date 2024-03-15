@@ -15,7 +15,6 @@ export function translate(key: NameType, insertValues?: string[]): string {
     const userLanguage = getUserLanguage();
     if (userLanguage === "en") {
         if (typeof insertValues !== "undefined") {
-            console.log(en_translations[key]);
             return replaceArray(en_translations[key], insertValues);
         } else {
             return en_translations[key];

@@ -201,7 +201,6 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                     args.url,
                     args.title,
                     args.description,
-                    args.wgs84BoundingBox,
                     args.serviceInfo
                 );
                 Controller.raiseMapStateChangedEvent();
@@ -218,13 +217,21 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                 Controller.raiseMapStateChangedEvent();
                 break;
             case "GEOJSON":
-                console.log("GOT HERERERERERERERERE");
                 Controller.addGeoJSON(
                     args.uid,
                     args.urlOrGeoJsonObject,
                     args.title,
                     args.description,
-                    args.wgs84BoundingBox,
+                    args.serviceInfo
+                );
+                Controller.raiseMapStateChangedEvent();
+                break;
+            case "KML":
+                Controller.addKml(
+                    args.uid,
+                    args.url,
+                    args.title,
+                    args.description,
                     args.serviceInfo
                 );
                 Controller.raiseMapStateChangedEvent();
@@ -1047,9 +1054,9 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
         (layer as WesImageryLayer).name = imageryOption.name;
         (layer as WesImageryLayer).uid = imageryOption.uid;
         (layer as WesImageryLayer).serviceInfo = {
-            serviceId: imageryOption.serviceInfo?.serviceId,
-            serviceTitle: imageryOption.serviceInfo?.serviceTitle,
-            serviceUrl: imageryOption.serviceInfo?.serviceUrl
+            serviceId: imageryOption.serviceInfo.serviceId,
+            serviceTitle: imageryOption.serviceInfo.serviceTitle,
+            serviceUrl: imageryOption.serviceInfo.serviceUrl
         };
         const map = optionsMap();
         map.set(layer, imageryOption);
@@ -1135,9 +1142,26 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                     createdDataSource.load(dataSourceOption.url);
                     createdDataSource.clustering.enabled = true;
                     (createdDataSource as any).serviceInfo = {
-                        serviceId: dataSourceOption.serviceInfo?.serviceId,
-                        serviceTitle: dataSourceOption.serviceInfo?.serviceTitle,
-                        serviceUrl: dataSourceOption.serviceInfo?.serviceUrl
+                        serviceId: dataSourceOption.serviceInfo.serviceId,
+                        serviceTitle: dataSourceOption.serviceInfo.serviceTitle,
+                        serviceUrl: dataSourceOption.serviceInfo.serviceUrl
+                    };
+                    (createdDataSource as any).uid = dataSourceOption.uid;
+                    (createdDataSource as any).description = dataSourceOption.description;
+                    (createdDataSource as any).name = dataSourceOption.name;
+                    (createdDataSource as any).url = dataSourceOption.url;
+                }
+                break;
+            case "kml":
+                if (dataSourceOption.url != null && dataSourceOption.url != undefined) {
+                    createdDataSource = await cesium.KmlDataSource.load(dataSourceOption.url, {
+                        clampToGround: true
+                    });
+                    createdDataSource.clustering.enabled = true;
+                    (createdDataSource as any).serviceInfo = {
+                        serviceId: dataSourceOption.serviceInfo.serviceId,
+                        serviceTitle: dataSourceOption.serviceInfo.serviceTitle,
+                        serviceUrl: dataSourceOption.serviceInfo.serviceUrl
                     };
                     (createdDataSource as any).uid = dataSourceOption.uid;
                     (createdDataSource as any).description = dataSourceOption.description;

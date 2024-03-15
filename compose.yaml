@@ -34,6 +34,13 @@ services:
         HTTP_PORT_ARG: $HTTP_PORT
         HTTPS_PORT_ARG: $HTTPS_PORT
         ADMIN_PORT_ARG: $ADMIN_PORT
+    develop:
+      watch:
+        - action: sync
+          path: ./web
+          target: /cslt/web
+        - action: rebuild
+          path: package.json
     volumes:
       - docker_web:/cslt/web
   backend:
@@ -44,6 +51,14 @@ services:
       dockerfile: Dockerfile
       args:
         BACKEND_PORT_ARG: $BACKEND_PORT
+    develop:
+      watch:
+        - action: sync
+          path: ./backend
+          target: /cslt/backend
+        - action: rebuild
+          path: ./backend/cslt3d
+          target: /cslt/backend/cslt3d
     volumes:
       - ./logs/:/cslt/backend/logs
       - docker_web:/cslt/web
