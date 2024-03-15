@@ -1,0 +1,27 @@
+name: standalone3d
+
+services:
+  server:
+    image: gerrit.compusult.com:5000/standalone3d-server
+    ports:
+      - "$HTTP_PORT:$HTTP_PORT"
+      - "$HTTPS_PORT:$HTTPS_PORT"
+      - "$ADMIN_PORT:$ADMIN_PORT"
+    volumes:
+      - docker_web:/srv
+      - ./logs/:/cslt/logs
+      - $CERTS_DIR:/certs
+  frontend:
+    image: gerrit.compusult.com:5000/standalone3d-frontend
+    volumes:
+      - docker_web:/cslt/web
+  backend:
+    image: gerrit.compusult.com:5000/standalone3d-backend
+    ports:
+      - "$BACKEND_PORT:$BACKEND_PORT"
+    volumes:
+      - ./logs/:/cslt/backend/logs
+      - docker_web:/cslt/web
+volumes: 
+  docker_web:
+    driver: local

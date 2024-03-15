@@ -3,8 +3,9 @@
 #include "ogr_api.h"
 #include "cpl_conv.h"
 #include "shape2json.h"
-int shape2json(char *inputFile, char *outputFile) {
 
+int shape2json(char *inputFile, char *outputFile) {
+    fprintf(stdout, "Converting %s to %s\n", inputFile, outputFile);
     CPLSetConfigOption("SHAPE_RESTORE_SHX", "YES");
 
     GDALAllRegister();
