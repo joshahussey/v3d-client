@@ -544,7 +544,7 @@ func HandleKml(w http.ResponseWriter, r *http.Request) {
 	//Parse the form
 	err := r.ParseMultipartForm(32 << 20)
 	if err != nil {
-		logE(sessionID, err, "HandleShapeParseForm")
+		logE(sessionID, err, "HandleKmlParseForm")
 		http.Error(w, "Error getting file from form\n", http.StatusBadRequest)
 		return
 	}
@@ -552,7 +552,7 @@ func HandleKml(w http.ResponseWriter, r *http.Request) {
 	//Get File From Form
 	file, handler, err := r.FormFile("file")
 	if err != nil {
-		logE(sessionID, err, "HandleShapeFormFile")
+		logE(sessionID, err, "HandleKmlFormFile")
 		http.Error(w, "Error getting file from form\n", http.StatusBadRequest)
 		return
 	}
@@ -590,18 +590,17 @@ func HandleKml(w http.ResponseWriter, r *http.Request) {
 	_, err = os.Stat(kmlServicePath)
 	if err == nil {
 		//Get Existing File Hash
-		logI(sessionID, fmt.Sprintf("err == nil"), "HandleShapeFileExists")
 		existingFileBytes, err := os.ReadFile(kmlServicePath)
 		if err != nil {
-			logE(sessionID, err, "HandleShapeReadFile")
+			logE(sessionID, err, "HandleKmlReadFile")
 			http.Error(w, "Error reading file\n", http.StatusBadRequest)
 			return
 		}
 		existingFileHasher := sha256.New()
 		_, err = existingFileHasher.Write(existingFileBytes)
 		if err != nil {
-			logE(sessionID, err, "HandleKmlReadFile")
-			http.Error(w, "Error reading file\n", http.StatusBadRequest)
+			logE(sessionID, err, "HandleKmlWriteFile")
+			http.Error(w, "Error writing file\n", http.StatusBadRequest)
 			return
 		}
 		existingHash := fmt.Sprintf("%x", existingFileHasher.Sum(nil))
@@ -613,7 +612,7 @@ func HandleKml(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else if !os.IsNotExist(err) {
-		logE(sessionID, err, "HandleShapeStat")
+		logE(sessionID, err, "HandleKmlStat")
 		http.Error(w, "Error checking if file exists\n", http.StatusBadRequest)
 		return
 	}
@@ -646,7 +645,6 @@ func HandleKml(w http.ResponseWriter, r *http.Request) {
 }
 
 func sendKmlMessage(fileName string, serviceUid string, client *Client, errorList *[]string) {
-	logD(client.sessionID, "Entered", "sendKmlMessage")
 	message := KmlUrlMessage{}
 	message.Kind = "KML"
 	message.Args.Uid = serviceUid
@@ -659,14 +657,14 @@ func sendKmlMessage(fileName string, serviceUid string, client *Client, errorLis
 	jsonMessage, err := json.Marshal(message)
 	logI(client.sessionID, fmt.Sprintf("Sending message: %s\n", string(jsonMessage[:])), "sendMessage")
 	if err != nil {
-		logE(client.sessionID, err, "sendMessageMarshal")
+		logE(client.sessionID, err, "sendKmlMessageMarshal")
 		*errorList = append(*errorList, fileName)
 		return
 	}
 
 	err = client.conn.WriteMessage(1, jsonMessage)
 	if err != nil {
-		logE(client.sessionID, err, "sendMessageWriteMessage")
+		logE(client.sessionID, err, "sendKmlMessageWriteMessage")
 		*errorList = append(*errorList, fileName)
 		return
 	}
@@ -677,7 +675,7 @@ func sendKmlResponse(w http.ResponseWriter, sessionID string, messageErrorList [
 		logE(sessionID, fmt.Errorf("Error sending messages for the following files: \n\t%s\n", strings.Join(messageErrorList, "\n\t")), "HandleShapeMakeSymLink")
 		_, err := w.Write([]byte(fmt.Sprintf("Successfully created the following files:\n\t%s\nError sending messages for the following files: \n\t%s\n", strings.Join(fileList, "\n\t"), strings.Join(messageErrorList, "\n\t"))))
 		if err != nil {
-			logE(sessionID, err, "HandleShapeWriteError")
+			logE(sessionID, err, "sendKmlResponseWriteError")
 			http.Error(w, "Error writing error message\n", http.StatusBadRequest)
 		}
 		return
@@ -686,7 +684,7 @@ func sendKmlResponse(w http.ResponseWriter, sessionID string, messageErrorList [
 		logE(sessionID, fmt.Errorf("Error sending messages for the following files: \n\t%s\n", strings.Join(messageErrorList, "\n\t")), "HandleShapeMakeSymLink")
 		_, err := w.Write([]byte(fmt.Sprintf("No Files Could be added to the map. Error sending messages for the following files: \n\t%s\n", strings.Join(messageErrorList, "\n\t"))))
 		if err != nil {
-			logE(sessionID, err, "HandleShapeWriteError")
+			logE(sessionID, err, "sendKmlResponseWriteError")
 			http.Error(w, "Error writing error message\n", http.StatusBadRequest)
 		}
 		return
@@ -694,7 +692,7 @@ func sendKmlResponse(w http.ResponseWriter, sessionID string, messageErrorList [
 	logI(sessionID, fmt.Sprintf("Successfully sent the following files to the map:\n\t%s\n", strings.Join(fileList, "\n\t")), "HandleShapeMakeSymLink")
 	_, err := w.Write([]byte(fmt.Sprintf("Successfully sent the following files to the map:\n\t%s\n", strings.Join(fileList, "\n\t"))))
 	if err != nil {
-		logE(sessionID, err, "HandleShapeWriteError")
+		logE(sessionID, err, "sendKmlResponseWriteError")
 		http.Error(w, "Error writing error message\n", http.StatusBadRequest)
 	}
 }
