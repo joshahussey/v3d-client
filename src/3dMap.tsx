@@ -1004,7 +1004,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         }
         let tileset;
         if (option?.name === "Open Street Map Buildings") {
-            tileset = primitiveLayers.add(await createOsmBuildingsAsync());
+            tileset = primitiveLayers.add(await createOsmBuildingsAsync({projectTo2D: true}));
             tileset.style = BLUE_TILE_STYLE;
             tileset.serviceInfo = {
                 serviceId: standAloneLayersServiceUID,
@@ -1013,7 +1013,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             };
             setOsmBuildingsLayer(option.uid);
         } else {
-            tileset = primitiveLayers.add(await Cesium3DTileset.fromUrl(option.url));
+            tileset = primitiveLayers.add(await Cesium3DTileset.fromUrl(option.url, {projectTo2D: true}));
             tileset.serviceInfo = {
                 serviceId: option.serviceInfo?.serviceId,
                 serviceTitle: option.serviceInfo?.serviceTitle,
