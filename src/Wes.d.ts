@@ -147,7 +147,7 @@ type WesImageryObject = {
     layers: string;
     parameters: { [key: string]: string };
     IonResourceAssetId: number;
-    serviceInfo?: ServiceInfo;
+    serviceInfo: ServiceInfo;
     bounds: ImageryBounds;
 };
 
@@ -216,7 +216,7 @@ interface WesImageryLayer extends ImageryLayer {
     cesiumBuiltinType: string;
     IonResourceAssetId: number;
     description: string;
-    serviceInfo?: ServiceInfo;
+    serviceInfo: ServiceInfo;
 }
 interface WesPrimitiveCollection extends PrimitiveCollection {
     name?: string;

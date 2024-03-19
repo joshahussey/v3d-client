@@ -5,7 +5,7 @@ import { CesiumWindow } from "../Wes";
 
 export function MapModeRockerButton(): Element {
     const viewer = (window as CesiumWindow).Map3DViewer;
-    const [sceneMode, setSceneMode] = createSignal(SceneMode.SCENE3D);
+    const [sceneMode, setSceneMode] = createSignal(viewer.scene.mode);
     let ref2dButton: HTMLButtonElement | undefined;
     let ref3dButton: HTMLButtonElement | undefined;
     let refColumbusButton: HTMLButtonElement | undefined;

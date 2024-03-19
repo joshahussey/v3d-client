@@ -49,6 +49,7 @@ import { GeoCaUI } from "./UI/GeoCaUI";
 import { GeoCaHeaderDiv } from "./Components/GeoCaHeaderDiv";
 import { createReconnectingWS } from "@solid-primitives/websocket";
 import { translate as t } from "./i18n/Translator";
+import { ConstantProperty, GeoJsonDataSource, HeightReference } from "cesium";
 
 const Controller = (window as CesiumWindow).Map3DController;
 
@@ -102,8 +103,8 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
     let sessionID = urlParams.get("sessionID");
     if (!sessionID) {
         sessionID = sessionStorage.getItem("sessionID");
-        if (!sessionID){
-           sessionID = self.crypto.randomUUID();
+        if (!sessionID) {
+            sessionID = self.crypto.randomUUID();
         }
     }
     sessionStorage.setItem("sessionID", sessionID);
@@ -319,7 +320,6 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
     });
     (window as CesiumWindow).sourcesWithLegends = sourcesWithLegends;
     (window as CesiumWindow).setSourcesWithLegends = setSourcesWithLegends;
-    cesium.GeoJsonDataSource.clampToGround = true;
 
     (window as any).fireBroadcastEvent = (event: any, eventId: any, hasPayload: any) => {
         if (!WES_3D_EVENTS.has(eventId)) return;
@@ -1027,9 +1027,9 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                 imageryOption.uid,
                 imageryOption.bounds,
                 (imageryOption.serviceInfo = {
-                    serviceId: imageryOption.serviceInfo?.serviceId,
-                    serviceTitle: imageryOption.serviceInfo?.serviceTitle,
-                    serviceUrl: imageryOption.serviceInfo?.serviceUrl
+                    serviceId: imageryOption.serviceInfo.serviceId,
+                    serviceTitle: imageryOption.serviceInfo.serviceTitle,
+                    serviceUrl: imageryOption.serviceInfo.serviceUrl
                 })
             );
             layer = cesium.ImageryLayer.fromProviderAsync(createdDatasource.provider as any, {});
@@ -1131,18 +1131,22 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                 break;
             case "geojson":
                 if (dataSourceOption.url != null && dataSourceOption.url != undefined) {
-                    createdDataSource = new cesium.GeoJsonDataSource(dataSourceOption.name);
-                    createdDataSource.load(dataSourceOption.url);
-                    createdDataSource.clustering.enabled = true;
-                    (createdDataSource as any).serviceInfo = {
+                    const gjDataSource = new cesium.GeoJsonDataSource(dataSourceOption.name);
+                    loadGeoJsonDataSource(gjDataSource, dataSourceOption);
+                    viewer.scene.morphComplete.addEventListener(() => {
+                        loadGeoJsonDataSource(gjDataSource, dataSourceOption);
+                    }, removeSignal);
+                    gjDataSource.clustering.enabled = true;
+                    (gjDataSource as any).serviceInfo = {
                         serviceId: dataSourceOption.serviceInfo.serviceId,
                         serviceTitle: dataSourceOption.serviceInfo.serviceTitle,
                         serviceUrl: dataSourceOption.serviceInfo.serviceUrl
                     };
-                    (createdDataSource as any).uid = dataSourceOption.uid;
-                    (createdDataSource as any).description = dataSourceOption.description;
-                    (createdDataSource as any).name = dataSourceOption.name;
-                    (createdDataSource as any).url = dataSourceOption.url;
+                    (gjDataSource as any).uid = dataSourceOption.uid;
+                    (gjDataSource as any).description = dataSourceOption.description;
+                    (gjDataSource as any).name = dataSourceOption.name;
+                    (gjDataSource as any).url = dataSourceOption.url;
+                    createdDataSource = gjDataSource;
                 }
                 break;
             case "coverage":
@@ -1169,6 +1173,19 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
             map.set(createdDataSource, dataSourceOption);
             setOptionsMap(map);
             await dataSourceLayers.add(createdDataSource as cesium.DataSource);
+        }
+    }
+
+    async function loadGeoJsonDataSource(datasource: GeoJsonDataSource, dataSourceOption: WesDataSourceObject) {
+        await (datasource as GeoJsonDataSource).load(dataSourceOption.url, {
+            clampToGround: viewer.scene.mode !== cesium.SceneMode.SCENE2D
+        });
+        if (viewer.scene.mode == cesium.SceneMode.COLUMBUS_VIEW) {
+            for (const ent of datasource.entities.values) {
+                if (ent.billboard !== undefined) {
+                    ent.billboard.heightReference = new ConstantProperty(HeightReference.NONE);
+                }
+            }
         }
     }
 
