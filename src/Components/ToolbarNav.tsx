@@ -83,6 +83,7 @@ export function ToolbarNav(): JSX.Element {
                         }
                         setLayersOrderOpened(!isLayersOrderOpened());
                     }}
+                    text={t("layerOrderButtonText")}
                 />
                 <ToolbarButton
                     id="BasemapTerrainButton"
@@ -93,6 +94,7 @@ export function ToolbarNav(): JSX.Element {
                         }
                         setBasemapTerrainOpened(!isBasemapTerrainOpened());
                     }}
+                    text={t("basemapTerrainButtonText")}
                 />
                 <ToolbarButton
                     id="LayersButton"
@@ -100,6 +102,7 @@ export function ToolbarNav(): JSX.Element {
                     onClick={() => {
                         setLayersOpened(!isLayersOpened());
                     }}
+                    text={t("layersButtonText")}
                 />
             </div>
         </div>

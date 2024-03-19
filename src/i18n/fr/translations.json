@@ -2,6 +2,14 @@
     "selectPlaceholder":"FR_Select...",
     "selectEmptyListPlaceholder":"FR_No Options",
     
+    "mapModeRockerButton2DText":"FR_Display 2D View",
+    "mapModeRockerButton3DText":"FR_Display 3D View",
+    "mapModeRockerButtonColumbusText":"FR_Display Columbus View",
+
+    "layerOrderButtonText":"FR_Show Layer Order",
+    "basemapTerrainButtonText":"FR_Show Basemap And Terrain Selectors",
+    "layersButtonText":"FR_Expand Layer Manager",
+
     "basemapSelectorLabel": "FR_Basemap: ",
     "terrainSelectorLabel": "FR_Terrain: ",
 
@@ -72,7 +80,7 @@
     "wesDatasourceClusteringSetError1":"FR_Value must be defined.",
     "wesDatasourceFetchJsonError1":"FR_Url is not defined",
 
-    "geoCaHomeButtonTitle":"FR_Home",
+    "geoCaHomeButtonTitle":"FR_Zoom To Home",
 
     "aoiHandleAoiEventError1":"FR_Received AOI update event without AOI key.",
     

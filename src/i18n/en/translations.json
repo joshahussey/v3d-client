@@ -2,7 +2,13 @@
     "selectPlaceholder":"Select...",
     "selectEmptyListPlaceholder":"No Options",
 
-    
+    "mapModeRockerButton2DText":"Display 2D View",
+    "mapModeRockerButton3DText":"Display 3D View",
+    "mapModeRockerButtonColumbusText":"Display Columbus View",
+
+    "layerOrderButtonText":"Show Layer Order",
+    "basemapTerrainButtonText":"Show Basemap And Terrain Selectors",
+    "layersButtonText":"Expand Layer Manager",
 
     "basemapSelectorLabel": "Basemap: ",
     "terrainSelectorLabel": "Terrain: ",
@@ -74,7 +80,7 @@
     "wesDatasourceClusteringSetError1":"Value must be defined.",
     "wesDatasourceFetchJsonError1":"Url is not defined",
 
-    "geoCaHomeButtonTitle":"Home",
+    "geoCaHomeButtonTitle":"Zoom To Home",
 
     "aoiHandleAoiEventError1":"Received AOI update event without AOI key.",
     

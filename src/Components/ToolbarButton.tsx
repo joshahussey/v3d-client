@@ -24,7 +24,7 @@ export function ToolbarButton(props: ToolbarButtonType): Element {
         icon = props.icon;
     }
     return (
-        <button id={props.id} type="button" class={className} onClick={props.onClick} ref={props.ref}>
+        <button id={props.id} type="button" class={className} onClick={props.onClick} ref={props.ref} title={props.text}>
             {icon}
         </button>
     ) as Element;
