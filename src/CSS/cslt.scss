@@ -13,11 +13,12 @@
 @use "./SassComponents/Toolbar.scss";
 @use "./SassComponents/UtilityClasses.scss";
 @use "./SassComponents/LayersView.scss";
-@use "./SassComponents/HomeButtonDiv.scss";
+@use "./SassComponents/TopRightCesiumButtonsDiv.scss";
 @use "./SassComponents/ServiceEntry.scss";
 @use "./SassComponents/LayersOrder.scss";
 @use "./SassComponents/LayerSettingsMenu.scss";
 @use "./SassComponents/GeoCaHeader.scss";
+@use "./SassComponents/SceneModeRockerButtonDiv.scss";
 
 * {
     box-sizing: border-box;

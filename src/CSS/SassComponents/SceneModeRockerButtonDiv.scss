@@ -1,0 +1,42 @@
+.map-mode-rocker-buttons-div {
+    display: grid;
+    grid-template-columns: auto;
+    border: 1px solid var(--dark-gray);
+    border-radius: 2px;
+    height: min-content;
+    align-self: center;
+}
+
+.map-mode-button {
+    padding: 0.2rem;
+    margin: 0;
+    overflow:visible;
+    max-height: 32px;
+}
+.map-mode-button:hover {
+    background-color: var(--light-gray);
+    border-color: var(--dark-gray);
+    box-shadow: none;
+}
+.map-mode-button:focus {
+    border-color: var(--dark-gray);
+}
+
+.map-mode-rocker-2d {
+    grid-column: 1;
+}
+.map-mode-rocker-3d {
+    grid-column: 2;
+    border-left: 1px solid var(--dark-gray);
+}
+.map-mode-rocker-columbus {
+    grid-column: 3;
+    border-left: 1px solid var(--dark-gray);
+}
+
+.selected {
+    background-color: var(--gray);
+}
+.selected:hover {
+    background-color: var(--gray);
+}

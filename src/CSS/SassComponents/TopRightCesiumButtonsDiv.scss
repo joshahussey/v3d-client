@@ -1,10 +1,15 @@
-.home-button {
+.top-right-cesium-buttons-div {
     position: absolute;
     right: 0;
     z-index: 1;
     margin: 0.6rem;
-    background-color: var(--white);
+    display: inline-block;
 }
-.home-button:hover {
+
+.top-right-cesium-button {
+    background-color: var(--white);
+    padding: 7px 12px 3px 12px
+}
+.top-right-cesium-button:hover {
     background-color: var(--light-gray);
 }

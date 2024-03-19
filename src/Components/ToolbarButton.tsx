@@ -6,6 +6,7 @@ type ToolbarButtonType = {
     class?: string;
     icon?: string | JSX.Element;
     text?: string;
+    ref?: HTMLButtonElement | undefined
 };
 
 /**
@@ -23,7 +24,7 @@ export function ToolbarButton(props: ToolbarButtonType): Element {
         icon = props.icon;
     }
     return (
-        <button id={props.id} type="button" class={className} onClick={props.onClick}>
+        <button id={props.id} type="button" class={className} onClick={props.onClick} ref={props.ref}>
             {icon}
         </button>
     ) as Element;

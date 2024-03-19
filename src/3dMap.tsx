@@ -1135,9 +1135,9 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                     createdDataSource.load(dataSourceOption.url);
                     createdDataSource.clustering.enabled = true;
                     (createdDataSource as any).serviceInfo = {
-                        serviceId: dataSourceOption.serviceInfo?.serviceId,
-                        serviceTitle: dataSourceOption.serviceInfo?.serviceTitle,
-                        serviceUrl: dataSourceOption.serviceInfo?.serviceUrl
+                        serviceId: dataSourceOption.serviceInfo.serviceId,
+                        serviceTitle: dataSourceOption.serviceInfo.serviceTitle,
+                        serviceUrl: dataSourceOption.serviceInfo.serviceUrl
                     };
                     (createdDataSource as any).uid = dataSourceOption.uid;
                     (createdDataSource as any).description = dataSourceOption.description;

@@ -27,6 +27,7 @@ import {
     DistanceDisplayCondition,
     defined,
     Resource,
+    SceneMode,
 } from "cesium";
 import GeoJsonDecoder from "../Utils/GeoJsonDecoder";
 import WesDataSource from "./WesDataSource";
@@ -376,7 +377,9 @@ export default class FeaturesApiDataSource extends WesDataSource {
         cluster.billboard!.height = CLUSTER_HEIGHT;
         //cluster.billboard!.disableDepthTestDistance = POSTIVE_INFINITY_PROPERTY;
         cluster.billboard!.show = TRUE_PROPERTY;
-        cluster.billboard!.heightReference = HEIGHT_REFERENCE_CLAMP_TO_GROUND;
+        if (this._viewer.scene.mode === SceneMode.SCENE3D) {
+            cluster.billboard!.heightReference = HEIGHT_REFERENCE_CLAMP_TO_GROUND;
+        }
         cluster.billboard!.verticalOrigin = VERTICAL_ORIGIN_BOTTOM;
         cluster.billboard!.eyeOffset = new ConstantProperty(new Cartesian3(0, 0, -CLUSTER_HEIGHT_CONSTANT));
     }
@@ -708,7 +711,9 @@ export default class FeaturesApiDataSource extends WesDataSource {
                 }
                 billyB.show = TRUE_PROPERTY;
                 billyB.verticalOrigin = VERTICAL_ORIGIN_BOTTOM;
-                billyB.heightReference = HEIGHT_REFERENCE_CLAMP_TO_GROUND;
+                if (this._viewer.scene.mode === SceneMode.SCENE3D) {
+                    billyB.heightReference = HEIGHT_REFERENCE_CLAMP_TO_GROUND;
+                }
                 billyB.disableDepthTestDistance = new ConstantProperty(8000000);
                 feature.billboard = billyB;
             } else {
@@ -821,7 +826,9 @@ export default class FeaturesApiDataSource extends WesDataSource {
         }
         billboard.eyeOffset = new ConstantProperty(new Cartesian3(0, 0, 500));
         billboard.verticalOrigin = VERTICAL_ORIGIN_BOTTOM;
-        billboard.heightReference = HEIGHT_REFERENCE_CLAMP_TO_GROUND;
+        if (this._viewer.scene.mode === SceneMode.SCENE3D) {
+            billboard.heightReference = HEIGHT_REFERENCE_CLAMP_TO_GROUND;
+        }
         billboard.disableDepthTestDistance = new ConstantProperty(80000000);
     }
     updateFeatureLocation(feature: Entity, location: Cartesian3 | ConstantProperty | PolygonHierarchy): Entity {
@@ -926,7 +933,9 @@ export default class FeaturesApiDataSource extends WesDataSource {
         }
         label.eyeOffset = new ConstantProperty(new Cartesian3(0, 0, -500));
         label.verticalOrigin = VERTICAL_ORIGIN_BOTTOM;
-        label.heightReference = HEIGHT_REFERENCE_CLAMP_TO_GROUND;
+        if (this._viewer.scene.mode === SceneMode.SCENE3D) {
+            label.heightReference = HEIGHT_REFERENCE_CLAMP_TO_GROUND;
+        } 
         label.disableDepthTestDistance = new ConstantProperty(80000000);
     }
 

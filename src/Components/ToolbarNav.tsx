@@ -2,6 +2,7 @@ import { JSX } from "solid-js";
 import { useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { ToolbarButton } from "./Components";
 import { translate as t } from "../i18n/Translator";
+import { MapModeRockerButton } from "./MapModeRockerButton";
 
 /**
  * Represents a component for rendering the toolbar navigation with various buttons.
@@ -72,6 +73,7 @@ export function ToolbarNav(): JSX.Element {
                 >
                     {t("toolbarNavLayers")}
                 </span>
+                <MapModeRockerButton/>
                 <ToolbarButton
                     id="LayerOrderButton"
                     icon={layerOrderIcon}

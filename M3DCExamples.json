@@ -42,14 +42,14 @@
 {
     "type": "OGCMAP",
     "args": {
-        "uid": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/geodb/NOAA/map/collections/noaa_buoys|noaa_buoys",
-        "title": "NOAA NDBC Buoy Data",
-        "url": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/geodb/NOAA/map/collections/noaa_buoys",
+        "uid": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/geodb/AIS/ogcapi/collections/ships/map?LAYERS=ships&f=html",
+        "title": "AIS Ships OGC Map",
+        "url": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/geodb/AIS/ogcapi/collections/ships/map?LAYERS=ships&f=html",
         "wgs84BoundingBox": { "minX": -180, "minY": -90, "maxX": 180, "maxY": 90 },
         "serviceInfo": {
-            "serviceTitle": "National Oceanic and Atmospheric Administration's (NOAA) National Data Buoy Center (NDBC) Buoys and Ships Observation Data",
+            "serviceTitle": "AIS Ships",
             "serviceId": "79c4fcf6-b5a4-4fa7-aad8-fb4adbc4ab65",
-            "serviceUrl": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/geodb/NOAA/map"
+            "serviceUrl": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/geodb/AIS/ogcapi/collections/ships/map"
         }
     }
 }
@@ -164,15 +164,30 @@
 {
     "type": "FEATURE",
     "args": {
-        "uid": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/geodb/AIS/feature/collections/ships|ships", 
-        "url": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/geodb/AIS/feature/collections/ships", 
+        "uid": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/geodb/AIS/ogcapi/collections/ships", 
+        "url": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/geodb/AIS/ogcapi/collections/ships", 
         "title": "Maritime Ship Traffic", 
         "description": "Ship Traffic Sensor Observation Service provided by Compusult in Mount Pearl, Newfoundland, Canada. Reporting observations related to ship traffic observed by AIS sensors. AIS is an automatic tracking system that uses transceivers on ships and is used by Vessel Traffic Services (VTS).",
         "wgs84BoundingBox": { "minX": -180, "minY": -90, "maxX": 180, "maxY": 90}, 
         "serviceInfo": {
             "serviceTitle": "Automatic Identification System (AIS) Maritime Ship Traffic",
             "serviceId": "37ea8961-942d-4a5f-8e3b-642b63748e4f",
-            "serviceUrl": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/geodb/AIS/feature"
+            "serviceUrl": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/geodb/AIS/ogcapi/collections/ships"
+        }
+    }
+}
+{
+    "type": "FEATURE",
+    "args": {
+        "uid": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/geodb/METAR/ogcapi/collections/metar_weather_report", 
+        "url": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/geodb/METAR/ogcapi/collections/metar_weather_report", 
+        "title": "FAA Flight Features", 
+        "description": "FAA Flight Features",
+        "wgs84BoundingBox": { "minX": -180, "minY": -90, "maxX": 180, "maxY": 90}, 
+        "serviceInfo": {
+            "serviceTitle": "FAA Flight",
+            "serviceId": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/geodb/METAR/ogcapi/collections/metar_weather_report",
+            "serviceUrl": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/geodb/METAR/ogcapi/collections/metar_weather_report"
         }
     }
 }
@@ -180,8 +195,8 @@
 {
     "type": "COVERAGE",
     "args": {
-        "uid": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/datacube/Sea_Ice_Concentrations/coverage/collections/Sea_Ice_Concentrations/coverage?f=json&properties=Band1|Band1", 
-        "url": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/datacube/Sea_Ice_Concentrations/coverage/collections/Sea_Ice_Concentrations/coverage?f=json&properties=Band1", 
+        "uid": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/datacube/Sea_Ice_Concentrations/ogcapi/collections/Sea_Ice_Concentrations/coverage?&f=json&properties=Band1", 
+        "url": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/datacube/Sea_Ice_Concentrations/ogcapi/collections/Sea_Ice_Concentrations/coverage?&f=json&properties=Band1", 
         "title": "Sea Ice Concentration", 
         "description": null, 
         "sourceLayerIndex": "Band1", 

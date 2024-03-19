@@ -38,17 +38,19 @@ export function GeoCaUI(): JSX.Element {
                     </InterfaceProvider>
                 </ToolbarStateContext>
             </header>
-            <button
-                id="Home"
-                type="button"
-                class="cesium-button home-button"
-                style={buttonStyle}
-                onClick={() => {
-                    viewer.camera.flyHome(0.5);
-                }}
-            >
-                <img src="./Icons/home_black.png" title={t("geoCaHomeButtonTitle")} style={buttonImageStyle} />
-            </button>
+            <div class="top-right-cesium-buttons-div">
+                <button
+                    id="Home"
+                    type="button"
+                    class="cesium-button top-right-cesium-button"
+                    style={buttonStyle}
+                    onClick={() => {
+                        viewer.camera.flyHome(0.5);
+                    }}
+                >
+                    <img src="./Icons/home_black.png" title={t("geoCaHomeButtonTitle")} style={buttonImageStyle} />
+                </button>
+            </div>
         </>
     );
 }
