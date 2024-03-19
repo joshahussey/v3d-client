@@ -1,4 +1,3 @@
-import * as cesium from "cesium";
 import CesiumNavigation from "cesium-navigation-es6";
 import "../node_modules/cesium/Build/Cesium/Widgets/widgets.css";
 import "./CSS/cslt.scss";
@@ -49,7 +48,41 @@ import { GeoCaUI } from "./UI/GeoCaUI";
 import { GeoCaHeaderDiv } from "./Components/GeoCaHeaderDiv";
 import { createReconnectingWS } from "@solid-primitives/websocket";
 import { translate as t } from "./i18n/Translator";
-import { ConstantProperty, GeoJsonDataSource, HeightReference } from "cesium";
+import {
+    ArcGisMapServerImageryProvider,
+    Camera,
+    Cesium3DTileset,
+    CesiumTerrainProvider,
+    Clock,
+    ClockRange,
+    ClockViewModel,
+    ConstantProperty,
+    createGooglePhotorealistic3DTileset,
+    createOsmBuildingsAsync,
+    createWorldImageryAsync,
+    createWorldTerrainAsync,
+    DataSource,
+    Ellipsoid,
+    EllipsoidTerrainProvider,
+    GeoJsonDataSource,
+    GoogleMaps,
+    HeightReference,
+    ImageryLayer,
+    ImageryProvider,
+    Ion,
+    IonImageryProvider,
+    IonWorldImageryStyle,
+    JulianDate,
+    Moon,
+    Rectangle,
+    Resource,
+    SceneMode,
+    Sun,
+    TimeIntervalCollection,
+    Viewer,
+    WebMapServiceImageryProvider,
+    WebMapTileServiceImageryProvider
+} from "cesium";
 
 const Controller = (window as CesiumWindow).Map3DController;
 
@@ -58,39 +91,34 @@ window.onbeforeunload = function () {
     localStorage.setItem("cesiumOpened", "false");
 };
 
-const load = async function (mapState: MapState): Promise<cesium.Viewer> {
+const load = async function (mapState: MapState): Promise<Viewer> {
     //Setup
     const dataSourcesToBeAdded: Set<WesDataSourceObject> = new Set();
     const imageryLayersToBeAdded: Set<WesImageryObject> = new Set();
     const tilesetsToBeAdded: Set<WesPrimitiveObject> = new Set();
     let addingLayers = false;
-    cesium.Ion.defaultAccessToken = mapState.accessToken;
-    cesium.GoogleMaps.defaultApiKey = mapState.googleToken;
+    Ion.defaultAccessToken = mapState.accessToken;
+    GoogleMaps.defaultApiKey = mapState.googleToken;
     let basemapOptions = mapState.baseMapLayers;
     let imageryOptions = mapState.imageLayers;
     let terrainOptions = mapState.terrainSets;
     let dataSourceOptions = mapState.dataSources;
     let primitiveOptions = mapState.primitiveLayers;
     const basemapOption = mapState.baseMapLayers[0];
-    const baseImageryProvider = (await getImageryProvider(basemapOption)) as cesium.ImageryProvider;
-    const baseImageryLayer = new cesium.ImageryLayer(baseImageryProvider, {});
+    const baseImageryProvider = (await getImageryProvider(basemapOption)) as ImageryProvider;
+    const baseImageryLayer = new ImageryLayer(baseImageryProvider, {});
     const terrainOption = mapState.terrainSets[0];
     // Creates the cesium viewer by binding to the div in 3dMap.jsp
-    const clock = new cesium.Clock({
-        clockRange: cesium.ClockRange.CLAMPED
+    const clock = new Clock({
+        clockRange: ClockRange.CLAMPED
     });
-    const clockModel = new cesium.ClockViewModel(clock);
-    cesium.Camera.DEFAULT_VIEW_RECTANGLE = cesium.Rectangle.fromDegrees(
-        -140.99778,
-        41.6751050889,
-        -52.6480987209,
-        83.23324
-    );
-    cesium.Camera.DEFAULT_VIEW_FACTOR = 0;
+    const clockModel = new ClockViewModel(clock);
+    Camera.DEFAULT_VIEW_RECTANGLE = Rectangle.fromDegrees(-140.99778, 41.6751050889, -52.6480987209, 83.23324);
+    Camera.DEFAULT_VIEW_FACTOR = 0;
     const initCameraViewport = localStorage.getItem("initCameraViewport");
     if (initCameraViewport) {
         const rectangleComponents = initCameraViewport.split(",");
-        cesium.Camera.DEFAULT_VIEW_RECTANGLE = cesium.Rectangle.fromDegrees(
+        Camera.DEFAULT_VIEW_RECTANGLE = Rectangle.fromDegrees(
             Number(rectangleComponents[0]),
             Number(rectangleComponents[1]),
             Number(rectangleComponents[2]),
@@ -239,7 +267,7 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
         }
     });
 
-    const viewer = new cesium.Viewer("cesiumContainer", {
+    const viewer = new Viewer("cesiumContainer", {
         baseLayer: baseImageryLayer,
         homeButton: false,
         fullscreenButton: true,
@@ -271,10 +299,10 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
     chooseTerrainSet(terrainOption);
     const cesiumToolbar = document.querySelector(".cesium-viewer-toolbar") as HTMLDivElement;
     if (cesiumToolbar) cesiumToolbar.style.display = "none";
-    viewer.scene.moon = new cesium.Moon();
-    viewer.scene.sun = new cesium.Sun();
+    viewer.scene.moon = new Moon();
+    viewer.scene.sun = new Sun();
     const navOptions = {
-        defaultResetView: cesium.Rectangle.fromDegrees(-140.99778, 41.6751050889, -52.6480987209, 83.23324),
+        defaultResetView: Rectangle.fromDegrees(-140.99778, 41.6751050889, -52.6480987209, 83.23324),
         enableCompass: true,
         enableZoomControls: true,
         enableDistanceLegend: true,
@@ -567,7 +595,7 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                     break;
                 }
             }
-            if (source instanceof cesium.ImageryLayer && inBaseLayers === false && inImageLayers === false) {
+            if (source instanceof ImageryLayer && inBaseLayers === false && inImageLayers === false) {
                 optionsMap().delete(source);
                 if (timeMap().has(source.uid)) {
                     const tempTimeMap = timeMap();
@@ -598,14 +626,14 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
         const primitivesLayersArray: Wes3DTileSet[] = (viewer.scene.primitives as any)._primitives.slice();
         const filteredPrimitivesArray: Wes3DTileSet[] = [];
         primitivesLayersArray.forEach((layer: Wes3DTileSet) => {
-            if (layer instanceof cesium.Cesium3DTileset) {
+            if (layer instanceof Cesium3DTileset) {
                 if (layer.name === "google") return;
                 filteredPrimitivesArray.push(layer);
             }
         });
         setTileSets(filteredPrimitivesArray);
         for (const source of optionsMap().keys()) {
-            if (source instanceof cesium.Cesium3DTileset) {
+            if (source instanceof Cesium3DTileset) {
                 if (!tileSets().includes(source as Wes3DTileSet)) {
                     optionsMap().delete(source);
                 }
@@ -678,7 +706,7 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
     /**
      * Add a new layer to the already opened client
      */
-    async function addLayers(viewer?: cesium.Viewer, optionsMap?: any) {
+    async function addLayers(viewer?: Viewer, optionsMap?: any) {
         addingLayers = true;
         while (dataSourcesToBeAdded.size > 0) {
             const layerOptions = dataSourcesToBeAdded.values();
@@ -746,7 +774,7 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
             layer.uid = option.uid;
             setSelectedLayer(layer);
         } else {
-            layer = cesium.ImageryLayer.fromProviderAsync(await getImageryProvider(option), {});
+            layer = ImageryLayer.fromProviderAsync(await getImageryProvider(option), {});
             (layer as WesImageryLayer).name = option.name;
             (layer as WesImageryLayer).uid = option.uid;
         }
@@ -789,7 +817,7 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                     }
                 });
                 viewer.scene.globe.translucency.enabled = false;
-                viewer.terrainProvider = new cesium.EllipsoidTerrainProvider();
+                viewer.terrainProvider = new EllipsoidTerrainProvider();
 
                 break;
             }
@@ -800,7 +828,7 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                     }
                 });
                 viewer.scene.globe.translucency.enabled = false;
-                viewer.terrainProvider = await cesium.createWorldTerrainAsync();
+                viewer.terrainProvider = await createWorldTerrainAsync();
                 break;
             }
             case googlePhotorealisticUID: {
@@ -808,7 +836,7 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                 viewer.scene.globe.translucency.enabled = true;
                 viewer.scene.globe.translucency.backFaceAlpha = 0;
                 viewer.scene.globe.translucency.frontFaceAlpha = 0;
-                const tileset = (await cesium.createGooglePhotorealistic3DTileset()) as Wes3DTileSet;
+                const tileset = (await createGooglePhotorealistic3DTileset()) as Wes3DTileSet;
                 tileset.name = "google";
                 primitiveLayers.add(tileset);
 
@@ -825,7 +853,7 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                     }
                 });
                 viewer.scene.globe.translucency.enabled = false;
-                viewer.terrainProvider = await cesium.CesiumTerrainProvider.fromUrl(terrainSet.url);
+                viewer.terrainProvider = await CesiumTerrainProvider.fromUrl(terrainSet.url);
             }
         }
 
@@ -862,7 +890,7 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
     async function getImageryProvider(option: WesImageryObject): Promise<WesImageryProvider | null> {
         let bounds;
         if (option.bounds != undefined) {
-            bounds = cesium.Rectangle.fromDegrees(
+            bounds = Rectangle.fromDegrees(
                 option.bounds.minX,
                 option.bounds.minY,
                 option.bounds.maxX,
@@ -870,8 +898,8 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
             );
         }
         if (option.type === "WMTS") {
-            const resource = new cesium.Resource({ url: option.url });
-            return new cesium.WebMapTileServiceImageryProvider({
+            const resource = new Resource({ url: option.url });
+            return new WebMapTileServiceImageryProvider({
                 url: resource,
                 //name: option.name,
                 layer: option.layer,
@@ -888,8 +916,8 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
             //    //name: option.name,
             //    credit: option.credit,
             //});
-            return await cesium.ArcGisMapServerImageryProvider.fromUrl(option.url, {
-                ellipsoid: cesium.Ellipsoid.WGS84,
+            return await ArcGisMapServerImageryProvider.fromUrl(option.url, {
+                ellipsoid: Ellipsoid.WGS84,
                 credit: option.credit
             });
         }
@@ -900,15 +928,15 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                 const dataCallback = (interval: any, index: number) => {
                     let time;
                     if (index === 0) {
-                        time = cesium.JulianDate.toIso8601(interval.stop);
+                        time = JulianDate.toIso8601(interval.stop);
                     } else {
-                        time = cesium.JulianDate.toIso8601(interval.start);
+                        time = JulianDate.toIso8601(interval.start);
                     }
                     return {
                         Time: time
                     };
                 };
-                const times = cesium.TimeIntervalCollection.fromIso8601({
+                const times = TimeIntervalCollection.fromIso8601({
                     iso8601: wmsDescriptor.iso8601,
                     leadingInterval: true,
                     trailingInterval: true,
@@ -917,11 +945,11 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                 });
                 const tempMap = timeMap();
                 tempMap.set(option.uid, [
-                    cesium.JulianDate.fromDate(wmsDescriptor.start),
-                    cesium.JulianDate.fromDate(wmsDescriptor.end)
+                    JulianDate.fromDate(wmsDescriptor.start),
+                    JulianDate.fromDate(wmsDescriptor.end)
                 ]);
                 setTimeMap(tempMap);
-                return new cesium.WebMapServiceImageryProvider({
+                return new WebMapServiceImageryProvider({
                     url: option.url,
                     //name: option.name,
                     layers: option.layers,
@@ -935,7 +963,7 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                     rectangle: bounds
                 });
             }
-            return new cesium.WebMapServiceImageryProvider({
+            return new WebMapServiceImageryProvider({
                 url: option.url,
                 //name: option.name,
                 layers: option.layers,
@@ -948,10 +976,10 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
         if (option.type === "CesiumBuiltin") {
             switch (option.cesiumBuiltinType) {
                 case "bingMaps":
-                    return cesium.createWorldImageryAsync({ style: cesium.IonWorldImageryStyle.AERIAL_WITH_LABELS });
+                    return createWorldImageryAsync({ style: IonWorldImageryStyle.AERIAL_WITH_LABELS });
 
                 case "ionResource":
-                    return new cesium.IonImageryProvider({
+                    return new IonImageryProvider({
                         assetId: option.IonResourceAssetId
                     } as any);
 
@@ -976,7 +1004,7 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
         }
         let tileset;
         if (option?.name === "Open Street Map Buildings") {
-            tileset = primitiveLayers.add(await cesium.createOsmBuildingsAsync());
+            tileset = primitiveLayers.add(await createOsmBuildingsAsync());
             tileset.style = BLUE_TILE_STYLE;
             tileset.serviceInfo = {
                 serviceId: standAloneLayersServiceUID,
@@ -985,7 +1013,7 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
             };
             setOsmBuildingsLayer(option.uid);
         } else {
-            tileset = primitiveLayers.add(await cesium.Cesium3DTileset.fromUrl(option.url));
+            tileset = primitiveLayers.add(await Cesium3DTileset.fromUrl(option.url));
             tileset.serviceInfo = {
                 serviceId: option.serviceInfo?.serviceId,
                 serviceTitle: option.serviceInfo?.serviceTitle,
@@ -1032,14 +1060,14 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                     serviceUrl: imageryOption.serviceInfo.serviceUrl
                 })
             );
-            layer = cesium.ImageryLayer.fromProviderAsync(createdDatasource.provider as any, {});
+            layer = ImageryLayer.fromProviderAsync(createdDatasource.provider as any, {});
         } else {
             if (imageryOption.uid === basemapOption.uid) {
                 layer = imageryLayers.get(0);
                 imageryLayers.remove(layer, false);
             } else {
                 const provider = await getImageryProvider(imageryOption);
-                layer = cesium.ImageryLayer.fromProviderAsync(provider, {});
+                layer = ImageryLayer.fromProviderAsync(provider, {});
             }
         }
         layer.alpha = 1;
@@ -1131,7 +1159,7 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
                 break;
             case "geojson":
                 if (dataSourceOption.url != null && dataSourceOption.url != undefined) {
-                    const gjDataSource = new cesium.GeoJsonDataSource(dataSourceOption.name);
+                    const gjDataSource = new GeoJsonDataSource(dataSourceOption.name);
                     loadGeoJsonDataSource(gjDataSource, dataSourceOption);
                     viewer.scene.morphComplete.addEventListener(() => {
                         loadGeoJsonDataSource(gjDataSource, dataSourceOption);
@@ -1172,15 +1200,15 @@ const load = async function (mapState: MapState): Promise<cesium.Viewer> {
             const map = optionsMap();
             map.set(createdDataSource, dataSourceOption);
             setOptionsMap(map);
-            await dataSourceLayers.add(createdDataSource as cesium.DataSource);
+            await dataSourceLayers.add(createdDataSource as DataSource);
         }
     }
 
     async function loadGeoJsonDataSource(datasource: GeoJsonDataSource, dataSourceOption: WesDataSourceObject) {
         await (datasource as GeoJsonDataSource).load(dataSourceOption.url, {
-            clampToGround: viewer.scene.mode !== cesium.SceneMode.SCENE2D
+            clampToGround: viewer.scene.mode !== SceneMode.SCENE2D
         });
-        if (viewer.scene.mode == cesium.SceneMode.COLUMBUS_VIEW) {
+        if (viewer.scene.mode == SceneMode.COLUMBUS_VIEW) {
             for (const ent of datasource.entities.values) {
                 if (ent.billboard !== undefined) {
                     ent.billboard.heightReference = new ConstantProperty(HeightReference.NONE);
