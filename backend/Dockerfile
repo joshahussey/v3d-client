@@ -15,7 +15,6 @@ ENV BACKEND_PORT $BACKEND_PORT_ARG
 WORKDIR /cslt/backend
 RUN [ "apk", "add", "gcc", "musl-dev" ]
 RUN [ "go", "build" ]
-RUN [ "rm", "-rf", "backend.go" ]
-RUN [ "rm", "-rf", "go.mod" ]
-RUN [ "rm", "-rf", "go.sum" ]
+RUN [ "rm", "-rf", "backend.go", "go.mod", "go.sum", "*.go", "Dockerfile", "roads", "devtools", "jjj", "shape2json*"]
+
 CMD [ "/cslt/backend/cslt3d", ">", "/cslt/backend/logs/backend.log", "2>&1", "&"]
