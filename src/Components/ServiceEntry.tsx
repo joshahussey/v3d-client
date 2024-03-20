@@ -5,7 +5,7 @@ import { DatasourceEntry } from "./DatasourceEntry";
 import { ServiceEntryInput } from "./LayersDiv";
 import { WesImageryLayer, Wes3DTileSet } from "../Wes";
 import WesDataSource from "../Datasources/WesDataSource";
-import { ImageryLayer, Cesium3DTileset } from "cesium";
+import { ImageryLayer, Cesium3DTileset, KmlDataSource } from "cesium";
 import { useToolbarStateContext, ServiceStatusEntry } from "../Context/ToolbarStateContext";
 import { GeoJsonDataSource } from "cesium";
 import SensorThingsDataSource from "../Datasources/SensorThingsDataSource";
@@ -92,7 +92,7 @@ export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
                     serviceCheckBoxState={checkboxState}
                 />
             );
-        } else if ((layer instanceof WesDataSource) || (layer instanceof GeoJsonDataSource)) {
+        } else if ((layer instanceof WesDataSource) || (layer instanceof GeoJsonDataSource) || (layer instanceof KmlDataSource)) {
             allLayerDivs.push(
                 <DatasourceEntry
                     datasource={layer}

@@ -31,4 +31,10 @@
 			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
 		}
 	}
+
+	route /kml* {
+		handle {
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
+		}
+	}
 }

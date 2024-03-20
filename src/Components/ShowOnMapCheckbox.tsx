@@ -1,4 +1,4 @@
-import { Cesium3DTileset, GeoJsonDataSource, ImageryLayer } from "cesium";
+import { Cesium3DTileset, GeoJsonDataSource, ImageryLayer, KmlDataSource } from "cesium";
 import { Wes3DTileSet, Wes3dMapLayer, WesImageryLayer } from "../Wes";
 import WesDataSource from "../Datasources/WesDataSource";
 import { JSX, createSignal, Accessor, createEffect } from "solid-js";
@@ -52,6 +52,9 @@ export function ShowOnMapCheckbox(props: {
             }
         }
         if (datasource && datasource instanceof GeoJsonDataSource) {
+            datasource.show = isChecked;
+        }
+        if (datasource && datasource instanceof KmlDataSource) {
             datasource.show = isChecked;
         }
         if (imageryLayer && imageryLayer instanceof ImageryLayer) {

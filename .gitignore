@@ -9,3 +9,9 @@ deploy/
 prep.mx
 rebuild_docker.mx
 .envrc
+.direnv
+.envrc
+dockerpush.sh
+fl.bak
+flake.lock
+flake.nix

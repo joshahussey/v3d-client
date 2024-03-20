@@ -1,11 +1,15 @@
-import { ServiceInfo } from "./Wes"
-
 type WGS84BoundingBox = {
     minX: number, 
     minY: number, 
     maxX: number, 
     maxY: number
 }
+
+type ServiceInfo = {
+    serviceTitle: string;
+    serviceId: string;
+    serviceUrl: string;
+};
 
 type addWMS = {
     type: string,
@@ -69,7 +73,17 @@ type addGeoJSON = {
         urlOrGeoJsonObject: string | JSON,
         title: string,
         description: string,
-        wgs84BoundingBox: WGS84BoundingBox,
+        serviceInfo: ServiceInfo
+    }
+}
+
+type addKml = {
+    type: string,
+    args: {
+        uid: string,
+        url: string,
+        title: string,
+        description: string, 
         serviceInfo: ServiceInfo
     }
 }

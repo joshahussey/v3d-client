@@ -1,4 +1,4 @@
-import { Cesium3DTileset, GeoJsonDataSource, ImageryLayer } from "cesium";
+import { Cesium3DTileset, GeoJsonDataSource, ImageryLayer, KmlDataSource } from "cesium";
 import { CesiumWindow, Wes3DTileSet, Wes3dMapLayer, WesImageryLayer } from "../Wes";
 import WesDataSource from "../Datasources/WesDataSource";
 import CoverageApiDataSource from "../Datasources/CoverageApiDataSource";
@@ -64,7 +64,7 @@ export function DeleteLayerButton(layer: {
                     (window as CesiumWindow).Map3DViewer.dataSources.remove(layer.datasource, true);
                     window.dispatchEvent(new Event("tilesetRemoved"));
                 }
-                if (layer.datasource && layer.datasource instanceof GeoJsonDataSource) {
+                if (layer.datasource && (layer.datasource instanceof GeoJsonDataSource || layer.datasource instanceof KmlDataSource)) {
                     (window as CesiumWindow).Map3DViewer.dataSources.remove(layer.datasource);
                 }
             }}

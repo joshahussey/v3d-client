@@ -11,6 +11,7 @@ pipeline {
         TLS_CERT_LOC = 'compusult_com_2024.crt'
         TLS_KEY_LOC = 'compusult_com_2048_nopass.key'
         CADDYFILE = 'caddyfile'
+        CGO_CFLAGS="-I/usr/include/gdal"
     }
     tools {
         go 'Go1.22.0'

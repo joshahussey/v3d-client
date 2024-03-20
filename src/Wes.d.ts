@@ -157,7 +157,7 @@ type WesPrimitiveObject = {
     type: string;
     show: boolean;
     url: string;
-    serviceInfo?: ServiceInfo;
+    serviceInfo: ServiceInfo;
 };
 
 type WesDataSourceObject = {

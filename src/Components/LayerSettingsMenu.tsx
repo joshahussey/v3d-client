@@ -1,7 +1,7 @@
 import { JSX, Show, Accessor } from "solid-js";
 import { Wes3dMapLayer, WesImageryLayer, Wes3DTileSet, CesiumWindow } from "../Wes";
 import CoverageApiDataSource from "../Datasources/CoverageApiDataSource";
-import { BoundingSphere, Cartesian3, Cesium3DTileset, GeoJsonDataSource, ImageryLayer, Matrix4, Rectangle } from "cesium";
+import { BoundingSphere, Cartesian3, Cesium3DTileset, GeoJsonDataSource, ImageryLayer, KmlDataSource, Matrix4, Rectangle } from "cesium";
 import CelestialBodyDataSource from "../Datasources/CelestialBodyDataSource";
 import { useInterfaceContext } from "../Context/UIContext";
 import WesDataSource from "../Datasources/WesDataSource";
@@ -130,7 +130,7 @@ export function LayerSettingsMenu(props: {
             (window as CesiumWindow).Map3DViewer.dataSources.remove(datasource, true);
             window.dispatchEvent(new Event("tilesetRemoved"));
         }
-        if (datasource && datasource instanceof GeoJsonDataSource) {
+        if (datasource && (datasource instanceof GeoJsonDataSource || datasource instanceof KmlDataSource)) {
             (window as CesiumWindow).Map3DViewer.dataSources.remove(datasource);
         }
     }

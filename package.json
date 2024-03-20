@@ -8,7 +8,7 @@
         "build-client-release": "export $(cat config/env | xargs) && webpack --config ./config/webpack.master.config.js",
         "build-backend": "export $(cat config/env | xargs) && go build -C ./backend -v -x",
         "full-build": "export DOMAIN_NAME=localhost && export $(cat config/env | xargs) && webpack --config ./config/webpack.master.config.js && go build -C ./backend -v -x",
-        "full-build-release": "export $(cat config/env | xargs) && webpack --config ./config/webpack.master.config.js && go build -C ./backend -v -x",
+        "full-build-release": "export $(cat config/env | xargs) && webpack --config ./config/webpack.master.config.js && CGO_CFLAGS='-I/usr/include/gdal' go build -C ./backend -v -x",
         "lint": "eslint 'src/**/*.{ts,tsx,js}' 'src/*.{ts,tsx,js}'",
         "fix": "eslint 'src/**/*.{ts,tsx,js}' 'src/*.{ts,tsx,js}' --fix",
         "dev": "export ROOT_DIR_3D=. && export DOMAIN_NAME=localhost && export $(cat config/env | xargs) && ./backend/run.sh && ./server/run.sh",
