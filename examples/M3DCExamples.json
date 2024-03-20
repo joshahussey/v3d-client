@@ -18,6 +18,23 @@
 }
 
 {
+    "type": "ARCGISWMS",
+    "args": {
+        "uid": "121e0f63-dc1a-4fd7-a81a-552541dec81d",
+        "url": "https://gisp.dfo-mpo.gc.ca/arcgis/rest/services/FGP/Coast_of_Bays_Boundaries/MapServer",
+        "title": "FGP/Coast_of_Bays_Boundaries",
+        "format": "image/png",
+        "credit": "",
+        "wgs84BoundingBox": { "minX": -121.11200953671239, "minY": 38.35766578293069, "maxX": -12.021212341103649, "maxY": 63.053060923532854 },
+        "serviceInfo": {
+            "serviceTitle": "ArcGIS WMS Test",
+            "serviceId": "cb7ddbfd-59dd-4asfasasasaasfb-9591-3fbd33de87b5",
+            "serviceUrl": "https://gisp.dfo-mpo.gc.ca/arcgis/rest/services/FGP/Coast_of_Bays_Boundaries/MapServer"
+        }
+    }
+}
+
+{
     "type": "WMTS",
     "args": {
         "uid": "2aefd4dd-c39b-4a63-8b2e-0946f9d29a77",

@@ -197,6 +197,18 @@ const load = async function(mapState: MapState): Promise<Viewer> {
                 );
                 Controller.raiseMapStateChangedEvent();
                 break;
+            case "ARCGISWMS":
+                Controller.addArcGisWMS(
+                    args.uid,
+                    args.url,
+                    args.title,
+                    args.abstract,
+                    args.credit,
+                    args.wgs84BoundingBox,
+                    args.serviceInfo
+                );
+                Controller.raiseMapStateChangedEvent();
+                break;
             case "OGCMAP":
                 Controller.addOgcMap(args.uid, args.title, args.url, args.wgs84BoundingBox, args.serviceInfo);
                 Controller.raiseMapStateChangedEvent();
@@ -926,7 +938,8 @@ const load = async function(mapState: MapState): Promise<Viewer> {
             //});
             return await ArcGisMapServerImageryProvider.fromUrl(option.url, {
                 ellipsoid: Ellipsoid.WGS84,
-                credit: option.credit
+                credit: option.credit,
+                rectangle: bounds
             });
         }
         if (option.type === "WMS") {

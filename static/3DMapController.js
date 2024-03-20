@@ -165,6 +165,49 @@ const Map3DController = window.Map3DController
           },
 
           /**
+           * Adds a ArcGIS MapServer to 3DMap if the uid dosn't exist.
+           * If the uid exists then the existing layer is first removed.
+           *
+           * @param {String} uid unique identifier for the layer.
+           * @param {String} url WMTS GetTiles endpoint.
+           * @param {String} title the label dispayed for the layer in the layer manager.
+           * @param {String} abstract the description dispayed for the layer in the layer manager.
+           * @param {String} credit discliamer for the source of the data.
+           * @param {Object} wgs84BoundingBox JSON Dictionary representing minimum bounding rectangle surrounding dataset,
+           *                                  using WGS 84 CRS with decimal degrees and longitude before latitude.
+           *                                  ie: {
+           *                                      "minX": -180,
+           *                                      "minY": -90,
+           *                                      "maxX": 180,
+           *                                      "maxY": 90
+           *                                  }
+           * @param {Object} serviceInfo JSON Dictionary representing service information in the form:
+           *                             {
+           *                                 "serviceTitle":"Title Of Service",
+           *                                 "serviceId":"A Unique Service Identifier",
+           *                                 "serviceUrl":"The URL Corresponding To The Service",
+           *                             }
+           */
+          addArcGisWMS: (uid, url, title, abstract, credit, wgs84BoundingBox, serviceInfo) => {
+            const option = {
+                uid: uid,
+                type: "ArcGis",
+                name: title,
+                description: abstract ? abstract : title,
+                url: url,
+                serviceInfo: serviceInfo,
+                bounds: wgs84BoundingBox,
+                credit: credit ? credit : "",
+            };
+            const mapState = Map3DController.getMapState();
+            let imageLayers = mapState.imageLayers;
+            imageLayers = imageLayers.filter(l => l.uid !== uid);
+            imageLayers.push(option);
+            mapState.imageLayers = imageLayers;
+            Map3DController.setMapState(mapState);
+        },
+
+          /**
            * Adds a 3D Tiles to 3DMap if a layer on top of the map primitives if the uid dosn't exist.
            * If the uid exists then the existing layer is first removed.
            *
