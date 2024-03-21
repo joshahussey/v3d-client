@@ -2,7 +2,14 @@ name: standalone3d
 
 services:
   server:
-    image: gerrit.compusult.com:5000/standalone3d-server
+    environment:
+      - BACKEND_PORT
+      - CERTS_DIR
+      - DOMAIN_NAME
+      - ROOT_DIR_3D
+      - TLS_CERT_LOC
+      - TLS_KEY_LOC
+    image: docker.compusult.com:5000/standalone3d-server:$IMAGE_TAG
     ports:
       - "$HTTP_PORT:$HTTP_PORT"
       - "$HTTPS_PORT:$HTTPS_PORT"
@@ -12,11 +19,13 @@ services:
       - ./logs/:/cslt/logs
       - $CERTS_DIR:/certs
   frontend:
-    image: gerrit.compusult.com:5000/standalone3d-frontend
+    image: docker.compusult.com:5000/standalone3d-frontend:$IMAGE_TAG
     volumes:
       - docker_web:/cslt/web
   backend:
-    image: gerrit.compusult.com:5000/standalone3d-backend
+    environment:
+      - BACKEND_PORT
+    image: docker.compusult.com:5000/standalone3d-backend:$IMAGE_TAG
     ports:
       - "$BACKEND_PORT:$BACKEND_PORT"
     volumes:
