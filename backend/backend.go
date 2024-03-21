@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 	"sync"
-     
+
 	"github.com/gorilla/websocket"
 )
 
@@ -43,99 +43,100 @@ type Wgs84BoundingBox struct {
 }
 
 type ReqContext struct {
-    w http.ResponseWriter
-    r *http.Request
-    sessionID string
+	w         http.ResponseWriter
+	r         *http.Request
+	sessionID string
 }
 
+var postQueue = NewRequestQueue()
+
 func HandleConnect(w http.ResponseWriter, r *http.Request) {
-    ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID")}
-    err := HandleNewClient(ctx)
-    if err != nil {
-        e(ctx, err)
-        return
-    }
+	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID")}
+	err := HandleNewClient(ctx)
+	if err != nil {
+		e(ctx, err)
+		return
+	}
 }
 
 func HandleShapeRequest(w http.ResponseWriter, r *http.Request) {
-    ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID")}
-    err := HandleShape(ctx)
-    if err != nil {
-        e(ctx, err)
-        return
-    }
+	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID")}
+	err := HandleShape(ctx)
+	if err != nil {
+		e(ctx, err)
+		return
+	}
 }
 
 func HandleKmlRequest(w http.ResponseWriter, r *http.Request) {
-    ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID")}
-    err := HandleKml(ctx)
-    if err != nil {
-        e(ctx, err)
-        return
-    }
+	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID")}
+	err := HandleKml(ctx)
+	if err != nil {
+		e(ctx, err)
+		return
+	}
 }
 
 func HandleAdd(w http.ResponseWriter, r *http.Request) {
-    ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID")}
+	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID")}
 	if _, upgrade := r.Header["Upgrade"]; upgrade {
-        err := HandleAddWs(ctx)
-            if err != nil {
-                e(ctx, err)
-                return
-            }
+		err := HandleAddWs(ctx)
+		if err != nil {
+			e(ctx, err)
+			return
+		}
 	} else {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, PATCH, WS, WSS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 		switch r.Method {
 		case "POST":
-            err := HandlePost(ctx)
-            if err != nil {
-                e(ctx, err)
-                return
-            }
+			err := HandlePost(ctx)
+			if err != nil {
+				e(ctx, err)
+				return
+			}
 		case "GET":
-            err := HandleGet(ctx)
-            if err != nil {
-                e(ctx, err)
-                return
-            }
+			err := HandleGet(ctx)
+			if err != nil {
+				e(ctx, err)
+				return
+			}
 		case "PATCH":
-            err := HandlePatch(ctx)
-            if err != nil {
-                e(ctx, err)
-                return
-            }
+			err := HandlePatch(ctx)
+			if err != nil {
+				e(ctx, err)
+				return
+			}
 		case "PUT":
-            err := HandlePut(ctx)
-            if err != nil {
-                e(ctx, err)
-                return
-            }
+			err := HandlePut(ctx)
+			if err != nil {
+				e(ctx, err)
+				return
+			}
 		case "OPTIONS":
 			w.WriteHeader(http.StatusOK)
 		case "DELETE":
-            err := HandleDelete(ctx)
-            if err != nil {
-                e(ctx, err)
-                return
-            }
+			err := HandleDelete(ctx)
+			if err != nil {
+				e(ctx, err)
+				return
+			}
 		case "HEAD":
-            err := HandleHead(ctx)
-            if err != nil {
-                e(ctx, err)
-                return
-            }
+			err := HandleHead(ctx)
+			if err != nil {
+				e(ctx, err)
+				return
+			}
 		default:
-            err := HandleUnknownRequest(ctx)
-            if err != nil {
-                e(ctx, err)
-                return
-            }
+			err := HandleUnknownRequest(ctx)
+			if err != nil {
+				e(ctx, err)
+				return
+			}
 		}
 	}
 }
-
 
 // Listen listens for incoming messages from the client.
 func (c *Client) Listen() {
@@ -180,6 +181,14 @@ func (cm *ClientManager) RemoveClient(sessionID string) {
 	fmt.Printf("Client %s disconnected\n", sessionID)
 }
 
+// GetClient gets a client in the manager.
+func (cm *ClientManager) GetClient(sessionID string) (Client, bool) {
+	cm.mutex.Lock()
+	defer cm.mutex.Unlock()
+	client, ok := cm.clients[sessionID]
+	return client, ok
+}
+
 func main() {
 	var f *os.File
 	err := os.MkdirAll("/cslt/logs", 0777)
@@ -193,10 +202,12 @@ func main() {
 			log.SetOutput(f)
 		}
 	}
+
 	defer f.Close()
 	port := os.Getenv("BACKEND_PORT")
 	log.Printf("Port: %s", port)
 	http.HandleFunc("/map", HandleConnect)
+	go postQueue.Work()
 	http.HandleFunc("/add", HandleAdd)
 	http.HandleFunc("/shape", HandleShapeRequest)
 	http.HandleFunc("/kml", HandleKmlRequest)

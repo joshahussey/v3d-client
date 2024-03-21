@@ -137,6 +137,109 @@ const load = async function(mapState: MapState): Promise<Viewer> {
         }
     }
     sessionStorage.setItem("sessionID", sessionID);
+
+    const viewer = new Viewer("cesiumContainer", {
+        baseLayer: baseImageryLayer,
+        homeButton: false,
+        fullscreenButton: true,
+        baseLayerPicker: false,
+        animation: false,
+        timeline: false,
+        geocoder: false,
+        vrButton: false,
+        infoBox: true,
+        navigationHelpButton: false,
+        sceneModePicker: false,
+        clockViewModel: clockModel
+    });
+
+    //Cesium wont let you change the text in the tooltip of the fullscreen button, so we do it manually.
+    try {
+        const fullscreenButton = document.getElementsByClassName("cesium-fullscreenButton");
+        (fullscreenButton[0] as HTMLButtonElement).title = t("3dMapfullscreenButtonTooltip");
+    } catch {
+        console.log("No Cesium fullscreen button found.");
+    }
+
+    (window as CesiumWindow).Map3DViewer = viewer;
+    viewer.scene.globe.depthTestAgainstTerrain = true;
+    const primitiveLayers = viewer.scene.primitives;
+    const [osmBuildingsLayer, setOsmBuildingsLayer] = createSignal("", {
+        equals: false
+    });
+    chooseTerrainSet(terrainOption);
+    const cesiumToolbar = document.querySelector(".cesium-viewer-toolbar") as HTMLDivElement;
+    if (cesiumToolbar) cesiumToolbar.style.display = "none";
+    viewer.scene.moon = new Moon();
+    viewer.scene.sun = new Sun();
+    const navOptions = {
+        defaultResetView: Rectangle.fromDegrees(-140.99778, 41.6751050889, -52.6480987209, 83.23324),
+        enableCompass: true,
+        enableZoomControls: true,
+        enableDistanceLegend: true,
+        enableCompassOuterRing: true,
+        resetTooltip: t("3dMapZoomToHome"),
+        zoomInTooltip: t("3dMapZoomIn"),
+        zoomOutTooltip: t("3dMapZoomOut")
+    };
+    new CesiumNavigation(viewer, navOptions);
+    viewer.selectedEntityChanged.addEventListener(showEntityProperties);
+    const dataSourceLayers = viewer.dataSources;
+    const imageryLayers = viewer.imageryLayers;
+
+    //Create Context
+    const [selectedLayer, setSelectedLayer] = createSignal(baseImageryLayer);
+    const [selectedTerrain, setSelectedTerrain] = createSignal(terrainOption);
+    const [imageLayers, setImageLayers] = createSignal([] as WesImageryLayer[], {
+        equals: false
+    });
+    const [tileSets, setTileSets] = createSignal([] as Wes3DTileSet[]);
+    const [baseLayers, setBaseLayers] = createSignal([] as WesImageryLayer[], {
+        equals: false
+    });
+    const [datasources, setDatasources] = createSignal([] as WesDataSource[], {
+        equals: false
+    });
+    const [terrainSets, setTerrainSets] = createSignal([] as WesTerrainObject[]);
+    const [optionsMap, setOptionsMap] = createSignal(new Map(), {
+        equals: false
+    });
+    (window as CesiumWindow).optionsMap = optionsMap;
+    const [selectedTerrainSet, setSelectedTerrainSet] = createSignal([] as WesTerrainObject[], {
+        equals: false
+    });
+    const [selectedHome, setSelectedHome] = createSignal(HOME_POSITION);
+    const [timeMap, setTimeMap] = createSignal(new Map(), { equals: false });
+    (window as CesiumWindow).timeMap = timeMap;
+    (window as CesiumWindow).setTimeMap = setTimeMap;
+    const [displayClock, setDisplayClock] = createSignal(false);
+    const [clockStore, setClockStore] = createStore(viewer.clock);
+    const [sourcesWithLegends, setSourcesWithLegends] = createSignal([], {
+        equals: false
+    });
+    (window as CesiumWindow).sourcesWithLegends = sourcesWithLegends;
+    (window as CesiumWindow).setSourcesWithLegends = setSourcesWithLegends;
+
+    (window as any).fireBroadcastEvent = (event: any, eventId: any, hasPayload: any) => {
+        if (!WES_3D_EVENTS.has(eventId)) return;
+
+        if (eventId === "net.compusult.wes.client.cesium.Wes3dAoiEvent") {
+            handleAoiEvent(event);
+        }
+    };
+
+    //Scope Listeners
+    const removeSignal = new AbortController();
+
+    //Main
+    await setupLayers();
+    syncDatasources();
+    syncImageryLayers();
+    syncPrimitiveLayers();
+    addChangeListeners();
+    saveViewParameters(viewer, optionsMap);
+    loadViewParameters();
+
     let webSocket;
     switch (window.location.protocol) {
         case "http:":
@@ -286,108 +389,6 @@ const load = async function(mapState: MapState): Promise<Viewer> {
                 break;
         }
     });
-
-    const viewer = new Viewer("cesiumContainer", {
-        baseLayer: baseImageryLayer,
-        homeButton: false,
-        fullscreenButton: true,
-        baseLayerPicker: false,
-        animation: false,
-        timeline: false,
-        geocoder: false,
-        vrButton: false,
-        infoBox: true,
-        navigationHelpButton: false,
-        sceneModePicker: false,
-        clockViewModel: clockModel
-    });
-
-    //Cesium wont let you change the text in the tooltip of the fullscreen button, so we do it manually.
-    try {
-        const fullscreenButton = document.getElementsByClassName("cesium-fullscreenButton");
-        (fullscreenButton[0] as HTMLButtonElement).title = t("3dMapfullscreenButtonTooltip");
-    } catch {
-        console.log("No Cesium fullscreen button found.");
-    }
-
-    (window as CesiumWindow).Map3DViewer = viewer;
-    viewer.scene.globe.depthTestAgainstTerrain = true;
-    const primitiveLayers = viewer.scene.primitives;
-    const [osmBuildingsLayer, setOsmBuildingsLayer] = createSignal("", {
-        equals: false
-    });
-    chooseTerrainSet(terrainOption);
-    const cesiumToolbar = document.querySelector(".cesium-viewer-toolbar") as HTMLDivElement;
-    if (cesiumToolbar) cesiumToolbar.style.display = "none";
-    viewer.scene.moon = new Moon();
-    viewer.scene.sun = new Sun();
-    const navOptions = {
-        defaultResetView: Rectangle.fromDegrees(-140.99778, 41.6751050889, -52.6480987209, 83.23324),
-        enableCompass: true,
-        enableZoomControls: true,
-        enableDistanceLegend: true,
-        enableCompassOuterRing: true,
-        resetTooltip: t("3dMapZoomToHome"),
-        zoomInTooltip: t("3dMapZoomIn"),
-        zoomOutTooltip: t("3dMapZoomOut")
-    };
-    new CesiumNavigation(viewer, navOptions);
-    viewer.selectedEntityChanged.addEventListener(showEntityProperties);
-    const dataSourceLayers = viewer.dataSources;
-    const imageryLayers = viewer.imageryLayers;
-
-    //Create Context
-    const [selectedLayer, setSelectedLayer] = createSignal(baseImageryLayer);
-    const [selectedTerrain, setSelectedTerrain] = createSignal(terrainOption);
-    const [imageLayers, setImageLayers] = createSignal([] as WesImageryLayer[], {
-        equals: false
-    });
-    const [tileSets, setTileSets] = createSignal([] as Wes3DTileSet[]);
-    const [baseLayers, setBaseLayers] = createSignal([] as WesImageryLayer[], {
-        equals: false
-    });
-    const [datasources, setDatasources] = createSignal([] as WesDataSource[], {
-        equals: false
-    });
-    const [terrainSets, setTerrainSets] = createSignal([] as WesTerrainObject[]);
-    const [optionsMap, setOptionsMap] = createSignal(new Map(), {
-        equals: false
-    });
-    (window as CesiumWindow).optionsMap = optionsMap;
-    const [selectedTerrainSet, setSelectedTerrainSet] = createSignal([] as WesTerrainObject[], {
-        equals: false
-    });
-    const [selectedHome, setSelectedHome] = createSignal(HOME_POSITION);
-    const [timeMap, setTimeMap] = createSignal(new Map(), { equals: false });
-    (window as CesiumWindow).timeMap = timeMap;
-    (window as CesiumWindow).setTimeMap = setTimeMap;
-    const [displayClock, setDisplayClock] = createSignal(false);
-    const [clockStore, setClockStore] = createStore(viewer.clock);
-    const [sourcesWithLegends, setSourcesWithLegends] = createSignal([], {
-        equals: false
-    });
-    (window as CesiumWindow).sourcesWithLegends = sourcesWithLegends;
-    (window as CesiumWindow).setSourcesWithLegends = setSourcesWithLegends;
-
-    (window as any).fireBroadcastEvent = (event: any, eventId: any, hasPayload: any) => {
-        if (!WES_3D_EVENTS.has(eventId)) return;
-
-        if (eventId === "net.compusult.wes.client.cesium.Wes3dAoiEvent") {
-            handleAoiEvent(event);
-        }
-    };
-
-    //Scope Listeners
-    const removeSignal = new AbortController();
-
-    //Main
-    await setupLayers();
-    syncDatasources();
-    syncImageryLayers();
-    syncPrimitiveLayers();
-    addChangeListeners();
-    saveViewParameters(viewer, optionsMap);
-    loadViewParameters();
 
     //Helper Functions
     function addChangeListeners() {

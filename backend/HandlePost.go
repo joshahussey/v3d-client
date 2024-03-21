@@ -25,16 +25,19 @@ func PoE(step string, err error) error {
 
 // Handle Post request
 func HandlePost(ctx ReqContext) error {
-	client := ClientMgr.clients[ctx.sessionID]
+	client, ok := ClientMgr.clients[ctx.sessionID]
 	body, err := io.ReadAll(ctx.r.Body)
 	if err != nil {
 		return PoE("ReadAll", err)
 	}
-	err = client.conn.WriteMessage(1, body)
-	if err != nil {
-		return PoE("WriteMessage", err)
+	if !ok {
+		postQueue.Enqueue(ctx, body)
+	} else {
+		err = client.conn.WriteMessage(1, body)
+		if err != nil {
+			return PoE("WriteMessage", err)
+		}
 	}
 	ctx.w.WriteHeader(http.StatusOK)
-    return nil
+	return nil
 }
-
