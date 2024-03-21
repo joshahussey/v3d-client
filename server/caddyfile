@@ -11,7 +11,7 @@
 		output file {$ROOT_DIR_3D}/logs/cslt3d_https.log
 	}
 
-	tls {$CERTS_DIR}/{$TLS_CERT_LOC} {$CERTS_DIR}/{$TLS_KEY_LOC}
+	tls /certs/{$TLS_CERT_LOC} /certs/{$TLS_KEY_LOC}
 
 	file_server {
 		root /srv/
