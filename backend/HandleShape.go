@@ -1,6 +1,6 @@
 package main
 
-//#cgo CFLAGS: -g -Wall 
+//#cgo CFLAGS: -g -Wall
 //#cgo LDFLAGS: -L. -lgdal
 //#include <stdlib.h>
 //#include "shape2json.h"
@@ -146,6 +146,10 @@ func sendShapeLayers(ctx ReqContext, shapeServiceDir string, serviceName string,
 		}
 		layerHash := fmt.Sprintf("%x", hasher.Sum(nil))
 		layerFile.Close()
+		err = addService(layerHash)
+		if err != nil {
+			logE(ctx.sessionID, err, "addServiceShapefile")
+		}
 		wg.Add(1)
 		go sendShapeMessage(ctx, &client, layer.Name(), layerHash, serviceName, serviceUid, messageErrorList, layerList, &wg, mutex)
 	}
@@ -221,10 +225,10 @@ func makeJsonFromShape(ctx ReqContext, shapefilesServiceDir string, shpfilePath 
 	outFilePath := shapefilesServiceDir + "/" + outFileName
 	cInputShapeFile := C.CString(shpfilePath)
 	cOutputJsonFile := C.CString(outFilePath)
-	defer C.free(unsafe.Pointer(cInputShapeFile))
-	defer C.free(unsafe.Pointer(cOutputJsonFile))
 	logD(ctx.sessionID, fmt.Sprintf("Calling shape2json with args: %s, %s\n", shpfilePath, outFilePath), "makeJsonFromShape")
+	mutex.Lock()
 	ret := C.shape2json(cInputShapeFile, cOutputJsonFile)
+	mutex.Unlock()
 	logD(ctx.sessionID, fmt.Sprintf("Called shape2json with args: %s, %s\n", shpfilePath, outFilePath), "makeJsonFromShape")
 	if ret != 0 {
 		logE(ctx.sessionID, fmt.Errorf("%v", ret), "CERRORmakeJsonFromShape")
@@ -233,4 +237,6 @@ func makeJsonFromShape(ctx ReqContext, shapefilesServiceDir string, shpfilePath 
 		mutex.Unlock()
 	}
 	wg.Done()
+	C.free(unsafe.Pointer(cInputShapeFile))
+	C.free(unsafe.Pointer(cOutputJsonFile))
 }

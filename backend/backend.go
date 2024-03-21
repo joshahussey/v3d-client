@@ -136,7 +136,6 @@ func HandleAdd(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
 // Listen listens for incoming messages from the client.
 func (c *Client) Listen() {
 	defer func() {
@@ -196,6 +195,7 @@ func main() {
 	defer f.Close()
 	port := os.Getenv("BACKEND_PORT")
 	log.Printf("Port: %s", port)
+	initDb()
 	http.HandleFunc("/map", HandleConnect)
 	http.HandleFunc("/add", HandleAdd)
 	http.HandleFunc("/shape", HandleShapeRequest)
