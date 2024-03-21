@@ -10,18 +10,18 @@ func e(ctx ReqContext, err error) {
 	var unzipError UnzipError
 	var webSocketError WebSocketError
 	var shapeError ShapeError
-    var kmlError KmlError
+	var kmlError KmlError
 	if err != nil {
 		if errors.Is(err, webSocketError) {
 			logE(ctx.sessionID, err, "HandleAddWs")
 			http.Error(ctx.w, err.Error(), http.StatusBadRequest)
 			return
 		}
-        if errors.Is(err, kmlError) {
-            logE(ctx.sessionID, err, "HandleKml")
-            http.Error(ctx.w, err.Error(), http.StatusBadRequest)
-            return
-        }
+		if errors.Is(err, kmlError) {
+			logE(ctx.sessionID, err, "HandleKml")
+			http.Error(ctx.w, err.Error(), http.StatusBadRequest)
+			return
+		}
 		if errors.Is(err, shapeError) {
 			if errors.Is(err, uploadError) {
 				logE(ctx.sessionID, err, "HandleShapeMakeSymLink")
@@ -35,14 +35,13 @@ func e(ctx ReqContext, err error) {
 			}
 		}
 		logE(ctx.sessionID, err, "HandleShapeMakeSymLink")
-        ctx.w.Header().Set("PHIL", "STOP DOING THIS")
-        ctx.w.Header().Set("Access-Control-Allow-Origin", "*")
-        status := http.StatusBadRequest
-        ctx.w.WriteHeader(status)
-        _, respErr := ctx.w.Write([]byte(err.Error()))
-        if respErr != nil {
-            logE(ctx.sessionID, respErr, "HandleShapeMakeSymLink")
-        }
-        return
+		ctx.w.Header().Set("Access-Control-Allow-Origin", "*")
+		status := http.StatusBadRequest
+		ctx.w.WriteHeader(status)
+		_, respErr := ctx.w.Write([]byte(err.Error()))
+		if respErr != nil {
+			logE(ctx.sessionID, respErr, "HandleShapeMakeSymLink")
+		}
+		return
 	}
 }

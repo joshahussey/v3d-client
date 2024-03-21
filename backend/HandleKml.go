@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 )
 
 type KmlUrlMessage struct {
@@ -41,9 +42,10 @@ func KE(step string, err error) error {
 }
 
 func HandleKml(ctx ReqContext) error {
-	client := ClientMgr.clients[ctx.sessionID]
+	client, clientFound := ClientMgr.GetClient(ctx.sessionID)
 	var layerList []string
 	errorList := []string{}
+	var mutex sync.Mutex
 
 	//Parse the form
 	err := ctx.r.ParseMultipartForm(32 << 20)
@@ -63,7 +65,7 @@ func HandleKml(ctx ReqContext) error {
 	path := "/cslt/web/services/kml/"
 	err = os.MkdirAll(path, 0777)
 	if err != nil {
-        return KE("MkdirAll", err)
+		return KE("MkdirAll", err)
 	}
 
 	//Read Bytes From Form File
@@ -98,7 +100,8 @@ func HandleKml(ctx ReqContext) error {
 
 		if inputFileHash == existingHash {
 			logI(ctx.sessionID, fmt.Sprintf("File with hash %s already exists. Sending preprocessed services...\n", inputFileHash), "HandleShapeFileExists")
-			sendKmlMessage(handler.Filename, existingHash, &client, &errorList)
+			sendKmlMessage(handler.Filename, existingHash, &client, clientFound, ctx.sessionID, &errorList, &mutex)
+			layerList = append(layerList, handler.Filename)
 			sendKmlResponse(ctx, errorList, layerList)
 			return nil
 		}
@@ -127,13 +130,13 @@ func HandleKml(ctx ReqContext) error {
 	if err != nil {
 		logE(ctx.sessionID, err, "addServiceKml")
 	}
-	sendKmlMessage(fileName, inputFileHash, &client, &errorList)
+	sendKmlMessage(fileName, inputFileHash, &client, clientFound, ctx.sessionID, &errorList, &mutex)
 	layerList = append(layerList, fileName)
 	sendKmlResponse(ctx, errorList, layerList)
-    return nil
+	return nil
 }
 
-func sendKmlMessage(fileName string, serviceUid string, client *Client, errorList *[]string) {
+func sendKmlMessage(fileName string, serviceUid string, client *Client, clientFound bool, sessionId string, errorList *[]string, mutex *sync.Mutex) {
 	message := KmlUrlMessage{}
 	message.Kind = "KML"
 	message.Args.Uid = serviceUid
@@ -151,11 +154,17 @@ func sendKmlMessage(fileName string, serviceUid string, client *Client, errorLis
 		return
 	}
 
-	err = client.conn.WriteMessage(1, jsonMessage)
-	if err != nil {
-		logE(client.sessionID, err, "sendKmlMessageWriteMessage")
-		*errorList = append(*errorList, fileName)
-		return
+	if !clientFound {
+		requestQueue.Enqueue(sessionId, jsonMessage)
+	} else {
+		mutex.Lock()
+		err = client.conn.WriteMessage(1, jsonMessage)
+		mutex.Unlock()
+		if err != nil {
+			logE(client.sessionID, err, "sendKmlMessageWriteMessage")
+			*errorList = append(*errorList, fileName)
+			return
+		}
 	}
 }
 

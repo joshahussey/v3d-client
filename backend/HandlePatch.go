@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 )
+
 type PatchError struct {
 	step string
 	err  error
@@ -22,7 +23,7 @@ func PaE(step string, err error) error {
 	return PatchError{step: step, err: err}
 }
 func HandlePatch(ctx ReqContext) error {
-	client := ClientMgr.clients[ctx.sessionID]
+	client, _ := ClientMgr.GetClient(ctx.sessionID)
 	body, err := io.ReadAll(ctx.r.Body)
 	if err != nil {
 		return PaE("ReadAll", err)
@@ -32,6 +33,5 @@ func HandlePatch(ctx ReqContext) error {
 		return PaE("WriteMessage", err)
 	}
 	ctx.w.WriteHeader(http.StatusOK)
-    return nil
+	return nil
 }
-

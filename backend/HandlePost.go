@@ -31,7 +31,7 @@ func HandlePost(ctx ReqContext) error {
 		return PoE("ReadAll", err)
 	}
 	if !ok {
-		postQueue.Enqueue(ctx, body)
+		requestQueue.Enqueue(ctx.sessionID, body)
 	} else {
 		err = client.conn.WriteMessage(1, body)
 		if err != nil {

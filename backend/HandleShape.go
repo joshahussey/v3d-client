@@ -121,7 +121,7 @@ func sendShapeLayers(ctx ReqContext, shapeServiceDir string, serviceName string,
 	if err != nil {
 		return SE("HandleShapeReadDir", err)
 	}
-	client := ClientMgr.clients[ctx.sessionID]
+	client, clientFound := ClientMgr.clients[ctx.sessionID]
 	for _, layer := range layers {
 		if layer.IsDir() {
 			logE(ctx.sessionID, fmt.Errorf("Found directory in shapefile service directory"), "HandleShapeIsDirServices")
@@ -151,13 +151,13 @@ func sendShapeLayers(ctx ReqContext, shapeServiceDir string, serviceName string,
 			logE(ctx.sessionID, err, "addServiceShapefile")
 		}
 		wg.Add(1)
-		go sendShapeMessage(ctx, &client, layer.Name(), layerHash, serviceName, serviceUid, messageErrorList, layerList, &wg, mutex)
+		go sendShapeMessage(ctx, &client, clientFound, ctx.sessionID, layer.Name(), layerHash, serviceName, serviceUid, messageErrorList, layerList, &wg, mutex)
 	}
 	wg.Wait()
 	return nil
 }
 
-func sendShapeMessage(ctx ReqContext, client *Client, layerName string, layerHash string, serviceName string, serviceUid string, errorList *[]string, layerList *[]string, wg *sync.WaitGroup, mutex *sync.Mutex) {
+func sendShapeMessage(ctx ReqContext, client *Client, clientFound bool, sessionId string, layerName string, layerHash string, serviceName string, serviceUid string, errorList *[]string, layerList *[]string, wg *sync.WaitGroup, mutex *sync.Mutex) {
 	message := ShapefileMessage{}
 	message.Kind = "GEOJSON"
 	message.Args.Uid = layerHash
@@ -177,16 +177,20 @@ func sendShapeMessage(ctx ReqContext, client *Client, layerName string, layerHas
 		wg.Done()
 		return
 	}
-	mutex.Lock()
-	err = client.conn.WriteMessage(1, jsonMessage)
-	mutex.Unlock()
-	if err != nil {
-		logE(ctx.sessionID, err, "makeShapeMessageWriteMessage")
+	if !clientFound {
+		requestQueue.Enqueue(sessionId, jsonMessage)
+	} else {
 		mutex.Lock()
-		*errorList = append(*errorList, layerName)
+		err = client.conn.WriteMessage(1, jsonMessage)
 		mutex.Unlock()
-		wg.Done()
-		return
+		if err != nil {
+			logE(ctx.sessionID, err, "makeShapeMessageWriteMessage")
+			mutex.Lock()
+			*errorList = append(*errorList, layerName)
+			mutex.Unlock()
+			wg.Done()
+			return
+		}
 	}
 	mutex.Lock()
 	*layerList = append(*layerList, layerName)
@@ -230,7 +234,7 @@ func makeJsonFromShape(ctx ReqContext, shapefilesServiceDir string, shpfilePath 
 	ret := C.shape2json(cInputShapeFile, cOutputJsonFile)
 	mutex.Unlock()
 	logD(ctx.sessionID, fmt.Sprintf("Called shape2json with args: %s, %s\n", shpfilePath, outFilePath), "makeJsonFromShape")
-    logD(ctx.sessionID, fmt.Sprintf("Return value from shape2json: %d\n", ret), "makeJsonFromShape")
+	logD(ctx.sessionID, fmt.Sprintf("Return value from shape2json: %d\n", ret), "makeJsonFromShape")
 	if ret != 0 {
 		logE(ctx.sessionID, fmt.Errorf("%v", ret), "CERRORmakeJsonFromShape")
 		mutex.Lock()

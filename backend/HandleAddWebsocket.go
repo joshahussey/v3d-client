@@ -29,11 +29,14 @@ func HandleAddWs(ctx ReqContext) error {
 	if err != nil {
 		return WS("ReadMessage", err)
 	}
-	client := ClientMgr.clients[ctx.sessionID]
-	err = client.conn.WriteMessage(1, p)
-	if err != nil {
-		return WS("WriteMessage", err)
+	client, clientFound := ClientMgr.GetClient(ctx.sessionID)
+	if !clientFound {
+		requestQueue.Enqueue(ctx.sessionID, p)
+	} else {
+		err = client.conn.WriteMessage(1, p)
+		if err != nil {
+			return WS("WriteMessage", err)
+		}
 	}
-    return nil
+	return nil
 }
-
