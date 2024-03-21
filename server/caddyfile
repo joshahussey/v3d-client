@@ -3,6 +3,9 @@
 }
 
 {$DOMAIN_NAME} {$DOMAIN_NAME}:{$CSLT_3D_HTTPS_PORT} {
+        @options {
+        method OPTIONS
+    }
 	log {
 		format console
 		output file {$ROOT_DIR_3D}/logs/cslt3d_https.log
@@ -16,28 +19,64 @@
 
 	route /map* {
 		handle {
-            header Access-Control-Allow-Origin *
-			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
+                header {
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Credentials true
+        Access-Control-Allow-Methods *
+        Access-Control-Allow-Headers *
+        defer
+    }
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT} {
+                header_down -Access-Control-Allow-Origin
+                }
+                respond @options 204
 		}
 	}
 	route /add* {
 		handle {
-            header Access-Control-Allow-Origin *
-			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
+                header {
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Credentials true
+        Access-Control-Allow-Methods *
+        Access-Control-Allow-Headers *
+        defer
+    }
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT} {
+                header_down -Access-Control-Allow-Origin
+                }
+                respond @options 204
 		}
 	}
 
 	route /shape* {
 		handle {
-            header Access-Control-Allow-Origin *
-			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
+                header {
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Credentials true
+        Access-Control-Allow-Methods *
+        Access-Control-Allow-Headers *
+        defer
+    }
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT} {
+                header_down -Access-Control-Allow-Origin
+                }
+                respond @options 204
 		}
 	}
 
 	route /kml* {
 		handle {
-            header Access-Control-Allow-Origin *
-			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
+                header {
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Credentials true
+        Access-Control-Allow-Methods *
+        Access-Control-Allow-Headers *
+        defer
+    }
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT} {
+                header_down -Access-Control-Allow-Origin
+                }
+                respond @options 204
 		}
 	}
 }
