@@ -1,6 +1,6 @@
 package main
 
-//#cgo CFLAGS: -g -Wall 
+//#cgo CFLAGS: -g -Wall
 //#cgo LDFLAGS: -L. -lgdal
 //#include <stdlib.h>
 //#include "shape2json.h"
@@ -75,7 +75,7 @@ func HandleShape(ctx ReqContext) error {
 	if err == nil {
 		logI(ctx.sessionID, fmt.Sprintf("File with hash %s already exists. Sending preprocessed services...\n", hash), "HandleShapeFileExists")
 		var mutex sync.Mutex
-		err = sendShapeLayers(ctx, shapeFilesServiceDir, file.Name(), hash, &messageErrorList, &layerList, &mutex)
+		err = sendShapeLayers(ctx, shapeFilesServiceDir, path.Base(file.Name()), hash, &messageErrorList, &layerList, &mutex)
 		if err != nil {
 			return SE("HandleShapeSendLayers", err)
 		}
@@ -104,7 +104,7 @@ func HandleShape(ctx ReqContext) error {
 		go makeJsonFromShape(ctx, shapeFilesServiceDir, service, &jsonErrorList, &wg, &mutex)
 	}
 	wg.Wait()
-	err = sendShapeLayers(ctx, shapeFilesServiceDir, file.Name(), hash, &messageErrorList, &layerList, &mutex)
+	err = sendShapeLayers(ctx, shapeFilesServiceDir, path.Base(file.Name()), hash, &messageErrorList, &layerList, &mutex)
 	if err != nil {
 		return SE("HandleShapeSendLayers", err)
 	}
@@ -146,6 +146,10 @@ func sendShapeLayers(ctx ReqContext, shapeServiceDir string, serviceName string,
 		}
 		layerHash := fmt.Sprintf("%x", hasher.Sum(nil))
 		layerFile.Close()
+		err = addService(layerHash)
+		if err != nil {
+			logE(ctx.sessionID, err, "addServiceShapefile")
+		}
 		wg.Add(1)
 		go sendShapeMessage(ctx, &client, layer.Name(), layerHash, serviceName, serviceUid, messageErrorList, layerList, &wg, mutex)
 	}
@@ -192,7 +196,7 @@ func sendShapeMessage(ctx ReqContext, client *Client, layerName string, layerHas
 
 func sendShapeResponse(ctx ReqContext, messageErrorList []string, jsonErrorList []string, fileList []string) error {
 	if len(messageErrorList) > 0 || len(jsonErrorList) > 0 && len(fileList) > 0 {
-		logE(ctx.sessionID, fmt.Errorf("Error creating GeoJSON for the following files:\n\t%s\nError sending messages for the following files: \n\t%s\n", strings.Join(jsonErrorList, "\n\t"), strings.Join(messageErrorList, "\n\t")), "HandleShapeMakeSymLink")
+		logE(ctx.sessionID, fmt.Errorf("Error creating GeoJSON for the following files:\n\t%s\nError sending messages for the following files: \n\t%s\n", strings.Join(jsonErrorList, "\n\t"), strings.Join(messageErrorList, "\n\t")), "HandleShapeResponseAll")
 		_, err := ctx.w.Write([]byte(fmt.Sprintf("Successfully created the following files:\n\t%s\nError creating GeoJSON for the following files:\n\t%s\nError sending messages for the following files: \n\t%s\n", strings.Join(fileList, "\n\t"), strings.Join(jsonErrorList, "\n\t"), strings.Join(messageErrorList, "\n\t"))))
 		if err != nil {
 			return SE("HandleShapePartialSuccessResponseError", err)
@@ -200,14 +204,14 @@ func sendShapeResponse(ctx ReqContext, messageErrorList []string, jsonErrorList 
 		return nil
 	}
 	if len(messageErrorList) > 0 || len(jsonErrorList) > 0 && len(fileList) == 0 {
-		logE(ctx.sessionID, fmt.Errorf("Error creating GeoJSON for the following files:\n\t%s\nError sending messages for the following files: \n\t%s\n", strings.Join(jsonErrorList, "\n\t"), strings.Join(messageErrorList, "\n\t")), "HandleShapeMakeSymLink")
+		logE(ctx.sessionID, fmt.Errorf("Error creating GeoJSON for the following files:\n\t%s\nError sending messages for the following files: \n\t%s\n", strings.Join(jsonErrorList, "\n\t"), strings.Join(messageErrorList, "\n\t")), "HandleShapeResponseNoFiles")
 		_, err := ctx.w.Write([]byte(fmt.Sprintf("No Files Could be added to the map. Error creating GeoJSON for the following files:\n\t%s\nError sending messages for the following files: \n\t%s\n", strings.Join(jsonErrorList, "\n\t"), strings.Join(messageErrorList, "\n\t"))))
 		if err != nil {
 			return SE("HandleShapeCompleteFailureResonse", err)
 		}
 		return nil
 	}
-	logI(ctx.sessionID, fmt.Sprintf("Successfully sent the following files to the map:\n\t%s\n", strings.Join(fileList, "\n\t")), "HandleShapeMakeSymLink")
+	logI(ctx.sessionID, fmt.Sprintf("Successfully sent the following files to the map:\n\t%s\n", strings.Join(fileList, "\n\t")), "HandleShapeReponseSuccess")
 	_, err := ctx.w.Write([]byte(fmt.Sprintf("Successfully sent the following files to the map:\n\t%s\n", strings.Join(fileList, "\n\t"))))
 	if err != nil {
 		return SE("HandleShapeSuccessResponseError", err)
@@ -221,11 +225,12 @@ func makeJsonFromShape(ctx ReqContext, shapefilesServiceDir string, shpfilePath 
 	outFilePath := shapefilesServiceDir + "/" + outFileName
 	cInputShapeFile := C.CString(shpfilePath)
 	cOutputJsonFile := C.CString(outFilePath)
-	defer C.free(unsafe.Pointer(cInputShapeFile))
-	defer C.free(unsafe.Pointer(cOutputJsonFile))
 	logD(ctx.sessionID, fmt.Sprintf("Calling shape2json with args: %s, %s\n", shpfilePath, outFilePath), "makeJsonFromShape")
+	mutex.Lock()
 	ret := C.shape2json(cInputShapeFile, cOutputJsonFile)
+	mutex.Unlock()
 	logD(ctx.sessionID, fmt.Sprintf("Called shape2json with args: %s, %s\n", shpfilePath, outFilePath), "makeJsonFromShape")
+    logD(ctx.sessionID, fmt.Sprintf("Return value from shape2json: %d\n", ret), "makeJsonFromShape")
 	if ret != 0 {
 		logE(ctx.sessionID, fmt.Errorf("%v", ret), "CERRORmakeJsonFromShape")
 		mutex.Lock()
@@ -233,4 +238,6 @@ func makeJsonFromShape(ctx ReqContext, shapefilesServiceDir string, shpfilePath 
 		mutex.Unlock()
 	}
 	wg.Done()
+	C.free(unsafe.Pointer(cInputShapeFile))
+	C.free(unsafe.Pointer(cOutputJsonFile))
 }

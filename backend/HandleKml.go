@@ -123,6 +123,10 @@ func HandleKml(ctx ReqContext) error {
 
 	pathComponents := strings.Split(cacheFile.Name(), "/")
 	fileName := pathComponents[len(pathComponents)-1]
+	err = addService(inputFileHash)
+	if err != nil {
+		logE(ctx.sessionID, err, "addServiceKml")
+	}
 	sendKmlMessage(fileName, inputFileHash, &client, &errorList)
 	layerList = append(layerList, fileName)
 	sendKmlResponse(ctx, errorList, layerList)

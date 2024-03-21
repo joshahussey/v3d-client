@@ -60,25 +60,33 @@ func HandleConnect(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleShapeRequest(w http.ResponseWriter, r *http.Request) {
-	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID")}
-	err := HandleShape(ctx)
-	if err != nil {
-		e(ctx, err)
-		return
-	}
+    ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID")}
+    if ClientMgr.clients[ctx.sessionID].conn == nil {
+        e(ctx, fmt.Errorf("Client not found... DID YOU FORGET TO CONNECT?...PHIL??"))
+        return
+    }
+    err := HandleShape(ctx)
+    if err != nil {
+        e(ctx, err)
+        return
+    }
 }
 
 func HandleKmlRequest(w http.ResponseWriter, r *http.Request) {
-	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID")}
-	err := HandleKml(ctx)
-	if err != nil {
-		e(ctx, err)
-		return
-	}
+    ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID")}
+    if ClientMgr.clients[ctx.sessionID].conn == nil {
+        e(ctx, fmt.Errorf("Client not found... DID YOU FORGET TO CONNECT?...PHIL??"))
+        return
+    }
+    err := HandleKml(ctx)
+    if err != nil {
+        e(ctx, err)
+        return
+    }
 }
 
 func HandleAdd(w http.ResponseWriter, r *http.Request) {
-	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID")}
+    ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID")}
 	if _, upgrade := r.Header["Upgrade"]; upgrade {
 		err := HandleAddWs(ctx)
 		if err != nil {
@@ -206,6 +214,7 @@ func main() {
 	defer f.Close()
 	port := os.Getenv("BACKEND_PORT")
 	log.Printf("Port: %s", port)
+	initDb()
 	http.HandleFunc("/map", HandleConnect)
 	go postQueue.Work()
 	http.HandleFunc("/add", HandleAdd)
