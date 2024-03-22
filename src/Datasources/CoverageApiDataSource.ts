@@ -94,7 +94,7 @@ enum Dimensions {
 }
 
 const LINE_WIDTH_PROPERTY = new ConstantProperty(5);
-const HEIGHT_SCALE_FACTOR = 0;
+const HEIGHT_SCALE_FACTOR = 300;
 const MAX_COVERAGE_RESOLUTION = 50000;
 const DEFAULT_ALPHA = 0.5;
 
@@ -296,7 +296,7 @@ export default class CoverageApiDataSource extends WesDataSource {
                 const colorMap = this._rasterSymbolizer.colorMap;
                 this._minValue = colorMap[0].quantity;
                 this._maxValue = colorMap[colorMap.length - 1].quantity;
-                this._alpha = this._rasterSymbolizer.opacity;
+                //this._alpha = this._rasterSymbolizer.opacity;
             }
             this._initSourcesWithLayers();
             if (!this._pointsInViewport) return;
