@@ -11,12 +11,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path"
 	"strings"
 	"sync"
 	"unsafe"
+
+	"github.com/google/uuid"
 )
+
+type ShapeUrl struct {
+    Url string `json:"url"`
+    ServiceInfo ServiceInfo `json:"serviceInfo"`
+}
 
 type ShapefileArgs struct {
 	Uid                string      `json:"uid"`
@@ -240,4 +248,90 @@ func makeJsonFromShape(ctx ReqContext, shapefilesServiceDir string, shpfilePath 
 	wg.Done()
 	C.free(unsafe.Pointer(cInputShapeFile))
 	C.free(unsafe.Pointer(cOutputJsonFile))
+}
+
+
+func HandleShapeUrl(ctx ReqContext, args json.RawMessage) error {
+    var jsonArgs ShapeUrl
+    logI(ctx.sessionID, fmt.Sprintf("Received body: %s\n", string(args)), "HandleShapeUrlBody")
+    err := json.Unmarshal(args, &jsonArgs)
+    if err != nil {
+        return SE("HandleShapeUrlUnmarshal", err)
+    }
+    err = os.MkdirAll("/tmp", 0777)
+    if err != nil {
+        return SE("HandleShapeUrlMkdirAll", err)
+    }
+    tmpFilePath := "/tmp/" + uuid.New().String() + ".zip"
+    tmpFile, err := os.Create(tmpFilePath)
+    if err != nil {
+        return SE("HandleShapeUrlCreate", err)
+    }
+    defer tmpFile.Close()
+    resp, err := http.Get(jsonArgs.Url)
+    if err != nil {
+        return SE("HandleShapeUrlDownload", err)
+    }
+    defer resp.Body.Close()
+    _, err = io.Copy(tmpFile, resp.Body)
+    if err != nil {
+        return SE("HandleShapeUrlCopy", err)
+    }
+	shapefilesHostedDir := "/cslt/web/services/shapefiles"
+	zipBytes, err := os.ReadFile(tmpFilePath)
+	if err != nil {
+		return SE("HandleShapeUrlReadFile", err)
+	}
+	hasher := sha256.New()
+	_, err = hasher.Write(zipBytes)
+	if err != nil {
+		return SE("HandleShapeUrlHasher", err)
+	}
+	hash := fmt.Sprintf("%x", hasher.Sum(nil))
+	shapeFilesServiceDir := shapefilesHostedDir + "/" + hash
+	var messageErrorList []string
+	var jsonErrorList []string
+	var layerList []string
+	_, err = os.Stat(shapeFilesServiceDir)
+	if err == nil {
+		logI(ctx.sessionID, fmt.Sprintf("File with hash %s already exists. Sending preprocessed services...\n", hash), "HandleShapeFileExists")
+		var mutex sync.Mutex
+		err = sendShapeLayers(ctx, shapeFilesServiceDir, jsonArgs.ServiceInfo.ServiceTitle, hash, &messageErrorList, &layerList, &mutex)
+		if err != nil {
+			return SE("HandleShapeUrlSendLayers", err)
+		}
+		err = sendShapeResponse(ctx, messageErrorList, jsonErrorList, layerList)
+		if err != nil {
+			return SE("HandleShapeUrlSendResponse", err)
+		}
+		return nil
+	} else if !os.IsNotExist(err) {
+		return SE("HandleShapeUrlStat", err)
+	}
+	//Unzip File
+	serviceList, err := unzipUpload(tmpFilePath, shp)
+	if err != nil {
+		return SE("HandleShapeUrlUnzip", err)
+	}
+	//Create GeoJSON
+	var mutex sync.Mutex
+	var wg sync.WaitGroup
+	err = os.MkdirAll(shapeFilesServiceDir, 0777) // /cslt/web/services/shapefiles/SHA256
+	if err != nil {
+		return SE("HandleShapeUrlMkdir", err)
+	}
+	for _, service := range *serviceList {
+		wg.Add(1)
+		go makeJsonFromShape(ctx, shapeFilesServiceDir, service, &jsonErrorList, &wg, &mutex)
+	}
+	wg.Wait()
+	err = sendShapeLayers(ctx, shapeFilesServiceDir, jsonArgs.ServiceInfo.ServiceTitle, hash, &messageErrorList, &layerList, &mutex)
+	if err != nil {
+		return SE("HandleShapeUrlSendLayers", err)
+	}
+	err = sendShapeResponse(ctx, messageErrorList, jsonErrorList, layerList)
+	if err != nil {
+		return SE("HandleShapeUrlSendResponse", err)
+	}
+	return nil
 }
