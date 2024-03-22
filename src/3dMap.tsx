@@ -564,7 +564,7 @@ const load = async function(mapState: MapState): Promise<Viewer> {
         const datasourcesSet: Set<WesDataSource> = new Set((dataSourceLayers as WesDatasources)._dataSources);
         setDatasources(Array.from(datasourcesSet));
         for (const source of optionsMap().keys()) {
-            if (source instanceof WesDataSource) {
+            if (source instanceof WesDataSource || source instanceof GeoJsonDataSource || source instanceof KmlDataSource) {
                 if (!datasources().includes(source)) {
                     optionsMap().delete(source);
                     if (timeMap().has(source.uid)) {

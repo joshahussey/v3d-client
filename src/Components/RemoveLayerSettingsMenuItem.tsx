@@ -22,6 +22,7 @@ export function RemoveLayerSettingsMenuItem(props: {
         useInterfaceContext() as any;
 
     function removeLayers() {
+        onDone()
         for (const layer of layers) {
             if (layer && layer instanceof WesDataSource) {
                 (window as CesiumWindow).Map3DViewer.dataSources.remove(layer);
@@ -57,7 +58,6 @@ export function RemoveLayerSettingsMenuItem(props: {
                 (window as CesiumWindow).Map3DViewer.dataSources.remove(layer);
             }
         }
-        onDone()
     }
 
     return (
