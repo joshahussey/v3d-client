@@ -29,8 +29,8 @@ func (e *RequestQueueObject) String() string {
 
 func (e *RequestQueue) String() string {
     var builder strings.Builder
-    for i := range e.requestObjQueue {
-        builder.WriteString(fmt.Sprintf("%s\n", e.requestObjQueue[i].String()))
+    for _, rq := range e.requestObjQueue {
+        builder.WriteString(fmt.Sprintf("%s\n", rq.String()))
     }
     return fmt.Sprintf("RequestQueue: %s", builder.String())
 }
@@ -39,13 +39,13 @@ func (e *RequestQueue) String() string {
 func (e *RequestQueue) Work() {
 	for {
 	workerLoop:
-		for i := range e.requestObjQueue {
-			client, ok := ClientMgr.GetClient(e.requestObjQueue[i].sessionID)
+		for i, rq := range e.requestObjQueue {
+			client, ok := ClientMgr.GetClient(rq.sessionID)
 			if ok {
-				logD(e.requestObjQueue[i].sessionID, fmt.Sprintf("Found Client At Position: %d", i), "Work")
-				err := client.conn.WriteMessage(1, e.requestObjQueue[i].message)
+				logD(rq.sessionID, fmt.Sprintf("Found Client for Queued Object: %s", &rq), "Work")
+				err := client.conn.WriteMessage(1, rq.message)
 				if err == nil {
-					logD(e.requestObjQueue[i].sessionID, "No Error Sending Request, Removing", "Work")
+					logD(rq.sessionID, "No Error Sending Request, Removing", "Work")
 					if i != 0 {
 						e.Dequeue(i)
 					} else {
@@ -54,8 +54,8 @@ func (e *RequestQueue) Work() {
 					break workerLoop
 				}
 			} else {
-				if e.requestObjQueue[i].requestTime.Add(time.Second * 30).Before(time.Now()) {
-					logD(e.requestObjQueue[i].sessionID, "Request Is Older Than 30s, Removing", "Work")
+				if rq.requestTime.Add(time.Second * 30).Before(time.Now()) {
+					logD(rq.sessionID, "Request Is Older Than 30s, Removing", "Work")
 					if i != 0 {
 						e.Dequeue(i)
 					} else {
