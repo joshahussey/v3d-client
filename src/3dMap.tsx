@@ -1155,6 +1155,7 @@ const load = async function(mapState: MapState): Promise<Viewer> {
                     dataSourceOption.url,
                     viewer,
                     dataSourceOption.uid,
+                    dataSourceOption.bounds,
                     dataSourceOption.serviceInfo
                 );
                 break;

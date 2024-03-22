@@ -42,6 +42,7 @@ import {
     TddPointSymbolizer,
     TddPolygonSymbolizer,
     TddRule,
+    ImageryBounds
 } from "../Wes";
 import { BBox } from "geojson";
 import { LabelGraphics } from "cesium";
@@ -65,6 +66,7 @@ const CLUSTER_HEIGHT_CONSTANT = 150000;
 //Number Properties//
 const ZERO_PROPERTY = new ConstantProperty(0);
 const ONE_PROPERTY = new ConstantProperty(1);
+const TWO_PROPERTY = new ConstantProperty(2);
 // const POSTIVE_INFINITY_PROPERTY = new ConstantProperty(Number.POSITIVE_INFINITY);
 
 //Color Properties//
@@ -101,11 +103,21 @@ export default class FeaturesApiDataSource extends WesDataSource {
     _fastFeatureClusters: FastFeatureClusters | undefined;
     _collectionInformation: OgcCollectionInformation;
     _canvasCache: { [key: string]: HTMLCanvasElement };
+    _geometryBounds: ImageryBounds;
 
-    constructor(description: string, name: string, url: string, viewer: Viewer, uid: string, serviceInfo: ServiceInfo) {
+    constructor(
+        description: string,
+        name: string,
+        url: string,
+        viewer: Viewer,
+        uid: string,
+        geometryBounds: ImageryBounds,
+        serviceInfo: ServiceInfo
+    ) {
         super(description, name, url, viewer, uid, serviceInfo);
         this._type = "FeaturesAPI";
         this._featureType = "";
+        this._geometryBounds = geometryBounds;
         this._entityCollection = new EntityCollection(this);
         this._modelClustering = false;
         this._userStyle = 0;
@@ -140,20 +152,20 @@ export default class FeaturesApiDataSource extends WesDataSource {
 
         Object.defineProperties(this, {
             featureType: {
-                get: function() {
+                get: function () {
                     return this._featureType;
                 }
             },
             tdd: {
-                get: function() {
+                get: function () {
                     return this._tdd;
                 }
             },
             isHighlighted: {
-                get: function() {
+                get: function () {
                     return this._isHighlighted;
                 },
-                set: function(value) {
+                set: function (value) {
                     this._isHighlighted = value;
                     const collection = this._entityCollection;
                     const features = collection.values;
@@ -166,6 +178,11 @@ export default class FeaturesApiDataSource extends WesDataSource {
                     }
                     collection.resumeEvents();
                     return;
+                }
+            },
+            geometryBounds: {
+                get: function () {
+                    return this._geometryBounds;
                 }
             }
         });
@@ -206,14 +223,14 @@ export default class FeaturesApiDataSource extends WesDataSource {
         const links = await this.fetchJson(this._url, { f: "json" });
         let url = "";
         if (links.styles == null) return null;
-        for(const style of links.styles){
-			style.links.forEach(function(link: any) {
-	            if ((link as any).type === "application/json") {
-	                url = (link as any).href;
-	            }
-	        });
-	        if(url !== "") break;
-		}
+        for (const style of links.styles) {
+            style.links.forEach(function (link: any) {
+                if ((link as any).type === "application/json") {
+                    url = (link as any).href;
+                }
+            });
+            if (url !== "") break;
+        }
         const tdd = await this.fetchJson(url.split("?")[0], { f: "3dd" });
         console.log(tdd);
         this._userStylesArray = []; 
@@ -657,12 +674,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
         return feature;
     }
 
-    styleFeature(
-        feature: Entity,
-        rawFeature: OGCFeature,
-        location: Cartesian3,
-        matchedStyles: TddRule[][]
-    ) {
+    styleFeature(feature: Entity, rawFeature: OGCFeature, location: Cartesian3, matchedStyles: TddRule[][]) {
         const matchedRules = matchedStyles[this._userStyle];
         if (feature.properties && feature.properties.hasBeenStyled) {
             this.updateFeatureStyle(feature, rawFeature, location);
@@ -689,7 +701,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
             const billboardMatches = pointMatches.filter(rule => rule.PointSymbolizer?.Billboard != null);
             const labelMatches = pointMatches.filter(rule => rule.PointSymbolizer?.Label != null);
             if (billboardMatches.length > 0 && labelMatches.length > 0) {
-                const props = {}; 
+                const props = {};
                 for (let i = 0; i < billboardMatches.length; i++) {
                     this.getBillboardProperties(props, feature, billboardMatches[i].PointSymbolizer!.Billboard!);
                 }
@@ -756,8 +768,18 @@ export default class FeaturesApiDataSource extends WesDataSource {
         canvas.height = props["height"] ? props["height"] : 32;
         const ctx = canvas.getContext("2d")!;
         ctx.font = `${props["font"]["size"]}px ${props["font"]["family"]}`;
-        ctx.strokeStyle = Color.fromBytes(props["fillColor"][0], props["fillColor"][1], props["fillColor"][2], props["fillColor"][3]).toCssColorString();
-        ctx.fillStyle = Color.fromBytes(props["outlineColor"][0], props["outlineColor"][1], props["outlineColor"][2], props["outlineColor"][3]).toCssColorString();
+        ctx.strokeStyle = Color.fromBytes(
+            props["fillColor"][0],
+            props["fillColor"][1],
+            props["fillColor"][2],
+            props["fillColor"][3]
+        ).toCssColorString();
+        ctx.fillStyle = Color.fromBytes(
+            props["outlineColor"][0],
+            props["outlineColor"][1],
+            props["outlineColor"][2],
+            props["outlineColor"][3]
+        ).toCssColorString();
         ctx.lineWidth = props["outlineWidth"] / 3;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
@@ -786,7 +808,10 @@ export default class FeaturesApiDataSource extends WesDataSource {
             props["scale"] = billboard.Scale;
         }
         if (billboard.DistanceDisplayCondition != null) {
-            props["distanceDisplayCondition"] = new DistanceDisplayCondition(billboard.DistanceDisplayCondition.Near, billboard.DistanceDisplayCondition.Far);
+            props["distanceDisplayCondition"] = new DistanceDisplayCondition(
+                billboard.DistanceDisplayCondition.Near,
+                billboard.DistanceDisplayCondition.Far
+            );
         }
         if (billboard.EyeOffset != null) {
             props["eyeOffset"] = new Cartesian3(billboard.EyeOffset[0], billboard.EyeOffset[1], billboard.EyeOffset[2]);
@@ -796,7 +821,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
     getLabelProperties(props: any, feature: Entity, label: LabelProperty) {
         if (label.Text != null) {
             if (Object.prototype.hasOwnProperty.call(label.Text, "PropertyName")) {
-                props["text"] = feature.properties![(label.Text as { PropertyName: string; }).PropertyName!].getValue();
+                props["text"] = feature.properties![(label.Text as { PropertyName: string }).PropertyName!].getValue();
             } else {
                 props["text"] = label.Text;
             }
@@ -822,7 +847,12 @@ export default class FeaturesApiDataSource extends WesDataSource {
         billboard.image = new ConstantProperty(pointSymbolizer.Billboard!.Image);
         billboard.scale = new ConstantProperty(pointSymbolizer.Billboard!.Scale);
         if (pointSymbolizer.Billboard!.DistanceDisplayCondition != null) {
-            billboard.distanceDisplayCondition = new ConstantProperty(new DistanceDisplayCondition(pointSymbolizer.Billboard!.DistanceDisplayCondition.Near, pointSymbolizer.Billboard!.DistanceDisplayCondition.Far));
+            billboard.distanceDisplayCondition = new ConstantProperty(
+                new DistanceDisplayCondition(
+                    pointSymbolizer.Billboard!.DistanceDisplayCondition.Near,
+                    pointSymbolizer.Billboard!.DistanceDisplayCondition.Far
+                )
+            );
         }
         billboard.eyeOffset = new ConstantProperty(new Cartesian3(0, 0, 500));
         billboard.verticalOrigin = VERTICAL_ORIGIN_BOTTOM;
@@ -857,11 +887,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
         return feature;
     }
 
-    updateFeatureStyle(
-        feature: Entity,
-        rawFeature: OGCFeature,
-        location: Cartesian3,
-    ) {
+    updateFeatureStyle(feature: Entity, rawFeature: OGCFeature, location: Cartesian3) {
         const matchedStyles = feature.properties?.matchedStyles?.getValue();
         const matchedRules = matchedStyles ? matchedStyles[this._userStyle] : undefined;
         this.addFeatureInfo(feature, rawFeature, location);
@@ -911,31 +937,55 @@ export default class FeaturesApiDataSource extends WesDataSource {
         }
         if (pointSymbolizer.Label.Text != null) {
             if (Object.prototype.hasOwnProperty.call(pointSymbolizer.Label.Text, "PropertyName")) {
-                label.text = feature.properties![(pointSymbolizer.Label.Text as { PropertyName: string; }).PropertyName!].getValue();
+                label.text =
+                    feature.properties![
+                        (pointSymbolizer.Label.Text as { PropertyName: string }).PropertyName!
+                    ].getValue();
             } else {
                 label.text = new ConstantProperty(pointSymbolizer.Label.Text);
             }
         }
         if (pointSymbolizer.Label.Font != null) {
-            label.font = new ConstantProperty(`${pointSymbolizer.Label.Font.Size}px ${pointSymbolizer.Label.Font.Family}`);
+            label.font = new ConstantProperty(
+                `${pointSymbolizer.Label.Font.Size}px ${pointSymbolizer.Label.Font.Family}`
+            );
         }
         if (pointSymbolizer.Label.FillColor != null) {
-            label.fillColor = new ConstantProperty(Color.fromBytes(pointSymbolizer.Label.FillColor[0], pointSymbolizer.Label.FillColor[1], pointSymbolizer.Label.FillColor[2], pointSymbolizer.Label.FillColor[3]));
+            label.fillColor = new ConstantProperty(
+                Color.fromBytes(
+                    pointSymbolizer.Label.FillColor[0],
+                    pointSymbolizer.Label.FillColor[1],
+                    pointSymbolizer.Label.FillColor[2],
+                    pointSymbolizer.Label.FillColor[3]
+                )
+            );
         }
         if (pointSymbolizer.Label.OutlineColor != null) {
-            label.outlineColor = new ConstantProperty(Color.fromBytes(pointSymbolizer.Label.OutlineColor[0], pointSymbolizer.Label.OutlineColor[1], pointSymbolizer.Label.OutlineColor[2], pointSymbolizer.Label.OutlineColor[3]));
+            label.outlineColor = new ConstantProperty(
+                Color.fromBytes(
+                    pointSymbolizer.Label.OutlineColor[0],
+                    pointSymbolizer.Label.OutlineColor[1],
+                    pointSymbolizer.Label.OutlineColor[2],
+                    pointSymbolizer.Label.OutlineColor[3]
+                )
+            );
         }
         if (pointSymbolizer.Label.OutlineWidth != null) {
             label.outlineWidth = new ConstantProperty(pointSymbolizer.Label.OutlineWidth);
         }
         if (pointSymbolizer.Label.DistanceDisplayCondition != null) {
-            label.distanceDisplayCondition = new ConstantProperty(new DistanceDisplayCondition(pointSymbolizer.Label.DistanceDisplayCondition.Near, pointSymbolizer.Label.DistanceDisplayCondition.Far));
+            label.distanceDisplayCondition = new ConstantProperty(
+                new DistanceDisplayCondition(
+                    pointSymbolizer.Label.DistanceDisplayCondition.Near,
+                    pointSymbolizer.Label.DistanceDisplayCondition.Far
+                )
+            );
         }
         label.eyeOffset = new ConstantProperty(new Cartesian3(0, 0, -500));
         label.verticalOrigin = VERTICAL_ORIGIN_BOTTOM;
         if (this._viewer.scene.mode === SceneMode.SCENE3D) {
             label.heightReference = HEIGHT_REFERENCE_CLAMP_TO_GROUND;
-        } 
+        }
         label.disableDepthTestDistance = new ConstantProperty(80000000);
     }
 
@@ -965,7 +1015,12 @@ export default class FeaturesApiDataSource extends WesDataSource {
             model.shadows = new ConstantProperty(shadows);
         }
         if (pointSymbolizer.Model.SilhouetteColor != null) {
-            const silhouetteColor = Color.fromBytes(pointSymbolizer.Model.SilhouetteColor[0], pointSymbolizer.Model.SilhouetteColor[1], pointSymbolizer.Model.SilhouetteColor[2], pointSymbolizer.Model.SilhouetteColor[3]);
+            const silhouetteColor = Color.fromBytes(
+                pointSymbolizer.Model.SilhouetteColor[0],
+                pointSymbolizer.Model.SilhouetteColor[1],
+                pointSymbolizer.Model.SilhouetteColor[2],
+                pointSymbolizer.Model.SilhouetteColor[3]
+            );
             model.silhouetteColor = new ConstantProperty(silhouetteColor);
         }
         if (pointSymbolizer.Model.SilhouetteSize != null) {
@@ -973,7 +1028,12 @@ export default class FeaturesApiDataSource extends WesDataSource {
             model.silhouetteSize = new ConstantProperty(silhouetteSize);
         }
         if (pointSymbolizer.Model.Color != null) {
-            const color = Color.fromBytes(pointSymbolizer.Model.Color[0], pointSymbolizer.Model.Color[1], pointSymbolizer.Model.Color[2], pointSymbolizer.Model.Color[3]);
+            const color = Color.fromBytes(
+                pointSymbolizer.Model.Color[0],
+                pointSymbolizer.Model.Color[1],
+                pointSymbolizer.Model.Color[2],
+                pointSymbolizer.Model.Color[3]
+            );
             model.color = new ConstantProperty(color);
         }
         if (pointSymbolizer.Model.ColorBlendMode != null) {
@@ -996,7 +1056,12 @@ export default class FeaturesApiDataSource extends WesDataSource {
             model.colorBlendAmount = new ConstantProperty(colorBlendAmount);
         }
         if (pointSymbolizer.Model.LightColor != null) {
-            const lightColor = Color.fromBytes(pointSymbolizer.Model.LightColor[0], pointSymbolizer.Model.LightColor[1], pointSymbolizer.Model.LightColor[2], pointSymbolizer.Model.LightColor[3]);
+            const lightColor = Color.fromBytes(
+                pointSymbolizer.Model.LightColor[0],
+                pointSymbolizer.Model.LightColor[1],
+                pointSymbolizer.Model.LightColor[2],
+                pointSymbolizer.Model.LightColor[3]
+            );
             model.lightColor = new ConstantProperty(lightColor);
         }
         if (pointSymbolizer.Model.Scale != null) {
@@ -1014,7 +1079,12 @@ export default class FeaturesApiDataSource extends WesDataSource {
             model.minimumPixelSize = new ConstantProperty(80);
         }
         if (pointSymbolizer.Model.DistanceDisplayCondition != null) {
-            model.distanceDisplayCondition = new ConstantProperty(new DistanceDisplayCondition(pointSymbolizer.Model.DistanceDisplayCondition.Near, pointSymbolizer.Model.DistanceDisplayCondition.Far));
+            model.distanceDisplayCondition = new ConstantProperty(
+                new DistanceDisplayCondition(
+                    pointSymbolizer.Model.DistanceDisplayCondition.Near,
+                    pointSymbolizer.Model.DistanceDisplayCondition.Far
+                )
+            );
         }
         model.heightReference = HEIGHT_REFERENCE_RELATIVE_TO_GROUND;
         model.show = TRUE_PROPERTY;
@@ -1026,15 +1096,28 @@ export default class FeaturesApiDataSource extends WesDataSource {
             let pitch = parseInt(pointSymbolizer.Model.Orientation.Pitch as string);
             let roll = parseInt(pointSymbolizer.Model.Orientation.Roll as string);
             if (isNaN(yaw)) {
-                yaw = feature.properties![(pointSymbolizer.Model.Orientation.Yaw as { PropertyName: string; }).PropertyName].getValue();
+                yaw =
+                    feature.properties![
+                        (pointSymbolizer.Model.Orientation.Yaw as { PropertyName: string }).PropertyName
+                    ].getValue();
             }
             if (isNaN(pitch)) {
-                pitch = feature.properties![(pointSymbolizer.Model.Orientation.Pitch as { PropertyName: string; }).PropertyName].getValue();
+                pitch =
+                    feature.properties![
+                        (pointSymbolizer.Model.Orientation.Pitch as { PropertyName: string }).PropertyName
+                    ].getValue();
             }
             if (isNaN(roll)) {
-                roll = feature.properties![(pointSymbolizer.Model.Orientation.Roll as { PropertyName: string; }).PropertyName].getValue();
+                roll =
+                    feature.properties![
+                        (pointSymbolizer.Model.Orientation.Roll as { PropertyName: string }).PropertyName
+                    ].getValue();
             }
-            const hpr = new HeadingPitchRoll(CesiumMath.toRadians(yaw), CesiumMath.toRadians(pitch), CesiumMath.toRadians(roll));
+            const hpr = new HeadingPitchRoll(
+                CesiumMath.toRadians(yaw),
+                CesiumMath.toRadians(pitch),
+                CesiumMath.toRadians(roll)
+            );
             feature.orientation = new ConstantProperty(Transforms.headingPitchRollQuaternion(location, hpr));
         }
     }
@@ -1054,14 +1137,36 @@ export default class FeaturesApiDataSource extends WesDataSource {
         const fill = polygonSymbolizer.Fill ? polygonSymbolizer.Fill : false;
         let material;
         if (polygonSymbolizer.Material && polygonSymbolizer.Material.Color) {
-            material = new ColorMaterialProperty(Color.fromBytes(polygonSymbolizer.Material.Color[0], polygonSymbolizer.Material.Color[1], polygonSymbolizer.Material.Color[2], polygonSymbolizer.Material.Color[3]));
-        } else if (polygonSymbolizer.Material && polygonSymbolizer.Material.MaterialProperty && polygonSymbolizer.Material.MaterialProperty.MaterialImage) {
-            material = new ImageMaterialProperty({ image: polygonSymbolizer.Material.MaterialProperty.MaterialImage.image, repeat: new Cartesian2(polygonSymbolizer.Material.MaterialProperty.MaterialImage.repeat.x, polygonSymbolizer.Material.MaterialProperty.MaterialImage.repeat.y) });
+            material = new ColorMaterialProperty(
+                Color.fromBytes(
+                    polygonSymbolizer.Material.Color[0],
+                    polygonSymbolizer.Material.Color[1],
+                    polygonSymbolizer.Material.Color[2],
+                    polygonSymbolizer.Material.Color[3]
+                )
+            );
+        } else if (
+            polygonSymbolizer.Material &&
+            polygonSymbolizer.Material.MaterialProperty &&
+            polygonSymbolizer.Material.MaterialProperty.MaterialImage
+        ) {
+            material = new ImageMaterialProperty({
+                image: polygonSymbolizer.Material.MaterialProperty.MaterialImage.image,
+                repeat: new Cartesian2(
+                    polygonSymbolizer.Material.MaterialProperty.MaterialImage.repeat.x,
+                    polygonSymbolizer.Material.MaterialProperty.MaterialImage.repeat.y
+                )
+            });
         }
         const outline = polygonSymbolizer.Outline ? polygonSymbolizer.Outline : false;
         let outlineColor;
         if (polygonSymbolizer.OutlineColor != null) {
-            outlineColor = Color.fromBytes(polygonSymbolizer.OutlineColor[0], polygonSymbolizer.OutlineColor[1], polygonSymbolizer.OutlineColor[2], polygonSymbolizer.OutlineColor[3]);
+            outlineColor = Color.fromBytes(
+                polygonSymbolizer.OutlineColor[0],
+                polygonSymbolizer.OutlineColor[1],
+                polygonSymbolizer.OutlineColor[2],
+                polygonSymbolizer.OutlineColor[3]
+            );
         }
         const outlineWidth = polygonSymbolizer.OutlineWidth ? polygonSymbolizer.OutlineWidth : undefined;
         const closeTop = polygonSymbolizer.CloseTop ? polygonSymbolizer.CloseTop : false;

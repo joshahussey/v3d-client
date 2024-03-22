@@ -198,11 +198,11 @@
     "args": {
         "uid": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/geodb/METAR/ogcapi/collections/metar_weather_report", 
         "url": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/geodb/METAR/ogcapi/collections/metar_weather_report", 
-        "title": "FAA Flight Features", 
-        "description": "FAA Flight Features",
+        "title": "Metar", 
+        "description": "Metar",
         "wgs84BoundingBox": { "minX": -180, "minY": -90, "maxX": 180, "maxY": 90}, 
         "serviceInfo": {
-            "serviceTitle": "FAA Flight",
+            "serviceTitle": "Metar",
             "serviceId": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/geodb/METAR/ogcapi/collections/metar_weather_report",
             "serviceUrl": "https://dbwms-srv1.compusult.com/ServiceDBWMS/webservices/geodb/METAR/ogcapi/collections/metar_weather_report"
         }

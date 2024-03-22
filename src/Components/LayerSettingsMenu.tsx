@@ -6,6 +6,7 @@ import CelestialBodyDataSource from "../Datasources/CelestialBodyDataSource";
 import { useInterfaceContext } from "../Context/UIContext";
 import WesDataSource from "../Datasources/WesDataSource";
 import { translate as t } from "../i18n/Translator";
+import FeaturesApiDataSource from "../Datasources/FeaturesApiDataSource";
 
 /**
  * Represents a component for the expanded menu that displays additional options based on toolbar state.
@@ -44,7 +45,7 @@ export function LayerSettingsMenu(props: {
             viewer.zoomTo(primitiveLayer);
         }
         if (datasource) {
-            if (datasource instanceof CoverageApiDataSource) {
+            if (datasource instanceof CoverageApiDataSource || datasource instanceof FeaturesApiDataSource) {
                 const bounds = datasource.geometryBounds;
                 if (bounds.maxY == null || bounds.minY == null || bounds.maxX == null || bounds.minX == null) {
                     return;
