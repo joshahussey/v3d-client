@@ -3,9 +3,13 @@ import { LayerSettingsMenu } from "./LayerSettingsMenu";
 import { Wes3DTileSet, Wes3dMapLayer, WesImageryLayer } from "../Wes";
 
 /**
- * Represents a reusable component for rendering a toolbar button with customizable properties.
- * @param {ToolbarButtonType} props - The properties for configuring the button.
- * @returns {JSX.Element} A JSX element representing the toolbar button.
+ * @param {Accessor<boolean>} props.opened Whether the layer settings is expanded.
+ * @param {(value: boolean) => void} props.setOpened Opens/Closes the layer settings
+ * @param {Wes3dMapLayer} props.datasource The datasource associated with the layer, if there is one
+ * @param {WesImageryLayer} props.imageryLayer The imagery layer associated with the layer, if there is one
+ * @param {Wes3DTileSet} props.primitiveLayer The primitive layer associated with the layer, if there is one
+ * @param {boolean} props.isEnabled Whether the layer settings button should be enabled
+ * @returns {JSX.Element} A JSX Element representing the layer settings button.
  */
 export function LayerSettingsButton(props: {
     opened: Accessor<boolean>;
@@ -14,23 +18,24 @@ export function LayerSettingsButton(props: {
     imageryLayer?: WesImageryLayer;
     primitiveLayer?: Wes3DTileSet;
     isEnabled: boolean;
-}): Element {
+}): JSX.Element {
+    // eslint-disable-next-line solid/reactivity
     const { opened, setOpened, datasource, imageryLayer, primitiveLayer, isEnabled } = props;
     const [layerSettingsMenuShown, setLayerSettingsMenuShown] = createSignal(false);
 
-    let layerSettingsMenuRef: any;
-    let layerSettingsMenuButtonRef: any;
+    let layerSettingsMenuRef: HTMLUListElement | undefined;
+    let layerSettingsMenuButtonRef: HTMLButtonElement | undefined;
     createEffect(() => {
         if (layerSettingsMenuShown() != undefined && layerSettingsMenuRef && layerSettingsMenuButtonRef) {
             if (layerSettingsMenuShown()) {
-                layerSettingsMenuRef.classList.remove("layer-settings-menu-hidden");
-                layerSettingsMenuRef.classList.add("layer-settings-menu");
+                layerSettingsMenuRef.classList.remove("settings-menu-hidden");
+                layerSettingsMenuRef.classList.add("settings-menu");
                 layerSettingsMenuRef.style.top = `calc(${layerSettingsMenuButtonRef.getBoundingClientRect().top}px - 4rem)`;
                 layerSettingsMenuRef.style.left = layerSettingsMenuButtonRef.getBoundingClientRect().left - (layerSettingsMenuRef.getBoundingClientRect().right - layerSettingsMenuRef.getBoundingClientRect().left) + "px";
                 layerSettingsMenuRef.focus();
             } else {
-                layerSettingsMenuRef.classList.remove("layer-settings-menu");
-                layerSettingsMenuRef.classList.add("layer-settings-menu-hidden");
+                layerSettingsMenuRef.classList.remove("settings-menu");
+                layerSettingsMenuRef.classList.add("settings-menu-hidden");
             }
         }
     });
@@ -67,7 +72,6 @@ export function LayerSettingsButton(props: {
                 imageryLayer={imageryLayer}
                 primitiveLayer={primitiveLayer}
                 datasource={datasource}
-                isEnabled={true}
                 onFocusOutEvent={onFocusOutEvent}
                 setLayerSettingsMenuShown={setLayerSettingsMenuShown}
             />

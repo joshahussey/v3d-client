@@ -1,4 +1,4 @@
-.layer-settings-menu {
+.settings-menu {
     z-index: 1000;
     position: absolute;
     background-color: white;
@@ -9,17 +9,17 @@
     list-style-type: none;
     list-style: none;
 }
-.layer-settings-menu li {
+.settings-menu li {
     list-style: none;
     font-size: medium;
     display: flex;
     align-items: center;
 }
-.layer-settings-menu li:hover {
+.settings-menu li:hover {
     background-color: var(--light-gray);
 }
 
-.layer-settings-menu-hidden {
+.settings-menu-hidden {
     display: none;
 }
 
@@ -29,13 +29,19 @@
     display: block;
 }
 
-.layerSettingsMenuIcon {
+.service-div:hover .dropdown-button {
+    color: var(--dark-gray);
+    background-color: var(--clear);
+    display: block;
+}
+
+.settings-menu-icon {
     margin: 0.3rem;
     fill: var(--gray);
     height: 1.50rem;
     width: 1.50rem;
 }
 
-.layerSettingsMenuText {
+.settings-menu-text {
     margin: 0.3rem
 }

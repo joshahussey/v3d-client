@@ -29,6 +29,8 @@
     "layerSettingsMenuZoom":"FR_Zoom To Layer",
     "layerSettingsMenuRemove":"FR_Remove Layer",
 
+    "serviceSettingsMenuRemove":"FR_Remove Service",
+
     "layersOrderDivClose":"FR_Close",
     
     "primitiveEntryOsmWarningButton": "FR_Open Street Map Buildings can only be utilized when the selected terrain is 'Cesium Builtin Terrain'",

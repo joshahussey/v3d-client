@@ -10,6 +10,7 @@ import { useToolbarStateContext, ServiceStatusEntry } from "../Context/ToolbarSt
 import { GeoJsonDataSource } from "cesium";
 import SensorThingsDataSource from "../Datasources/SensorThingsDataSource";
 import CoverageApiDataSource from "../Datasources/CoverageApiDataSource";
+import { ServiceSettingsButton } from "./ServiceSettingsButton";
 
 export type makeCheckboxStatus = () => void;
 
@@ -166,7 +167,6 @@ export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
                             width="24"
                             height="24"
                             xmlns="http://www.w3.org/2000/svg"
-                            xmlns:svg="http://www.w3.org/2000/svg"
                             preserveAspectRatio="xMidYMid meet"
                         >
                             <g id="keyboard_arrow_up" transform="rotate(180 12 11.545)">
@@ -188,7 +188,6 @@ export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
                             width="24"
                             height="24"
                             xmlns="http://www.w3.org/2000/svg"
-                            xmlns:svg="http://www.w3.org/2000/svg"
                             preserveAspectRatio="xMidYMid meet"
                         >
                             <g id="keyboard_arrow_down">
@@ -200,6 +199,7 @@ export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
                 <span class="layer-name" title={entry.service.serviceTitle}>
                     {entry.service.serviceTitle}
                 </span>
+                <ServiceSettingsButton layers={entry.layers}/>
                 <input
                     type="checkbox"
                     class="cesium-button shown-status-button"
