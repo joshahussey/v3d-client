@@ -63,6 +63,9 @@ func HandleShape(ctx ReqContext) error {
 		return SE("HandleShapeUpload", err)
 	}
 	defer file.Close()
+	uploadDir := path.Dir(*filePath)
+	defer os.RemoveAll(uploadDir)
+
 	//Check Zip file hash
 	shapefilesHostedDir := "/cslt/web/services/shapefiles"
 	zipBytes, err := os.ReadFile(*filePath)
