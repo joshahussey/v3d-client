@@ -70,12 +70,12 @@ export function ShowOnMapCheckbox(props: {
             syncServiceCheckboxCallback();
         }
     }
-    let checkBoxRef: any;
+    let checkBoxRef: HTMLInputElement | undefined;
     createEffect(() => {
         if (serviceCheckBoxState != undefined && serviceCheckBoxState() != 2) {
-            if (serviceCheckBoxState() == 0 && checkBoxRef.isChecked != false) {
+            if (serviceCheckBoxState() == 0 && checkBoxRef?.checked != false) {
                 checkboxChanged(false, false);
-            } else if (serviceCheckBoxState() == 1 && checkBoxRef.isChecked != true) {
+            } else if (serviceCheckBoxState() == 1 && checkBoxRef?.checked != true) {
                 checkboxChanged(true, false);
             }
         }

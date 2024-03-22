@@ -9,6 +9,7 @@ import { ImageryLayer, Cesium3DTileset, KmlDataSource } from "cesium";
 import { useToolbarStateContext, ServiceStatusEntry } from "../Context/ToolbarStateContext";
 import { GeoJsonDataSource } from "cesium";
 import SensorThingsDataSource from "../Datasources/SensorThingsDataSource";
+import CoverageApiDataSource from "../Datasources/CoverageApiDataSource";
 
 export type makeCheckboxStatus = () => void;
 
@@ -114,6 +115,9 @@ export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
         function isShown(layer: WesImageryLayer | Wes3DTileSet | WesDataSource) {
             if (layer instanceof SensorThingsDataSource) {
                 return (layer.show.Things && layer.show.FeaturesOfInterest && layer.show.ObservedAreas)
+            }
+            if (layer instanceof CoverageApiDataSource) {
+                return layer.show || layer.isLoading;
             }
             return layer.show;
         }
