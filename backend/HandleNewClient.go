@@ -21,6 +21,9 @@ func NCE(step string, err error) error {
 }
 
 func HandleNewClient(ctx ReqContext) error {
+    ctx.w.Header().Set("Allow-Cross-Origin-Access", "*")
+	ctx.w.Header().Set("Access-Control-Allow-Methods", "POST, PATCH, WS, WSS")
+    ctx.w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	if _, upgrade := ctx.r.Header["Upgrade"]; !upgrade {
 		return NCE("Header", fmt.Errorf("Upgrade header not found"))
 	}

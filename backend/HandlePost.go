@@ -1,10 +1,16 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 )
+
+type PostBody struct {
+   Kind string `json:"type"`
+   Args json.RawMessage `json:"args"`
+}
 
 type PostError struct {
 	step string
@@ -30,14 +36,36 @@ func HandlePost(ctx ReqContext) error {
 	if err != nil {
 		return PoE("ReadAll", err)
 	}
-	if !ok {
-		requestQueue.Enqueue(ctx.sessionID, body)
-	} else {
-		err = client.conn.WriteMessage(1, body)
-		if err != nil {
-			return PoE("WriteMessage", err)
-		}
-	}
-	ctx.w.WriteHeader(http.StatusOK)
-	return nil
+    var jsonBody PostBody
+    err = json.Unmarshal(body, &jsonBody)
+    if err != nil {
+        return PoE("Unmarshal", err)
+    }
+    switch jsonBody.Kind {
+    case "shape":
+        err = HandleShapeUrl(ctx, jsonBody.Args)
+        if err != nil {
+            return PoE("HandleShapeUrl", err)
+        }
+        return nil
+    case "kml":
+        logI(ctx.sessionID, "FOUND THE KML!", "KML")
+        ctx.w.WriteHeader(http.StatusOK)
+        return nil
+    default:
+        msg, err := json.Marshal(jsonBody)
+        if err != nil {
+            return PoE("Marshal", err)
+        }
+        if !ok {
+            requestQueue.Enqueue(ctx.sessionID, msg)
+        } else {
+            err = client.conn.WriteMessage(1, msg)
+            if err != nil {
+                return PoE("WriteMessage", err)
+            }
+        }
+        ctx.w.WriteHeader(http.StatusOK)
+        return nil
+    }
 }
