@@ -11,6 +11,11 @@
         buildInputs = [
           nixpkgs.legacyPackages."x86_64-linux".gdal
           nixpkgs.legacyPackages."x86_64-linux".gcc
+          nixpkgs.legacyPackages."x86_64-linux".clang
+          nixpkgs.legacyPackages."x86_64-linux".cmake
+          nixpkgs.legacyPackages."x86_64-linux".ccls
+          nixpkgs.legacyPackages."x86_64-linux".gf
+          nixpkgs.legacyPackages."x86_64-linux".gdb
         ];
       };
 

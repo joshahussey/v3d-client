@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/opt/Standalone3D/backend/build",
+  "command": "/nix/store/qhpw32pz39y6i30b3vrbw5fw6zv5549f-gcc-wrapper-13.2.0/bin/gcc    -o CMakeFiles/shape2json.dir/shape2json.c.o -c /opt/Standalone3D/backend/shape2json.c",
+  "file": "/opt/Standalone3D/backend/shape2json.c",
+  "output": "CMakeFiles/shape2json.dir/shape2json.c.o"
+}
+]
