@@ -6,7 +6,7 @@
 Hosted: web
 Source: src, static
 
-Backend lang: go
+Backend lang: go, c
 WebServer: Caddy 
 Client: Typescript/SolidJS
 
