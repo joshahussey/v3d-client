@@ -31,41 +31,30 @@ const Map3DController = window.Map3DController
            *                               "url":"The URL Corresponding To The Service",
            *                           }
            */
-          addWMTS: (
-              uid,
-              resourceUrlTemplate,
-              title,
-              abstract,
-              layerIdentifier,
-              styleIdentifier,
-              format,
-              tileMatrixSetIdentifier,
-              maximumLevel,
-              credit,
-              wgs84BoundingBox,
-              serviceInfo
-          ) => {
-              const option = {
-                  uid: uid,
-                  type: "WMTS",
-                  name: title,
-                  description: abstract ? abstract : title,
-                  url: resourceUrlTemplate,
-                  serviceInfo: serviceInfo,
-                  bounds: wgs84BoundingBox,
-                  layer: layerIdentifier,
-                  style: styleIdentifier,
-                  format: format,
-                  tileMatrixSetID: tileMatrixSetIdentifier,
-                  maximumLevel: maximumLevel,
-                  credit: credit ? credit : "",
-                  show: true,
-                  alpha: 1.0
-              };
+          addWMTS: addWMTSObject => {
               const mapState = Map3DController.getMapState();
               let imageLayers = mapState.imageLayers;
-              imageLayers = imageLayers.filter(l => l.uid !== uid);
-              imageLayers = [...imageLayers, option];
+              for (const wmtsObject of addWMTSObject) {
+                  const option = {
+                      uid: wmtsObject.uid,
+                      type: "WMTS",
+                      name: wmtsObject.title,
+                      description: wmtsObject.abstract ? wmtsObject.abstract : wmtsObject.title,
+                      url: wmtsObject.resourceUrlTemplate,
+                      serviceInfo: wmtsObject.serviceInfo,
+                      bounds: wmtsObject.wgs84BoundingBox,
+                      layer: wmtsObject.layerIdentifier,
+                      style: wmtsObject.styleIdentifier,
+                      format: wmtsObject.format,
+                      tileMatrixSetID: wmtsObject.tileMatrixSetIdentifier,
+                      maximumLevel: wmtsObject.maximumLevel,
+                      credit: wmtsObject.credit ? wmtsObject.credit : "",
+                      show: true,
+                      alpha: 1.0
+                  };
+                  imageLayers = imageLayers.filter(l => l.uid !== wmtsObject.uid);
+                  imageLayers = [...imageLayers, option];
+              }
               Map3DController.setMapState({
                   ...mapState,
                   imageLayers: imageLayers
@@ -94,20 +83,22 @@ const Map3DController = window.Map3DController
            *                                 "serviceUrl":"The URL Corresponding To The Service",
            *                             }
            */
-          addOgcMap: (uid, title, url, wgs84BoundingBox, serviceInfo) => {
-              const option = {
-                  type: "OgcMap",
-                  uid: uid,
-                  name: title,
-                  show: true,
-                  url: url,
-                  serviceInfo: serviceInfo,
-                  bounds: wgs84BoundingBox
-              };
+          addOgcMap: addOgcMapObject => {
               const mapState = Map3DController.getMapState();
               let imageLayers = mapState.imageLayers;
-              imageLayers = imageLayers.filter(l => l.uid !== uid);
-              imageLayers.push(option);
+              for (const ogcMapObject of addOgcMapObject) {
+                  const option = {
+                      type: "OgcMap",
+                      uid: ogcMapObject.uid,
+                      name: ogcMapObject.title,
+                      show: true,
+                      url: ogcMapObject.url,
+                      serviceInfo: ogcMapObject.serviceInfo,
+                      bounds: ogcMapObject.wgs84BoundingBox
+                  };
+                  imageLayers = imageLayers.filter(l => l.uid !== ogcMapObject.uid);
+                  imageLayers.push(option);
+              }
               mapState.imageLayers = imageLayers;
               Map3DController.setMapState(mapState);
           },
@@ -138,28 +129,30 @@ const Map3DController = window.Map3DController
            *                                 "serviceUrl":"The URL Corresponding To The Service",
            *                             }
            */
-          addWMS: (uid, url, title, abstract, name, format, credit, wgs84BoundingBox, serviceInfo) => {
-              const option = {
-                  uid: uid,
-                  type: "WMS",
-                  name: title,
-                  description: abstract ? abstract : title,
-                  url: url,
-                  serviceInfo: serviceInfo,
-                  bounds: wgs84BoundingBox,
-                  layers: name,
-                  parameters: {
-                      transparent: "true",
-                      format: format
-                  },
-                  credit: credit ? credit : "",
-                  show: false,
-                  alpha: 1.0
-              };
+          addWMS: addWMSObject => {
               const mapState = Map3DController.getMapState();
               let imageLayers = mapState.imageLayers;
-              imageLayers = imageLayers.filter(l => l.uid !== uid);
-              imageLayers.push(option);
+              for (const wmsObject of addWMSObject) {
+                  const option = {
+                      uid: wmsObject.uid,
+                      type: "WMS",
+                      name: wmsObject.title,
+                      description: wmsObject.abstract ? wmsObject.abstract : wmsObject.title,
+                      url: wmsObject.url,
+                      serviceInfo: wmsObject.serviceInfo,
+                      bounds: wmsObject.wgs84BoundingBox,
+                      layers: wmsObject.name,
+                      parameters: {
+                          transparent: "true",
+                          format: wmsObject.format
+                      },
+                      credit: wmsObject.credit ? wmsObject.credit : "",
+                      show: false,
+                      alpha: 1.0
+                  };
+                  imageLayers = imageLayers.filter(l => l.uid !== wmsObject.uid);
+                  imageLayers.push(option);
+              }
               mapState.imageLayers = imageLayers;
               Map3DController.setMapState(mapState);
           },
@@ -188,31 +181,33 @@ const Map3DController = window.Map3DController
            *                                 "serviceUrl":"The URL Corresponding To The Service",
            *                             }
            */
-          addArcGisWMS: (uid, url, title, abstract, credit, wgs84BoundingBox, serviceInfo) => {
-            const option = {
-                uid: uid,
-                type: "ArcGis",
-                name: title,
-                description: abstract ? abstract : title,
-                url: url,
-                serviceInfo: serviceInfo,
-                bounds: wgs84BoundingBox,
-                credit: credit ? credit : "",
-            };
-            const mapState = Map3DController.getMapState();
-            let imageLayers = mapState.imageLayers;
-            imageLayers = imageLayers.filter(l => l.uid !== uid);
-            imageLayers.push(option);
-            mapState.imageLayers = imageLayers;
-            Map3DController.setMapState(mapState);
-        },
+          addArcGisWMS: addArcGISWMSObject => {
+              const mapState = Map3DController.getMapState();
+              let imageLayers = mapState.imageLayers;
+              for (const arcGisWmsObject of addArcGISWMSObject) {
+                  const option = {
+                      uid: arcGisWmsObject.uid,
+                      type: "ArcGis",
+                      name: arcGisWmsObject.title,
+                      description: arcGisWmsObject.abstract ? arcGisWmsObject.abstract : arcGisWmsObject.title,
+                      url: arcGisWmsObject.url,
+                      serviceInfo: arcGisWmsObject.serviceInfo,
+                      bounds: arcGisWmsObject.wgs84BoundingBox,
+                      credit: arcGisWmsObject.credit ? arcGisWmsObject.credit : ""
+                  };
+                  imageLayers = imageLayers.filter(l => l.uid !== arcGisWmsObject.uid);
+                  imageLayers.push(option);
+              }
+              mapState.imageLayers = imageLayers;
+              Map3DController.setMapState(mapState);
+          },
 
           /**
            * Adds a 3D Tiles to 3DMap if a layer on top of the map primitives if the uid dosn't exist.
            * If the uid exists then the existing layer is first removed.
            *
            * @param {String} uid unique identifier for the layer.
-           * @param {String} urlOrGeoJsonObject url to the tile set json.
+           * @param {String} url url to the tile set json.
            * @param {String} title the label dispayed for the layer in the layer manager.
            * @param {String} description the description dispayed for the layer in the layer manager.
            * @param {Object} serviceInfo JSON Dictionary representing service information in the form:
@@ -222,20 +217,22 @@ const Map3DController = window.Map3DController
            *                                 "serviceUrl":"The URL Corresponding To The Service",
            *                             }
            */
-          add3DTiles: (uid, urlOrGeoJsonObject, title, description, serviceInfo) => {
-              const option = {
-                  uid: uid,
-                  type: "3D_TILES",
-                  name: title,
-                  description: description,
-                  url: urlOrGeoJsonObject,
-                  serviceInfo: serviceInfo,
-                  show: true
-              };
+          add3DTiles: add3DTilesObject => {
               const mapState = Map3DController.getMapState();
               let primitiveLayers = mapState.primitiveLayers;
-              primitiveLayers = primitiveLayers.filter(l => l.uid !== uid);
-              primitiveLayers = [...primitiveLayers, option];
+              for (const tilesObject of add3DTilesObject) {
+                  const option = {
+                      uid: tilesObject.uid,
+                      type: "3D_TILES",
+                      name: tilesObject.title,
+                      description: tilesObject.description,
+                      url: tilesObject.url,
+                      serviceInfo: tilesObject.serviceInfo,
+                      show: true
+                  };
+                  primitiveLayers = primitiveLayers.filter(l => l.uid !== tilesObject.uid);
+                  primitiveLayers = [...primitiveLayers, option];
+              }
               Map3DController.setMapState({
                   ...mapState,
                   primitiveLayers: primitiveLayers
@@ -264,20 +261,22 @@ const Map3DController = window.Map3DController
            *                                 "serviceUrl":"The URL Corresponding To The Service",
            *                             }
            */
-          addSensorThings: (uid, url, title, description, wgs84BoundingBox, serviceInfo) => {
-              const option = {
-                  uid,
-                  type: "sensorthings",
-                  name: title,
-                  description,
-                  url,
-                  bounds: wgs84BoundingBox,
-                  serviceInfo: serviceInfo
-              };
+          addSensorThings: addSensorThingsObject => {
               const mapState = Map3DController.getMapState();
               let dataSources = mapState.dataSources;
-              dataSources = dataSources.filter(d => d.uid !== uid);
-              dataSources.push(option);
+              for (const sensorThingsObject of addSensorThingsObject) {
+                  const option = {
+                      uid: sensorThingsObject.uid,
+                      type: "sensorthings",
+                      name: sensorThingsObject.title,
+                      description: sensorThingsObject.description,
+                      url: sensorThingsObject.url,
+                      bounds: sensorThingsObject.wgs84BoundingBox,
+                      serviceInfo: sensorThingsObject.serviceInfo
+                  };
+                  dataSources = dataSources.filter(d => d.uid !== sensorThingsObject.uid);
+                  dataSources.push(option);
+              }
               mapState.dataSources = dataSources;
               Map3DController.setMapState(mapState);
           },
@@ -297,19 +296,21 @@ const Map3DController = window.Map3DController
            *                             }
            */
           //NOT CURRENTLY SUPPORTED
-          addCelestial: (uid, url, title, description, serviceInfo) => {
-              const option = {
-                  uid,
-                  type: "celestial",
-                  name: title,
-                  description,
-                  url,
-                  serviceInfo: serviceInfo
-              };
+          addCelestial: addCelestialObject => {
               const mapState = Map3DController.getMapState();
               let dataSources = mapState.dataSources;
-              dataSources = dataSources.filter(d => d.uid !== uid);
-              dataSources.push(option);
+              for (const celestialObject of addCelestialObject) {
+                  const option = {
+                      uid: celestialObject.uid,
+                      type: "celestial",
+                      name: celestialObject.title,
+                      description: celestialObject.description,
+                      url: celestialObject.url,
+                      serviceInfo: celestialObject.serviceInfo
+                  };
+                  dataSources = dataSources.filter(d => d.uid !== celestialObject.uid);
+                  dataSources.push(option);
+              }
               mapState.dataSources = dataSources;
               Map3DController.setMapState(mapState);
           },
@@ -328,19 +329,21 @@ const Map3DController = window.Map3DController
            *                                 "serviceUrl":"The URL Corresponding To The Service",
            *                             }
            */
-          addGeoJSON: (uid, urlOrGeoJsonObject, title, description, serviceInfo) => {
-              const option = {
-                  uid: uid,
-                  name: title,
-                  description: description,
-                  url: urlOrGeoJsonObject,
-                  type: "geojson",
-                  serviceInfo: serviceInfo
-              };
+          addGeoJSON: addGeoJsonObject => {
               const mapState = Map3DController.getMapState();
               let dataSources = mapState.dataSources;
-              dataSources = dataSources.filter(d => d.uid !== uid);
-              dataSources.push(option);
+              for (const geoJsonObject of addGeoJsonObject) {
+                  const option = {
+                      uid: geoJsonObject.uid,
+                      name: geoJsonObject.title,
+                      description: geoJsonObject.description,
+                      url: geoJsonObject.urlOrGeoJsonObject,
+                      type: "geojson",
+                      serviceInfo: geoJsonObject.serviceInfo
+                  };
+                  dataSources = dataSources.filter(d => d.uid !== geoJsonObject.uid);
+                  dataSources.push(option);
+              }
               mapState.dataSources = dataSources;
               Map3DController.setMapState(mapState);
           },
@@ -359,22 +362,24 @@ const Map3DController = window.Map3DController
            *                                 "serviceUrl":"The URL Corresponding To The Service",
            *                             }
            */
-          addKml: (uid, url, title, description, serviceInfo) => {
-            const option = {
-                uid: uid,
-                name: title,
-                description: description,
-                url: url,
-                type: "kml",
-                serviceInfo: serviceInfo
-            };
-            const mapState = Map3DController.getMapState();
-            let dataSources = mapState.dataSources;
-            dataSources = dataSources.filter(d => d.uid !== uid);
-            dataSources.push(option);
-            mapState.dataSources = dataSources;
-            Map3DController.setMapState(mapState);
-        },
+          addKml: addKmlObject => {
+              const mapState = Map3DController.getMapState();
+              let dataSources = mapState.dataSources;
+              for (const kmlObject of addKmlObject) {
+                  const option = {
+                      uid: kmlObject.uid,
+                      name: kmlObject.title,
+                      description: kmlObject.description,
+                      url: kmlObject.url,
+                      type: "kml",
+                      serviceInfo: kmlObject.serviceInfo
+                  };
+                  dataSources = dataSources.filter(d => d.uid !== kmlObject.uid);
+                  dataSources.push(option);
+              }
+              mapState.dataSources = dataSources;
+              Map3DController.setMapState(mapState);
+          },
 
           /**
            * Adds a data source to the 3D map, replacing any existing data source with the same UID.
@@ -398,20 +403,22 @@ const Map3DController = window.Map3DController
            *                                 "serviceUrl":"The URL Corresponding To The Service",
            *                             }
            */
-          addOGCFeature: (uid, url, title, description, wgs84BoundingBox, serviceInfo) => {
-              const option = {
-                  uid: uid,
-                  type: "feature",
-                  name: title,
-                  description: description,
-                  url: url,
-                  bounds: wgs84BoundingBox,
-                  serviceInfo: serviceInfo
-              };
+          addOGCFeature: addOGCFeatureObject => {
               const mapState = Map3DController.getMapState();
               let dataSources = mapState.dataSources;
-              dataSources = dataSources.filter(d => d.uid !== uid);
-              dataSources.push(option);
+              for (const ogcFeatureObject of addOGCFeatureObject) {
+                  const option = {
+                      uid: ogcFeatureObject.uid,
+                      type: "feature",
+                      name: ogcFeatureObject.title,
+                      description: ogcFeatureObject.description,
+                      url: ogcFeatureObject.url,
+                      bounds: ogcFeatureObject.wgs84BoundingBox,
+                      serviceInfo: ogcFeatureObject.serviceInfo
+                  };
+                  dataSources = dataSources.filter(d => d.uid !== ogcFeatureObject.uid);
+                  dataSources.push(option);
+              }
               mapState.dataSources = dataSources;
               Map3DController.setMapState(mapState);
           },
@@ -440,22 +447,24 @@ const Map3DController = window.Map3DController
            *                                 "serviceUrl":"The URL Corresponding To The Service",
            *                             }
            */
-          addOGCCoverage: (uid, url, title, description, sourceLayerIndex, id, wgs84BoundingBox, serviceInfo) => {
-              const option = {
-                  uid: uid,
-                  type: "coverage",
-                  name: title,
-                  description: description,
-                  url: url,
-                  bounds: wgs84BoundingBox,
-                  serviceInfo: serviceInfo,
-                  sourceLayerIndex: sourceLayerIndex,
-                  id: id
-              };
+          addOGCCoverage: addOGCCoverageObject => {
               const mapState = Map3DController.getMapState();
               let dataSources = mapState.dataSources;
-              dataSources = dataSources.filter(d => d.uid !== uid);
-              dataSources.push(option);
+              for (const ogcCoverageObject of addOGCCoverageObject) {
+                  const option = {
+                      uid: ogcCoverageObject.uid,
+                      type: "coverage",
+                      name: ogcCoverageObject.title,
+                      description: ogcCoverageObject.description,
+                      url: ogcCoverageObject.url,
+                      bounds: ogcCoverageObject.wgs84BoundingBox,
+                      serviceInfo: ogcCoverageObject.serviceInfo,
+                      sourceLayerIndex: ogcCoverageObject.sourceLayerIndex,
+                      id: ogcCoverageObject.id
+                  };
+                  dataSources = dataSources.filter(d => d.uid !== ogcCoverageObject.uid);
+                  dataSources.push(option);
+              }
               mapState.dataSources = dataSources;
               Map3DController.setMapState(mapState);
           },

@@ -49,7 +49,7 @@ export function RemoveLayerSettingsMenuItem(props: {
                 layer._removed = true;
                 layer._renderedPrimitive = undefined;
                 if (layer._hasLegend) {
-                    setSourcesWithLegends(sourcesWithLegends().filter(source => source.uid !== layer._uid));
+                    setSourcesWithLegends(sourcesWithLegends().filter((source: any) => source.uid !== layer._uid));
                 }
                 (window as CesiumWindow).Map3DViewer.dataSources.remove(layer, true);
                 window.dispatchEvent(new Event("tilesetRemoved"));

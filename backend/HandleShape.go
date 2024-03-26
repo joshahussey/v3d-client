@@ -22,8 +22,8 @@ import (
 )
 
 type ShapeUrl struct {
-    Url string `json:"url"`
-    ServiceInfo ServiceInfo `json:"serviceInfo"`
+	Url         string      `json:"url"`
+	ServiceInfo ServiceInfo `json:"serviceInfo"`
 }
 
 type ShapefileArgs struct {
@@ -35,8 +35,8 @@ type ShapefileArgs struct {
 }
 
 type ShapefileMessage struct {
-	Kind string        `json:"type"`
-	Args ShapefileArgs `json:"args"`
+	Kind string          `json:"type"`
+	Args []ShapefileArgs `json:"args"`
 }
 
 type ShapeError struct {
@@ -133,6 +133,7 @@ func sendShapeLayers(ctx ReqContext, shapeServiceDir string, serviceName string,
 		return SE("HandleShapeReadDir", err)
 	}
 	client, clientFound := ClientMgr.clients[ctx.sessionID]
+	layerMap := make(map[string]string)
 	for _, layer := range layers {
 		if layer.IsDir() {
 			logE(ctx.sessionID, fmt.Errorf("Found directory in shapefile service directory"), "HandleShapeIsDirServices")
@@ -161,29 +162,36 @@ func sendShapeLayers(ctx ReqContext, shapeServiceDir string, serviceName string,
 		if err != nil {
 			logE(ctx.sessionID, err, "addServiceShapefile")
 		}
-		wg.Add(1)
-		go sendShapeMessage(ctx, &client, clientFound, ctx.sessionID, layer.Name(), layerHash, serviceName, serviceUid, messageErrorList, layerList, &wg, mutex)
+		layerMap[layer.Name()] = layerHash
 	}
+	wg.Add(1)
+	go sendShapeMessage(ctx, &client, clientFound, ctx.sessionID, layerMap, serviceName, serviceUid, messageErrorList, layerList, &wg, mutex)
 	wg.Wait()
 	return nil
 }
 
-func sendShapeMessage(ctx ReqContext, client *Client, clientFound bool, sessionId string, layerName string, layerHash string, serviceName string, serviceUid string, errorList *[]string, layerList *[]string, wg *sync.WaitGroup, mutex *sync.Mutex) {
+func sendShapeMessage(ctx ReqContext, client *Client, clientFound bool, sessionId string, layerMap map[string]string, serviceName string, serviceUid string, errorList *[]string, layerList *[]string, wg *sync.WaitGroup, mutex *sync.Mutex) {
 	message := ShapefileMessage{}
 	message.Kind = "GEOJSON"
-	message.Args.Uid = layerHash
-	message.Args.UrlOrGeoJsonObject = "./services/shapefiles/" + serviceUid + "/" + layerName
-	message.Args.Title = layerName
-	message.Args.Description = fmt.Sprintf("Contents of %s", layerName)
-	message.Args.ServiceInfo.ServiceTitle = serviceName
-	message.Args.ServiceInfo.ServiceId = serviceUid
-	message.Args.ServiceInfo.ServiceUrl = "UploadedFile"
+	message.Args = []ShapefileArgs{}
+	for layerName, layerHash := range layerMap {
+		args := ShapefileArgs{}
+		args.Uid = layerHash
+		args.UrlOrGeoJsonObject = "./services/shapefiles/" + serviceUid + "/" + layerName
+		args.Title = layerName
+		args.Description = fmt.Sprintf("Contents of %s", layerName)
+		args.ServiceInfo.ServiceTitle = serviceName
+		args.ServiceInfo.ServiceId = serviceUid
+		args.ServiceInfo.ServiceUrl = "UploadedFile"
+		message.Args = append(message.Args, args)
+	}
+
 	jsonMessage, err := json.Marshal(message)
 	logI(ctx.sessionID, fmt.Sprintf("Sending message: %s\n", string(jsonMessage[:])), "makeShapeMessage")
 	if err != nil {
 		logE(ctx.sessionID, err, "makeShapeMessageMarshal")
 		mutex.Lock()
-		*errorList = append(*errorList, layerName)
+		*errorList = append(*errorList, serviceName)
 		mutex.Unlock()
 		wg.Done()
 		return
@@ -197,14 +205,14 @@ func sendShapeMessage(ctx ReqContext, client *Client, clientFound bool, sessionI
 		if err != nil {
 			logE(ctx.sessionID, err, "makeShapeMessageWriteMessage")
 			mutex.Lock()
-			*errorList = append(*errorList, layerName)
+			*errorList = append(*errorList, serviceName)
 			mutex.Unlock()
 			wg.Done()
 			return
 		}
 	}
 	mutex.Lock()
-	*layerList = append(*layerList, layerName)
+	*layerList = append(*layerList, serviceName)
 	mutex.Unlock()
 	wg.Done()
 }
@@ -257,33 +265,32 @@ func makeJsonFromShape(ctx ReqContext, shapefilesServiceDir string, shpfilePath 
 	C.free(unsafe.Pointer(cOutputJsonFile))
 }
 
-
 func HandleShapeUrl(ctx ReqContext, args json.RawMessage) error {
-    var jsonArgs ShapeUrl
-    logI(ctx.sessionID, fmt.Sprintf("Received body: %s\n", string(args)), "HandleShapeUrlBody")
-    err := json.Unmarshal(args, &jsonArgs)
-    if err != nil {
-        return SE("HandleShapeUrlUnmarshal", err)
-    }
-    err = os.MkdirAll("/tmp", 0777)
-    if err != nil {
-        return SE("HandleShapeUrlMkdirAll", err)
-    }
-    tmpFilePath := "/tmp/" + uuid.New().String() + ".zip"
-    tmpFile, err := os.Create(tmpFilePath)
-    if err != nil {
-        return SE("HandleShapeUrlCreate", err)
-    }
-    defer tmpFile.Close()
-    resp, err := http.Get(jsonArgs.Url)
-    if err != nil {
-        return SE("HandleShapeUrlDownload", err)
-    }
-    defer resp.Body.Close()
-    _, err = io.Copy(tmpFile, resp.Body)
-    if err != nil {
-        return SE("HandleShapeUrlCopy", err)
-    }
+	var jsonArgs ShapeUrl
+	logI(ctx.sessionID, fmt.Sprintf("Received body: %s\n", string(args)), "HandleShapeUrlBody")
+	err := json.Unmarshal(args, &jsonArgs)
+	if err != nil {
+		return SE("HandleShapeUrlUnmarshal", err)
+	}
+	err = os.MkdirAll("/tmp", 0777)
+	if err != nil {
+		return SE("HandleShapeUrlMkdirAll", err)
+	}
+	tmpFilePath := "/tmp/" + uuid.New().String() + ".zip"
+	tmpFile, err := os.Create(tmpFilePath)
+	if err != nil {
+		return SE("HandleShapeUrlCreate", err)
+	}
+	defer tmpFile.Close()
+	resp, err := http.Get(jsonArgs.Url)
+	if err != nil {
+		return SE("HandleShapeUrlDownload", err)
+	}
+	defer resp.Body.Close()
+	_, err = io.Copy(tmpFile, resp.Body)
+	if err != nil {
+		return SE("HandleShapeUrlCopy", err)
+	}
 	shapefilesHostedDir := "/cslt/web/services/shapefiles"
 	zipBytes, err := os.ReadFile(tmpFilePath)
 	if err != nil {

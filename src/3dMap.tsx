@@ -2,6 +2,7 @@ import CesiumNavigation from "cesium-navigation-es6";
 import "../node_modules/cesium/Build/Cesium/Widgets/widgets.css";
 import "./CSS/cslt.scss";
 import "./CSS/style.scss";
+import { AddRequestObject } from "./3dMapControllerTypes";
 import FeaturesApiDataSource from "./Datasources/FeaturesApiDataSource";
 import SensorThingsDataSource from "./Datasources/SensorThingsDataSource";
 import { Accessor, createEffect, createSignal } from "solid-js";
@@ -84,15 +85,16 @@ import {
     WebMapServiceImageryProvider,
     WebMapTileServiceImageryProvider
 } from "cesium";
+import { zoomTo } from "./Utils/ZoomTo";
 
 const Controller = (window as CesiumWindow).Map3DController;
 
 localStorage.setItem("cesiumOpened", "true");
-window.onbeforeunload = function() {
+window.onbeforeunload = function () {
     localStorage.setItem("cesiumOpened", "false");
 };
 
-const load = async function(mapState: MapState): Promise<Viewer> {
+const load = async function (mapState: MapState): Promise<Viewer> {
     //Setup
     const dataSourcesToBeAdded: Set<WesDataSourceObject> = new Set();
     const imageryLayersToBeAdded: Set<WesImageryObject> = new Set();
@@ -263,126 +265,173 @@ const load = async function(mapState: MapState): Promise<Viewer> {
         const message = lastMessage();
         console.log("Received raw message.");
         if (!message) return;
-
         const parsedMessage = await JSON.parse(message);
         console.log("Recieved message", parsedMessage);
-        const args = parsedMessage.args;
-
+        let args = parsedMessage.args;
+        if (!Array.isArray(args)) {
+            args = [args]
+        }
+        let receivedMessageObjects: AddRequestObject[] = [];
         switch (parsedMessage.type) {
             case "WMS":
-                Controller.addWMS(
-                    args.uid,
-                    args.url,
-                    args.title,
-                    args.abstract,
-                    args.name,
-                    args.format,
-                    args.credit,
-                    args.wgs84BoundingBox,
-                    args.serviceInfo
-                );
+                for (const arg of args) {
+                    receivedMessageObjects.push({
+                        uid: arg.uid,
+                        url: arg.url,
+                        title: arg.title,
+                        abstract: arg.abstract,
+                        name: arg.name,
+                        format: arg.format,
+                        credit: arg.credit,
+                        wgs84BoundingBox: arg.wgs84BoundingBox,
+                        serviceInfo: arg.serviceInfo,
+                    })
+                }
+                Controller.addWMS(receivedMessageObjects);
                 Controller.raiseMapStateChangedEvent();
                 break;
             case "WMTS":
-                Controller.addWMTS(
-                    args.uid,
-                    args.resourceUrlTemplate,
-                    args.title,
-                    args.abstract,
-                    args.layerIdentifier,
-                    args.styleIdentifier,
-                    args.format,
-                    args.tileMatrixSetIdentifier,
-                    args.maximumLevel,
-                    args.credit,
-                    args.wgs84BoundingBox,
-                    args.serviceInfo
-                );
+                for (const arg of args) {
+                    receivedMessageObjects.push({
+                        uid: arg.uid,
+                        resourceUrlTemplate: arg.resourceUrlTemplate,
+                        title: arg.title,
+                        abstract: arg.abstract,
+                        layerIdentifier: arg.layerIdentifier,
+                        styleIdentifier: arg.styleIdentifier,
+                        format: arg.format,
+                        tileMatrixSetIdentifier: arg.tileMatrixSetIdentifier,
+                        maximumLevel: arg.maximumLevel,
+                        credit: arg.credit,
+                        wgs84BoundingBox: arg.wgs84BoundingBox,
+                        serviceInfo: arg.serviceInfo
+                    })
+                }
+                Controller.addWMTS(receivedMessageObjects);
                 Controller.raiseMapStateChangedEvent();
                 break;
             case "ARCGISWMS":
-                Controller.addArcGisWMS(
-                    args.uid,
-                    args.url,
-                    args.title,
-                    args.abstract,
-                    args.credit,
-                    args.wgs84BoundingBox,
-                    args.serviceInfo
-                );
+                for (const arg of args) {
+                    receivedMessageObjects.push({
+                        uid: arg.uid,
+                        url: arg.url,
+                        title: arg.title,
+                        abstract: arg.abstract,
+                        credit: arg.credit,
+                        wgs84BoundingBox: arg.wgs84BoundingBox,
+                        serviceInfo: arg.serviceInfo
+                    })
+                }
+                Controller.addArcGisWMS(receivedMessageObjects);
                 Controller.raiseMapStateChangedEvent();
                 break;
             case "OGCMAP":
-                Controller.addOgcMap(args.uid, args.title, args.url, args.wgs84BoundingBox, args.serviceInfo);
+                for (const arg of args) {
+                    receivedMessageObjects.push({
+                        uid: arg.uid, 
+                        title: arg.title, 
+                        url: arg.url,
+                        wgs84BoundingBox: arg.wgs84BoundingBox, 
+                        serviceInfo: arg.serviceInfo
+                    })
+                }
+                Controller.addOgcMap(receivedMessageObjects);
                 Controller.raiseMapStateChangedEvent();
                 break;
             case "FEATURE":
-                Controller.addOGCFeature(
-                    args.uid,
-                    args.url,
-                    args.title,
-                    args.description,
-                    args.wgs84BoundingBox,
-                    args.serviceInfo
-                );
+                for (const arg of args) {
+                    receivedMessageObjects.push({
+                        uid: arg.uid,
+                        url: arg.url,
+                        title: arg.title,
+                        description: arg.description,
+                        wgs84BoundingBox: arg.wgs84BoundingBox,
+                        serviceInfo: arg.serviceInfo
+                    })
+                }
+                Controller.addOGCFeature(receivedMessageObjects);
                 Controller.raiseMapStateChangedEvent();
                 break;
             case "COVERAGE":
-                Controller.addOGCCoverage(
-                    args.uid,
-                    args.url,
-                    args.title,
-                    args.description,
-                    args.sourceLayerIndex,
-                    args.id,
-                    args.wgs84BoundingBox,
-                    args.serviceInfo
-                );
+                for (const arg of args) {
+                    receivedMessageObjects.push({
+                        uid: arg.uid,
+                        url: arg.url,
+                        title: arg.title,
+                        description: arg.description,
+                        sourceLayerIndex: arg.sourceLayerIndex,
+                        id: arg.id,
+                        wgs84BoundingBox: arg.wgs84BoundingBox,
+                        serviceInfo: arg.serviceInfo
+                    })
+                }
+                Controller.addOGCCoverage(receivedMessageObjects);
                 Controller.raiseMapStateChangedEvent();
                 break;
             case "CELESTIAL":
-                Controller.addCelestial(
-                    args.uid,
-                    args.url,
-                    args.title,
-                    args.description,
-                    args.serviceInfo
-                );
+                for (const arg of args) {
+                    receivedMessageObjects.push({
+                        uid: arg.uid, 
+                        url: arg.url, 
+                        title: arg.title, 
+                        description: arg.description, 
+                        serviceInfo: arg.serviceInfo
+                    })
+                }
+                Controller.addCelestial(receivedMessageObjects);
                 Controller.raiseMapStateChangedEvent();
                 break;
             case "SENSORTHINGS":
-                Controller.addSensorThings(
-                    args.uid,
-                    args.url,
-                    args.title,
-                    args.description,
-                    args.wgs84BoundingBox,
-                    args.serviceInfo
-                );
+                for (const arg of args) {
+                    receivedMessageObjects.push({
+                        uid: arg.uid,
+                        url: arg.url,
+                        title: arg.title,
+                        description: arg.description,
+                        wgs84BoundingBox: arg.wgs84BoundingBox,
+                        serviceInfo: arg.serviceInfo
+                    })
+                }
+                Controller.addSensorThings(receivedMessageObjects);
                 Controller.raiseMapStateChangedEvent();
                 break;
             case "GEOJSON":
-                Controller.addGeoJSON(
-                    args.uid,
-                    args.urlOrGeoJsonObject,
-                    args.title,
-                    args.description,
-                    args.serviceInfo
-                );
+                for (const arg of args) {
+                    receivedMessageObjects.push({
+                        uid: arg.uid,
+                        urlOrGeoJsonObject: arg.urlOrGeoJsonObject,
+                        title: arg.title,
+                        description: arg.description,
+                        serviceInfo: arg.serviceInfo
+                    })
+                }
+                Controller.addGeoJSON(receivedMessageObjects);
                 Controller.raiseMapStateChangedEvent();
                 break;
             case "KML":
-                Controller.addKml(
-                    args.uid,
-                    args.url,
-                    args.title,
-                    args.description,
-                    args.serviceInfo
-                );
+                for (const arg of args) {
+                    receivedMessageObjects.push({
+                        uid: arg.uid, 
+                        url: arg.url,
+                        title: arg.title, 
+                        description: arg.description, 
+                        serviceInfo: arg.serviceInfo
+                    })
+                }
+                Controller.addKml(receivedMessageObjects);
                 Controller.raiseMapStateChangedEvent();
                 break;
             case "3DTILES":
-                Controller.add3DTiles(args.uid, args.url, args.title, args.description, args.serviceInfo);
+                for (const arg of args) {
+                    receivedMessageObjects.push({
+                        uid: arg.uid, 
+                        url: arg.url, 
+                        title: arg.title, 
+                        description: arg.description, 
+                        serviceInfo: arg.serviceInfo
+                    })
+                }
+                Controller.add3DTiles(receivedMessageObjects);
                 Controller.raiseMapStateChangedEvent();
                 break;
             default:
@@ -564,7 +613,11 @@ const load = async function(mapState: MapState): Promise<Viewer> {
         const datasourcesSet: Set<WesDataSource> = new Set((dataSourceLayers as WesDatasources)._dataSources);
         setDatasources(Array.from(datasourcesSet));
         for (const source of optionsMap().keys()) {
-            if (source instanceof WesDataSource || source instanceof GeoJsonDataSource || source instanceof KmlDataSource) {
+            if (
+                source instanceof WesDataSource ||
+                source instanceof GeoJsonDataSource ||
+                source instanceof KmlDataSource
+            ) {
                 if (!datasources().includes(source)) {
                     optionsMap().delete(source);
                     if (timeMap().has(source.uid)) {
@@ -729,6 +782,7 @@ const load = async function(mapState: MapState): Promise<Viewer> {
      */
     async function addLayers(viewer?: Viewer, optionsMap?: any) {
         addingLayers = true;
+        let hasZoomed = false
         while (dataSourcesToBeAdded.size > 0) {
             const layerOptions = dataSourcesToBeAdded.values();
             const layerOption = layerOptions.next().value;
@@ -737,6 +791,10 @@ const load = async function(mapState: MapState): Promise<Viewer> {
                 continue;
             }
             await addDataSource(layerOption);
+            if (!hasZoomed) {
+                hasZoomed = true
+                zoomTo((dataSourceLayers.get(dataSourceLayers.length - 1) as WesDataSource | KmlDataSource | GeoJsonDataSource));
+            }
             dataSourcesToBeAdded.delete(layerOption);
         }
         while (imageryLayersToBeAdded.size > 0) {
@@ -747,6 +805,10 @@ const load = async function(mapState: MapState): Promise<Viewer> {
                 continue;
             }
             await addAdditionalLayerOption(layerOption);
+            if (!hasZoomed) {
+                hasZoomed = true
+                zoomTo((imageryLayers.get(imageryLayers.length - 1)) as WesImageryLayer);
+            }
             imageryLayersToBeAdded.delete(layerOption);
         }
         while (tilesetsToBeAdded.size > 0) {
@@ -757,6 +819,10 @@ const load = async function(mapState: MapState): Promise<Viewer> {
                 continue;
             }
             await add3dTiles(layerOption);
+            if (!hasZoomed) {
+                hasZoomed = true
+                zoomTo(tileSets()[tileSets().length - 1]);
+            }
             tilesetsToBeAdded.delete(layerOption);
         }
         if (dataSourcesToBeAdded.size > 0 || imageryLayersToBeAdded.size > 0 || tilesetsToBeAdded.size > 0) {
@@ -832,7 +898,7 @@ const load = async function(mapState: MapState): Promise<Viewer> {
 
         switch (terrainUID) {
             case wgsEllipsoidUID: {
-                (viewer.scene.primitives as any)._primitives.forEach(function(primitive: Wes3DTileSet) {
+                (viewer.scene.primitives as any)._primitives.forEach(function (primitive: Wes3DTileSet) {
                     if ((primitive as any)._url && (primitive as any)._url.includes("google")) {
                         primitive.show = false;
                     }
@@ -843,7 +909,7 @@ const load = async function(mapState: MapState): Promise<Viewer> {
                 break;
             }
             case cesiumBuiltInUID: {
-                (viewer.scene.primitives as any)._primitives.forEach(function(primitive: Wes3DTileSet) {
+                (viewer.scene.primitives as any)._primitives.forEach(function (primitive: Wes3DTileSet) {
                     if ((primitive as any)._url && (primitive as any)._url.includes("google")) {
                         primitive.show = false;
                     }
@@ -868,7 +934,7 @@ const load = async function(mapState: MapState): Promise<Viewer> {
                 break;
             }
             default: {
-                (viewer.scene.primitives as any)._primitives.forEach(function(primitive: Wes3DTileSet) {
+                (viewer.scene.primitives as any)._primitives.forEach(function (primitive: Wes3DTileSet) {
                     if ((primitive as any)._url && primitive._url.includes("google")) {
                         primitive.show = false;
                     }

@@ -1,10 +1,6 @@
 import { JSX, Show, createSignal, Accessor } from "solid-js";
-import { DropDownButton } from "./DropDownButton";
-import { DeleteLayerButton } from "./DeleteLayerButton";
 import { Wes3DTileSet } from "../Wes";
 import { ShowOnMapCheckbox } from "./ShowOnMapCheckbox";
-import { ZoomToLayerButton } from "./ZoomToLayerButton";
-import { osmBuildingsUID } from "../Constants";
 import { makeCheckboxStatus } from "./ServiceEntry";
 import { LayerSettingsButton } from "./LayerSettingsButton";
 import { translate as t } from "../i18n/Translator";

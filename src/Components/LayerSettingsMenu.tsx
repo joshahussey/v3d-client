@@ -1,17 +1,9 @@
 import { JSX, Show, Accessor } from "solid-js";
-import { WesImageryLayer, Wes3DTileSet, CesiumWindow } from "../Wes";
-import CoverageApiDataSource from "../Datasources/CoverageApiDataSource";
-import {
-    BoundingSphere,
-    Cartesian3,
-    Matrix4,
-    Rectangle
-} from "cesium";
-import CelestialBodyDataSource from "../Datasources/CelestialBodyDataSource";
+import { WesImageryLayer, Wes3DTileSet } from "../Wes";
 import WesDataSource from "../Datasources/WesDataSource";
 import { translate as t } from "../i18n/Translator";
-import FeaturesApiDataSource from "../Datasources/FeaturesApiDataSource";
 import { RemoveLayerSettingsMenuItem } from "./RemoveLayerSettingsMenuItem";
+import { zoomTo } from "../Utils/ZoomTo";
 
 /**
  * Represents a component for a layer options menu that displays when a button is clicked.
@@ -46,83 +38,21 @@ export function LayerSettingsMenu(props: {
         setLayerSettingsMenuShown
     // eslint-disable-next-line solid/reactivity
     } = props;
-    const viewer = (window as CesiumWindow).Map3DViewer;
-    const camera = viewer.camera;
-
-    function zoomTo() {
-        setLayerSettingsMenuShown(false);
-        if (primitiveLayer) {
-            viewer.zoomTo(primitiveLayer);
-        }
-        if (datasource) {
-            if (datasource instanceof CoverageApiDataSource || datasource instanceof FeaturesApiDataSource) {
-                const bounds = datasource.geometryBounds;
-                if (bounds.maxY == null || bounds.minY == null || bounds.maxX == null || bounds.minX == null) {
-                    return;
-                } else {
-                    const destination = camera.getRectangleCameraCoordinates(
-                        Rectangle.fromDegrees(bounds.minX, bounds.minY, bounds.maxX, bounds.maxY)
-                    );
-
-                    let mag = Cartesian3.magnitude(destination);
-                    mag += mag * 0.5;
-                    Cartesian3.normalize(destination, destination);
-                    Cartesian3.multiplyByScalar(destination, mag, destination);
-
-                    camera.flyTo({
-                        destination: destination,
-                        duration: 0,
-                        endTransform: Matrix4.IDENTITY
-                    });
-                }
-            } else if (datasource instanceof CelestialBodyDataSource) {
-                const entities = datasource._entityCollection._entities.values;
-                const boundingSpheres = [];
-                const boundingSphereScratch = new BoundingSphere();
-                for (let i = 0, len = entities.length; i < len; i++) {
-                    if (entities[i]._show) {
-                        viewer.dataSourceDisplay.getBoundingSphere(entities[i], false, boundingSphereScratch);
-                        boundingSpheres.push(BoundingSphere.clone(boundingSphereScratch));
-                    }
-                }
-
-                // Prevent Cesium from zooming so far out that it crashes
-                // or the centerpoint is so far away it doesn't render the globe.
-                // Somewhere between 2.5 and 5 billion radius, the earth disappears.
-                const MAX_POSSIBLE_ZOOM_RADIUS = 50000000;
-                const boundingSphere = BoundingSphere.fromBoundingSpheres(boundingSpheres);
-                if (boundingSphere.radius > MAX_POSSIBLE_ZOOM_RADIUS) {
-                    boundingSphere.radius = MAX_POSSIBLE_ZOOM_RADIUS;
-                    boundingSphere.center = Cartesian3.fromDegrees(0, 0, 0);
-                }
-
-                //Zoom to calculated bounding sphere
-                camera.flyToBoundingSphere(boundingSphere, {
-                    duration: 0
-                });
-            } else {
-                viewer.zoomTo(datasource);
-            }
-        }
-        if (imageryLayer) {
-            viewer.zoomTo(imageryLayer);
-        }
-    }
 
     function openSettings() {
         setLayerSettingsMenuShown(false);
         setOpened(!opened());
     }
 
-    function getLayerList() {
+    function getLayer() {
         if (imageryLayer) {
-            return [imageryLayer];
+            return imageryLayer;
         }
         if (datasource) {
-            return [datasource];
+            return datasource;
         }
         if (primitiveLayer) {
-            return [primitiveLayer];
+            return primitiveLayer;
         }
     }
 
@@ -143,7 +73,10 @@ export function LayerSettingsMenu(props: {
                     <span class="settings-menu-text"> {t("layerSettingsMenuSettings")} </span>
                 </Show>
             </li>
-            <li onClick={zoomTo}>
+            <li onClick={() => {
+                setLayerSettingsMenuShown(false)
+                zoomTo(getLayer() as (WesDataSource | WesImageryLayer | Wes3DTileSet))
+            }}>
                 <Show when={true}>
                     <svg
                         class="settings-menu-icon"
@@ -159,7 +92,7 @@ export function LayerSettingsMenu(props: {
                 </Show>
             </li>
             <RemoveLayerSettingsMenuItem 
-                layers={getLayerList() as (WesDataSource | WesImageryLayer | Wes3DTileSet)[]}
+                layers={[getLayer()] as (WesDataSource | WesImageryLayer | Wes3DTileSet)[]}
                 onDone={() => {setLayerSettingsMenuShown(false)}} />
         </ul>
     );

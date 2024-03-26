@@ -1,14 +1,10 @@
 import { JSX, Show, createSignal, Accessor } from "solid-js";
 import WesDataSource from "../Datasources/WesDataSource";
-import { DropDownButton } from "./DropDownButton";
-import { DeleteLayerButton } from "./DeleteLayerButton";
-import { ZoomToLayerButton } from "./ZoomToLayerButton";
 import { ShowOnMapCheckbox } from "./ShowOnMapCheckbox";
 import { UserStyleSelector } from "./UserStyleSelector";
 import { HighlightSelector } from "./HighlightSelector";
 import FeaturesApiDataSource from "../Datasources/FeaturesApiDataSource";
 import { CoverageApiDropdown } from "./CoverageApiDropdown";
-import { celestrakUID } from "../Constants";
 import { makeCheckboxStatus } from "./ServiceEntry";
 import { LayerSettingsButton } from "./LayerSettingsButton";
 
