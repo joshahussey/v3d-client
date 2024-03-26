@@ -86,7 +86,6 @@ import {
     WebMapTileServiceImageryProvider
 } from "cesium";
 import { zoomTo } from "./Utils/ZoomTo";
-
 const Controller = (window as CesiumWindow).Map3DController;
 
 localStorage.setItem("cesiumOpened", "true");

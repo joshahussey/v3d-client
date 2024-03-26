@@ -16,3 +16,6 @@ flake.lock
 flake.nix
 dockerpush-demo.sh
 backend/devtools
+backend/.cache/clangd/index
+backend/.ccls-cache
+backend/build

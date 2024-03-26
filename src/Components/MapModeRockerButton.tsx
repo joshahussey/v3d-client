@@ -3,6 +3,7 @@ import { ToolbarButton } from "./ToolbarButton";
 import { SceneMode } from "cesium";
 import { CesiumWindow } from "../Wes";
 import { translate as t } from "../i18n/Translator";
+console.log("MapModeRockerButton.tsx");
 
 export function MapModeRockerButton(): Element {
     const viewer = (window as CesiumWindow).Map3DViewer;

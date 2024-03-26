@@ -18,6 +18,7 @@ import { warn } from "console";
 interface WesDatasources extends DataSourceCollection {
     _dataSources: WesDataSource[];
 }
+type TESTTYPE = string
 
 interface WesImagerylayers extends ImageryLayerCollection {
     _layers: WesImageryLayer[];
