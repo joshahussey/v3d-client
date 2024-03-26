@@ -59,7 +59,7 @@ func HandleKml(ctx ReqContext) error {
 		return KE("FormFile", err)
 	}
 	defer file.Close()
-	logI(ctx.sessionID, fmt.Sprintf("Uploaded File: %+v\nFile Size: %+v\nMIME Header: %+v\n", handler.Filename, handler.Size, handler.Header), "HandleShapeFormFile")
+	logI(ctx.sessionID, fmt.Sprintf("Uploaded File: %+v\nFile Size: %+v\nMIME Header: %+v\n", handler.Filename, handler.Size, handler.Header), "HandleKmlFormFile")
 
 	//Make Directory To Store KMLs If Needed
 	path := "/cslt/web/services/kml/"
@@ -99,7 +99,7 @@ func HandleKml(ctx ReqContext) error {
 		existingHash := fmt.Sprintf("%x", existingFileHasher.Sum(nil))
 
 		if inputFileHash == existingHash {
-			logI(ctx.sessionID, fmt.Sprintf("File with hash %s already exists. Sending preprocessed services...\n", inputFileHash), "HandleShapeFileExists")
+			logI(ctx.sessionID, fmt.Sprintf("File with hash %s already exists. Sending preprocessed services...\n", inputFileHash), "HandleKmlFileExists")
 			sendKmlMessage(handler.Filename, existingHash, &client, clientFound, ctx.sessionID, &errorList, &mutex)
 			layerList = append(layerList, handler.Filename)
 			sendKmlResponse(ctx, errorList, layerList)
@@ -170,7 +170,7 @@ func sendKmlMessage(fileName string, serviceUid string, client *Client, clientFo
 
 func sendKmlResponse(ctx ReqContext, messageErrorList []string, fileList []string) {
 	if len(messageErrorList) > 0 && len(fileList) > 0 {
-		logE(ctx.sessionID, fmt.Errorf("Error sending messages for the following files: \n\t%s\n", strings.Join(messageErrorList, "\n\t")), "HandleShapeMakeSymLink")
+		logE(ctx.sessionID, fmt.Errorf("Error sending messages for the following files: \n\t%s\n", strings.Join(messageErrorList, "\n\t")), "HandleKmlMakeSymLink")
 		_, err := ctx.w.Write([]byte(fmt.Sprintf("Successfully created the following files:\n\t%s\nError sending messages for the following files: \n\t%s\n", strings.Join(fileList, "\n\t"), strings.Join(messageErrorList, "\n\t"))))
 		if err != nil {
 			logE(ctx.sessionID, err, "sendKmlResponseWriteError")
@@ -179,7 +179,7 @@ func sendKmlResponse(ctx ReqContext, messageErrorList []string, fileList []strin
 		return
 	}
 	if len(messageErrorList) > 0 && len(fileList) == 0 {
-		logE(ctx.sessionID, fmt.Errorf("Error sending messages for the following files: \n\t%s\n", strings.Join(messageErrorList, "\n\t")), "HandleShapeMakeSymLink")
+		logE(ctx.sessionID, fmt.Errorf("Error sending messages for the following files: \n\t%s\n", strings.Join(messageErrorList, "\n\t")), "HandleKmlMakeSymLink")
 		_, err := ctx.w.Write([]byte(fmt.Sprintf("No Files Could be added to the map. Error sending messages for the following files: \n\t%s\n", strings.Join(messageErrorList, "\n\t"))))
 		if err != nil {
 			logE(ctx.sessionID, err, "sendKmlResponseWriteError")
@@ -187,10 +187,11 @@ func sendKmlResponse(ctx ReqContext, messageErrorList []string, fileList []strin
 		}
 		return
 	}
-	logI(ctx.sessionID, fmt.Sprintf("Successfully sent the following files to the map:\n\t%s\n", strings.Join(fileList, "\n\t")), "HandleShapeMakeSymLink")
+	logI(ctx.sessionID, fmt.Sprintf("Successfully sent the following files to the map:\n\t%s\n", strings.Join(fileList, "\n\t")), "HandleKmlMakeSymLink")
 	_, err := ctx.w.Write([]byte(fmt.Sprintf("Successfully sent the following files to the map:\n\t%s\n", strings.Join(fileList, "\n\t"))))
 	if err != nil {
 		logE(ctx.sessionID, err, "sendKmlResponseWriteError")
 		http.Error(ctx.w, "Error writing error message\n", http.StatusBadRequest)
 	}
 }
+

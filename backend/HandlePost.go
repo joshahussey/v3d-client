@@ -48,10 +48,6 @@ func HandlePost(ctx ReqContext) error {
             return PoE("HandleShapeUrl", err)
         }
         return nil
-    case "kml":
-        logI(ctx.sessionID, "FOUND THE KML!", "KML")
-        ctx.w.WriteHeader(http.StatusOK)
-        return nil
     default:
         msg, err := json.Marshal(jsonBody)
         if err != nil {
