@@ -33,7 +33,6 @@ pipeline {
             steps {
                     echo "Building Docker image on ${NODE_NAME}..."
                     sh 'docker compose build'
-                    sh 'docker compose create'
                 }
         }
         stage('Test') {

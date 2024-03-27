@@ -86,6 +86,7 @@ import {
     WebMapTileServiceImageryProvider
 } from "cesium";
 import { zoomTo } from "./Utils/ZoomTo";
+import { styleDefaultClusters } from "./Utils/ClusterStyling";
 const Controller = (window as CesiumWindow).Map3DController;
 
 localStorage.setItem("cesiumOpened", "true");
@@ -154,6 +155,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         clockViewModel: clockModel
     });
 
+
     //Cesium wont let you change the text in the tooltip of the fullscreen button, so we do it manually.
     try {
         const fullscreenButton = document.getElementsByClassName("cesium-fullscreenButton");
@@ -221,7 +223,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
     (window as CesiumWindow).sourcesWithLegends = sourcesWithLegends;
     (window as CesiumWindow).setSourcesWithLegends = setSourcesWithLegends;
 
-    (window as any).fireBroadcastEvent = (event: any, eventId: any, hasPayload: any) => {
+    (window as any).fireBroadcastEvent = (event: any, eventId: any, _hasPayload: any) => {
         if (!WES_3D_EVENTS.has(eventId)) return;
 
         if (eventId === "net.compusult.wes.client.cesium.Wes3dAoiEvent") {
@@ -1214,7 +1216,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                             dataSourceOption.url,
                             viewer,
                             dataSourceOption.uid,
-                            temporal as JSON,
+                            temporal,
                             dataSourceOption.serviceInfo
                         );
                         break;
@@ -1269,6 +1271,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                     (gjDataSource as any).name = dataSourceOption.name;
                     (gjDataSource as any).url = dataSourceOption.url;
                     createdDataSource = gjDataSource;
+                    styleDefaultClusters(createdDataSource, viewer);
                 }
                 break;
             case "kml":

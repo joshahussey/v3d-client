@@ -537,6 +537,44 @@ export function hexToRgbA(hex: string) {
     throw new Error(t("utilsHexToRgbAError1"));
 }
 
+export function colorFromRGBGradient(value: number, min: number, max: number) {
+    value = value > max ? max : value < min ? min : value;
+    let red = 0.0;
+    let green = 0.0;
+    let blue = 0.0;
+    const colorFromHeight = ((value - min) * 100) / (max - min);
+    if (colorFromHeight < 50) {
+        blue = colorFromHeight > 25 ? 1 - (2 * (colorFromHeight - 25)) / 50 : 1.0;
+        green = colorFromHeight > 25 ? 1.0 : (2 * colorFromHeight) / 50;
+    } else {
+        green = colorFromHeight > 75 ? 1 - (2 * (colorFromHeight - 75)) / 50 : 1.0;
+        red = colorFromHeight > 75 ? 1.0 : (2 * colorFromHeight) / 50.0;
+    }
+    return [
+        Color.floatToByte(red),
+        Color.floatToByte(green),
+        Color.floatToByte(blue),
+        Color.floatToByte(1.0)
+    ];
+}
+
+export function rgbaToHex(rgba: number[]) {
+    if (rgba.length !== 4) {
+        return "#000000";
+    }
+    const [red, green, blue, alpha] = rgba;
+    const redHex = componentToHex(red);
+    const greenHex = componentToHex(green);
+    const blueHex = componentToHex(blue);
+    const alphaHex = componentToHex(alpha);
+    return "#" + redHex + greenHex + blueHex + alphaHex;
+}
+
+function componentToHex(c: number) {
+    const hex = c.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
+}
+
 /**
  * Builds a point from the coordinates array returned from the getAll() function.
  *

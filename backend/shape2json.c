@@ -32,9 +32,8 @@ int shape2json(char *inputFile, char *outputFile) {
   }
   logI("Open successful.", "GDAL:");
 
-  OGRSpatialReferenceH backupSRS;
-  OGRSpatialReferenceH layerSRS;
   //Check if .prj file exists
+  OGRSpatialReferenceH backupSRS;
   backupSRS = (OGRSpatialReferenceH)GDALGetProjectionRef(hDS);
   if (backupSRS == NULL) {
     logI("Failed to get file spatial reference. Checking Prj", "OGR:");

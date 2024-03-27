@@ -114,7 +114,7 @@ type CesiumWindow = Window &
     typeof globalThis & {
         aoiBufferPrimitives?: Array<GroundPrimitive>;
         sourcesWithLegends: Accessor<any[]>;
-        setSourcesWithLegends: Setter<any[]>;
+        setSourcesWithLegends: Setter<never[]>;
         setTimeMap: Setter<Map<number, number>>;
         timeMap: Accessor<Map<number, number>>;
         Map3DViewer: Viewer;
