@@ -7,6 +7,7 @@ import (
 	"os"
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
@@ -46,12 +47,13 @@ type ReqContext struct {
 	w         http.ResponseWriter
 	r         *http.Request
 	sessionID string
+	uuid      string
 }
 
 var requestQueue = NewRequestQueue()
 
 func HandleConnect(w http.ResponseWriter, r *http.Request) {
-	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID")}
+	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID"), uuid: uuid.New().String()}
 	err := HandleNewClient(ctx)
 	if err != nil {
 		e(ctx, err)
@@ -60,7 +62,7 @@ func HandleConnect(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleShapeRequest(w http.ResponseWriter, r *http.Request) {
-	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID")}
+	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID"), uuid: uuid.New().String()}
 	err := HandleShape(ctx)
 	if err != nil {
 		e(ctx, err)
@@ -69,7 +71,7 @@ func HandleShapeRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleKmlRequest(w http.ResponseWriter, r *http.Request) {
-	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID")}
+	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID"), uuid: uuid.New().String()}
 	err := HandleKml(ctx)
 	if err != nil {
 		e(ctx, err)
@@ -78,7 +80,7 @@ func HandleKmlRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleAdd(w http.ResponseWriter, r *http.Request) {
-	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID")}
+	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID"), uuid: uuid.New().String()}
 	if _, upgrade := r.Header["Upgrade"]; upgrade {
 		err := HandleAddWs(ctx)
 		if err != nil {

@@ -37,6 +37,7 @@ type ShapefileArgs struct {
 type ShapefileMessage struct {
 	Kind string          `json:"type"`
 	Args []ShapefileArgs `json:"args"`
+	Uuid string          `json:"uuid"`
 }
 
 type ShapeError struct {
@@ -57,6 +58,13 @@ func SE(step string, err error) error {
 }
 
 func HandleShape(ctx ReqContext) error {
+	client, clientFound := ClientMgr.clients[ctx.sessionID]
+	message := []byte(fmt.Sprintf(`{"type": "LOADING_NOTIFIER", "uuid": "%s"}`, ctx.uuid))
+	if clientFound {
+		client.conn.WriteMessage(1, message)
+	} else {
+		requestQueue.Enqueue(ctx.sessionID, message)
+	}
 	//Upload Shapefile
 	file, filePath, err := handleUpload(ctx, shp)
 	if err != nil {
@@ -185,7 +193,7 @@ func sendShapeMessage(ctx ReqContext, client *Client, clientFound bool, sessionI
 		args.ServiceInfo.ServiceUrl = "UploadedFile"
 		message.Args = append(message.Args, args)
 	}
-
+	message.Uuid = ctx.uuid
 	jsonMessage, err := json.Marshal(message)
 	logI(ctx.sessionID, fmt.Sprintf("Sending message: %s\n", string(jsonMessage[:])), "makeShapeMessage")
 	if err != nil {

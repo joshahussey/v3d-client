@@ -1,6 +1,11 @@
 import { Accessor, Setter, createContext, useContext } from "solid-js";
 import { Wes3DTileSet, WesImageryLayer, WesTerrainObject } from "../Wes";
 import WesDataSource from "../Datasources/WesDataSource";
+export enum LoadingRequestCode {
+    STARTED = 0,
+    FINISHED = 1,
+    ERROR = 2
+}
 let baseLayers: Accessor<WesImageryLayer[]>;
 let setBaseLayers: Setter<WesImageryLayer[]>;
 let selectedLayer: Accessor<WesImageryLayer>;
@@ -27,7 +32,10 @@ let sourcesWithLegends: Accessor<any>;
 let setSourcesWithLegends: Setter<any>;
 let osmBuildingsLayer: Accessor<string>;
 let setOsmBuildingsLayer: Setter<string>;
-
+let isLoading: Accessor<LoadingRequestCode>;
+let setIsLoading: Setter<LoadingRequestCode>;
+let loadingRequestMap: Accessor<Map<string, any>>
+let setLoadingRequestMap: Setter<Map<string, any>>
 export function getContextSignals(
     BaseLayers: Accessor<WesImageryLayer[]>,
     SetBaseLayers: Setter<WesImageryLayer[]>,
@@ -54,7 +62,11 @@ export function getContextSignals(
     SourcesWithLegends: Accessor<any>,
     SetSourcesWithLegends: Setter<any>,
     OsmBuildingsLayer: Accessor<string>,
-    SetOsmBuildingsLayer: Setter<string>
+    SetOsmBuildingsLayer: Setter<string>,
+    IsLoading: Accessor<LoadingRequestCode>,
+    SetIsLoading: Setter<LoadingRequestCode>,
+    LoadingRequestMap: Accessor<Map<string, any>>,
+    SetLoadingRequestMap: Setter<Map<string, any>>
 ) {
     baseLayers = BaseLayers;
     setBaseLayers = SetBaseLayers;
@@ -82,6 +94,10 @@ export function getContextSignals(
     setSourcesWithLegends = SetSourcesWithLegends;
     osmBuildingsLayer = OsmBuildingsLayer;
     setOsmBuildingsLayer = SetOsmBuildingsLayer;
+    isLoading = IsLoading;
+    setIsLoading = SetIsLoading;
+    loadingRequestMap = LoadingRequestMap;
+    setLoadingRequestMap = SetLoadingRequestMap;
 }
 const InterfaceContext = createContext();
 
@@ -112,7 +128,11 @@ export function InterfaceProvider(props: any) {
         sourcesWithLegends,
         setSourcesWithLegends,
         osmBuildingsLayer,
-        setOsmBuildingsLayer
+        setOsmBuildingsLayer,
+        isLoading,
+        setIsLoading,
+        loadingRequestMap,
+        setLoadingRequestMap
     };
 
     return <InterfaceContext.Provider value={signals}>{props.children}</InterfaceContext.Provider>;

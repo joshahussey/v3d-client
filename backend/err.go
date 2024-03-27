@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 )
 
@@ -41,6 +42,12 @@ func e(ctx ReqContext, err error) {
 		_, respErr := ctx.w.Write([]byte(err.Error()))
 		if respErr != nil {
 			logE(ctx.sessionID, respErr, "HandleShapeMakeSymLink")
+		}
+		client := ClientMgr.clients[ctx.sessionID]
+		message := []byte(fmt.Sprintf(`{"type": "LOADING_FAILED_NOTIFIER", "uuid": "%s"}`, ctx.uuid))
+		err := client.conn.WriteMessage(1, message)
+		if err != nil {
+			logE(ctx.sessionID, err, "e")
 		}
 		return
 	}

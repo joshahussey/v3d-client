@@ -6,6 +6,7 @@ import { Slider } from "../Components/Slider";
 import { Legend } from "../Components/Legend";
 import { CesiumWindow } from "../Wes";
 import { translate as t } from "../i18n/Translator";
+import { LoadingIndicator } from "../Components/LoadingIndicator";
 
 /**
  * Represents the root of the UI elements.
@@ -33,6 +34,7 @@ export function GeoCaUI(): JSX.Element {
                                 <ExpandedMenu />
                             </div>
                         </div>
+                        <LoadingIndicator/>
                         <Slider />
                         <Legend />
                     </InterfaceProvider>

@@ -14,6 +14,7 @@ import (
 type KmlUrlMessage struct {
 	Kind string  `json:"type"`
 	Args KmlArgs `json:"args"`
+	Uuid string  `json:"uuid"`
 }
 
 type KmlArgs struct {
@@ -43,6 +44,13 @@ func KE(step string, err error) error {
 
 func HandleKml(ctx ReqContext) error {
 	client, clientFound := ClientMgr.GetClient(ctx.sessionID)
+	message := []byte(fmt.Sprintf(`{"type": "LOADING_NOTIFIER", "uuid": "%s"}`, ctx.uuid))
+	if clientFound {
+		client.conn.WriteMessage(1, message)
+	} else {
+		requestQueue.Enqueue(ctx.sessionID, message)
+	}
+
 	var layerList []string
 	errorList := []string{}
 	var mutex sync.Mutex
@@ -99,8 +107,8 @@ func HandleKml(ctx ReqContext) error {
 		existingHash := fmt.Sprintf("%x", existingFileHasher.Sum(nil))
 
 		if inputFileHash == existingHash {
-			logI(ctx.sessionID, fmt.Sprintf("File with hash %s already exists. Sending preprocessed services...\n", inputFileHash), "HandleKmlFileExists")
-			sendKmlMessage(handler.Filename, existingHash, &client, clientFound, ctx.sessionID, &errorList, &mutex)
+			logI(ctx.sessionID, fmt.Sprintf("File with hash %s already exists. Sending preprocessed services...\n", inputFileHash), "HandleShapeFileExists")
+			sendKmlMessage(handler.Filename, existingHash, &client, clientFound, ctx, &errorList, &mutex)
 			layerList = append(layerList, handler.Filename)
 			sendKmlResponse(ctx, errorList, layerList)
 			return nil
@@ -130,13 +138,13 @@ func HandleKml(ctx ReqContext) error {
 	if err != nil {
 		logE(ctx.sessionID, err, "addServiceKml")
 	}
-	sendKmlMessage(fileName, inputFileHash, &client, clientFound, ctx.sessionID, &errorList, &mutex)
+	sendKmlMessage(fileName, inputFileHash, &client, clientFound, ctx, &errorList, &mutex)
 	layerList = append(layerList, fileName)
 	sendKmlResponse(ctx, errorList, layerList)
 	return nil
 }
 
-func sendKmlMessage(fileName string, serviceUid string, client *Client, clientFound bool, sessionId string, errorList *[]string, mutex *sync.Mutex) {
+func sendKmlMessage(fileName string, serviceUid string, client *Client, clientFound bool, ctx ReqContext, errorList *[]string, mutex *sync.Mutex) {
 	message := KmlUrlMessage{}
 	message.Kind = "KML"
 	message.Args.Uid = serviceUid
@@ -146,6 +154,7 @@ func sendKmlMessage(fileName string, serviceUid string, client *Client, clientFo
 	message.Args.ServiceInfo.ServiceTitle = fileName
 	message.Args.ServiceInfo.ServiceId = serviceUid
 	message.Args.ServiceInfo.ServiceUrl = "UploadedFile"
+	message.Uuid = ctx.uuid
 	jsonMessage, err := json.Marshal(message)
 	logI(client.sessionID, fmt.Sprintf("Sending message: %s\n", string(jsonMessage[:])), "sendMessage")
 	if err != nil {
@@ -155,7 +164,7 @@ func sendKmlMessage(fileName string, serviceUid string, client *Client, clientFo
 	}
 
 	if !clientFound {
-		requestQueue.Enqueue(sessionId, jsonMessage)
+		requestQueue.Enqueue(ctx.sessionID, jsonMessage)
 	} else {
 		mutex.Lock()
 		err = client.conn.WriteMessage(1, jsonMessage)
@@ -194,4 +203,3 @@ func sendKmlResponse(ctx ReqContext, messageErrorList []string, fileList []strin
 		http.Error(ctx.w, "Error writing error message\n", http.StatusBadRequest)
 	}
 }
-

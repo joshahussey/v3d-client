@@ -19,7 +19,7 @@ import {
     standAloneLayersServiceUID,
     standAloneLayersServiceUrl
 } from "./Constants";
-import { getContextSignals } from "./Context/UIContext";
+import { getContextSignals, LoadingRequestCode } from "./Context/UIContext";
 import CelestialBodyDataSource from "./Datasources/CelestialBodyDataSource";
 import CoverageApiDataSource from "./Datasources/CoverageApiDataSource";
 import OgcMapsDatasource from "./Datasources/OgcMapsDatasource";
@@ -87,6 +87,8 @@ import {
 } from "cesium";
 import { zoomTo } from "./Utils/ZoomTo";
 import { styleDefaultClusters, styleGeoJsonBillboard } from "./Utils/ClusterStyling";
+import { addLayerFromBackend } from "./Utils/AddLayerFromBackend";
+
 const Controller = (window as CesiumWindow).Map3DController;
 
 localStorage.setItem("cesiumOpened", "true");
@@ -211,6 +213,8 @@ const load = async function (mapState: MapState): Promise<Viewer> {
     const [selectedTerrainSet, setSelectedTerrainSet] = createSignal([] as WesTerrainObject[], {
         equals: false
     });
+    const [isLoading, setIsLoading] = createSignal()
+    const [loadingRequestMap, setLoadingRequestMap] = createSignal(new Map(), {})
     const [selectedHome, setSelectedHome] = createSignal(HOME_POSITION);
     const [timeMap, setTimeMap] = createSignal(new Map(), { equals: false });
     (window as CesiumWindow).timeMap = timeMap;
@@ -266,175 +270,26 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         const message = lastMessage();
         if (!message) return;
         const parsedMessage = await JSON.parse(message);
-        let args = parsedMessage.args;
-        if (!Array.isArray(args)) {
-            args = [args];
-        }
-        let receivedMessageObjects: AddRequestObject[] = [];
-        switch (parsedMessage.type) {
-            case "WMS":
-                for (const arg of args) {
-                    receivedMessageObjects.push({
-                        uid: arg.uid,
-                        url: arg.url,
-                        title: arg.title,
-                        abstract: arg.abstract,
-                        name: arg.name,
-                        format: arg.format,
-                        credit: arg.credit,
-                        wgs84BoundingBox: arg.wgs84BoundingBox,
-                        serviceInfo: arg.serviceInfo
-                    });
-                }
-                Controller.addWMS(receivedMessageObjects);
-                Controller.raiseMapStateChangedEvent();
-                break;
-            case "WMTS":
-                for (const arg of args) {
-                    receivedMessageObjects.push({
-                        uid: arg.uid,
-                        resourceUrlTemplate: arg.resourceUrlTemplate,
-                        title: arg.title,
-                        abstract: arg.abstract,
-                        layerIdentifier: arg.layerIdentifier,
-                        styleIdentifier: arg.styleIdentifier,
-                        format: arg.format,
-                        tileMatrixSetIdentifier: arg.tileMatrixSetIdentifier,
-                        maximumLevel: arg.maximumLevel,
-                        credit: arg.credit,
-                        wgs84BoundingBox: arg.wgs84BoundingBox,
-                        serviceInfo: arg.serviceInfo
-                    });
-                }
-                Controller.addWMTS(receivedMessageObjects);
-                Controller.raiseMapStateChangedEvent();
-                break;
-            case "ARCGISWMS":
-                for (const arg of args) {
-                    receivedMessageObjects.push({
-                        uid: arg.uid,
-                        url: arg.url,
-                        title: arg.title,
-                        abstract: arg.abstract,
-                        credit: arg.credit,
-                        wgs84BoundingBox: arg.wgs84BoundingBox,
-                        serviceInfo: arg.serviceInfo
-                    });
-                }
-                Controller.addArcGisWMS(receivedMessageObjects);
-                Controller.raiseMapStateChangedEvent();
-                break;
-            case "OGCMAP":
-                for (const arg of args) {
-                    receivedMessageObjects.push({
-                        uid: arg.uid,
-                        title: arg.title,
-                        url: arg.url,
-                        wgs84BoundingBox: arg.wgs84BoundingBox,
-                        serviceInfo: arg.serviceInfo
-                    });
-                }
-                Controller.addOgcMap(receivedMessageObjects);
-                Controller.raiseMapStateChangedEvent();
-                break;
-            case "FEATURE":
-                for (const arg of args) {
-                    receivedMessageObjects.push({
-                        uid: arg.uid,
-                        url: arg.url,
-                        title: arg.title,
-                        description: arg.description,
-                        wgs84BoundingBox: arg.wgs84BoundingBox,
-                        serviceInfo: arg.serviceInfo
-                    });
-                }
-                Controller.addOGCFeature(receivedMessageObjects);
-                Controller.raiseMapStateChangedEvent();
-                break;
-            case "COVERAGE":
-                for (const arg of args) {
-                    receivedMessageObjects.push({
-                        uid: arg.uid,
-                        url: arg.url,
-                        title: arg.title,
-                        description: arg.description,
-                        sourceLayerIndex: arg.sourceLayerIndex,
-                        id: arg.id,
-                        wgs84BoundingBox: arg.wgs84BoundingBox,
-                        serviceInfo: arg.serviceInfo
-                    });
-                }
-                Controller.addOGCCoverage(receivedMessageObjects);
-                Controller.raiseMapStateChangedEvent();
-                break;
-            case "CELESTIAL":
-                for (const arg of args) {
-                    receivedMessageObjects.push({
-                        uid: arg.uid,
-                        url: arg.url,
-                        title: arg.title,
-                        description: arg.description,
-                        serviceInfo: arg.serviceInfo
-                    });
-                }
-                Controller.addCelestial(receivedMessageObjects);
-                Controller.raiseMapStateChangedEvent();
-                break;
-            case "SENSORTHINGS":
-                for (const arg of args) {
-                    receivedMessageObjects.push({
-                        uid: arg.uid,
-                        url: arg.url,
-                        title: arg.title,
-                        description: arg.description,
-                        wgs84BoundingBox: arg.wgs84BoundingBox,
-                        serviceInfo: arg.serviceInfo
-                    });
-                }
-                Controller.addSensorThings(receivedMessageObjects);
-                Controller.raiseMapStateChangedEvent();
-                break;
-            case "GEOJSON":
-                for (const arg of args) {
-                    receivedMessageObjects.push({
-                        uid: arg.uid,
-                        urlOrGeoJsonObject: arg.urlOrGeoJsonObject,
-                        title: arg.title,
-                        description: arg.description,
-                        serviceInfo: arg.serviceInfo
-                    });
-                }
-                Controller.addGeoJSON(receivedMessageObjects);
-                Controller.raiseMapStateChangedEvent();
-                break;
-            case "KML":
-                for (const arg of args) {
-                    receivedMessageObjects.push({
-                        uid: arg.uid,
-                        url: arg.url,
-                        title: arg.title,
-                        description: arg.description,
-                        serviceInfo: arg.serviceInfo
-                    });
-                }
-                Controller.addKml(receivedMessageObjects);
-                Controller.raiseMapStateChangedEvent();
-                break;
-            case "3DTILES":
-                for (const arg of args) {
-                    receivedMessageObjects.push({
-                        uid: arg.uid,
-                        url: arg.url,
-                        title: arg.title,
-                        description: arg.description,
-                        serviceInfo: arg.serviceInfo
-                    });
-                }
-                Controller.add3DTiles(receivedMessageObjects);
-                Controller.raiseMapStateChangedEvent();
-                break;
-            default:
-                break;
+        if (parsedMessage.type === "LOADING_NOTIFIER") {
+            setIsLoading(LoadingRequestCode.STARTED);
+            loadingRequestMap().set(
+                parsedMessage.uuid, 
+                setTimeout(
+                    () => {
+                        setIsLoading(LoadingRequestCode.ERROR)
+                        loadingRequestMap().delete(parsedMessage.uuid)
+                    }, 30000
+                )
+            )
+        } else if (parsedMessage.type === "LOADING_FAILED_NOTIFIER") {
+            setIsLoading(LoadingRequestCode.ERROR);
+            clearTimeout(loadingRequestMap().get(parsedMessage.uuid))
+            loadingRequestMap().delete(parsedMessage.uuid)
+        } else {
+            addLayerFromBackend(parsedMessage);
+            clearTimeout(loadingRequestMap().get(parsedMessage.uuid))
+            loadingRequestMap().delete(parsedMessage.uuid)
+            setIsLoading(LoadingRequestCode.FINISHED);
         }
     });
 
@@ -1368,7 +1223,11 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             sourcesWithLegends,
             setSourcesWithLegends,
             osmBuildingsLayer,
-            setOsmBuildingsLayer
+            setOsmBuildingsLayer,
+            isLoading,
+            setIsLoading,
+            loadingRequestMap,
+            setLoadingRequestMap
         );
         //Create Effects
         createEffect(() => {
