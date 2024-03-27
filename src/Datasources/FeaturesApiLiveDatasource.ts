@@ -27,7 +27,6 @@ export default class FeaturesApiLiveDataSource extends WesDataSource {
         this._timeStamps = createTimeStamps(temporal);
         this._currentTimeString = this._timeStamps[0];
         setBounds(this, temporal);
-        console.log(temporal);
     }
 
     async loadService() {

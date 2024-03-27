@@ -141,10 +141,7 @@ export async function SldParse(url: string, caller: WesDataSource, layerName?: s
         queryParameters: { f: "sld10" }
     });
     if (xml == null) return null;
-    console.log(layerName);
     if (layerName) {
-        console.log(layerName);
-        console.log((caller as CoverageApiDataSource)._parameterKey);
         const namedLayersArr = getElementsArrayByTagName(xml, "NamedLayer");
         for (let i = 0; i < namedLayersArr.length; i++) {
             const layer = namedLayersArr[i];

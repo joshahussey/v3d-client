@@ -37,7 +37,6 @@ import {
     JsonCluster,
     LabelProperty,
     OGCFeature,
-    UserStyleDefinition,
     ServiceInfo,
     TddPointSymbolizer,
     TddPolygonSymbolizer,
@@ -232,7 +231,6 @@ export default class FeaturesApiDataSource extends WesDataSource {
             if (url !== "") break;
         }
         const tdd = await this.fetchJson(url.split("?")[0], { f: "3dd" });
-        console.log(tdd);
         this._userStylesArray = []; 
         tdd.StyledLayerDescriptor.NamedLayer.UserStyle.forEach((UserStyle: any, index: number) => {
             this._userStylesArray.push({ index: index, name: UserStyle.Name, dataSource: this });

@@ -86,7 +86,7 @@ import {
     WebMapTileServiceImageryProvider
 } from "cesium";
 import { zoomTo } from "./Utils/ZoomTo";
-import { styleDefaultClusters } from "./Utils/ClusterStyling";
+import { styleDefaultClusters, styleGeoJsonBillboard } from "./Utils/ClusterStyling";
 const Controller = (window as CesiumWindow).Map3DController;
 
 localStorage.setItem("cesiumOpened", "true");
@@ -161,7 +161,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         const fullscreenButton = document.getElementsByClassName("cesium-fullscreenButton");
         (fullscreenButton[0] as HTMLButtonElement).title = t("3dMapfullscreenButtonTooltip");
     } catch {
-        console.log("No Cesium fullscreen button found.");
+        console.warn("No Cesium fullscreen button found.");
     }
 
     (window as CesiumWindow).Map3DViewer = viewer;
@@ -264,10 +264,8 @@ const load = async function (mapState: MapState): Promise<Viewer> {
     // eslint-disable-next-line solid/reactivity
     createEffect(async () => {
         const message = lastMessage();
-        console.log("Received raw message.");
         if (!message) return;
         const parsedMessage = await JSON.parse(message);
-        console.log("Recieved message", parsedMessage);
         let args = parsedMessage.args;
         if (!Array.isArray(args)) {
             args = [args];
@@ -1271,7 +1269,9 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                     (gjDataSource as any).name = dataSourceOption.name;
                     (gjDataSource as any).url = dataSourceOption.url;
                     createdDataSource = gjDataSource;
+                    createdDataSource.clustering.minimumClusterSize = 10;
                     styleDefaultClusters(createdDataSource, viewer);
+                    styleGeoJsonBillboard(createdDataSource, viewer);
                 }
                 break;
             case "kml":
