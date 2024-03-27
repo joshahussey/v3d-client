@@ -29,7 +29,7 @@ ul {
 
 .csltToolbarHeader {
     display: grid;
-    grid-template-columns: 4fr 2fr 1fr 1fr 1fr;
+    grid-template-columns: 3fr 2fr 1fr 1fr 1fr 1fr;
     border-bottom: 1px solid var(--gray);
 }
 
@@ -54,6 +54,8 @@ ul {
     font-size: x-large;
     display: inline-block;
     padding: 0.8rem;
+    user-select: none;
+    cursor: pointer;
 }
 
 .cslt-toolbar-menu {

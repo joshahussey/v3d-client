@@ -4,6 +4,7 @@ import WesDataSource from "../Datasources/WesDataSource";
 import { LayersOrderDiv } from "./LayersOrderDiv";
 import { useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { LayersTreeDiv } from "./LayersTreeDiv";
+import { SearchMinimal } from "./SearchMinimal";
 
 export type ServiceEntryInput = {
     service: ServiceInfo;
@@ -18,17 +19,21 @@ export function LayersDiv(): JSX.Element {
     const {
         isLayersOrderOpened,
         setLayersOrderOpened,
+        isSearchOpened,
+        isLayersTreeOpened,
     } = useToolbarStateContext() as any;
-
     let layerViewRef: any;
 
     return (
         <div class="layers-view" ref={layerViewRef}>
-            <Show when={!isLayersOrderOpened()}>
-                <LayersTreeDiv/>
+            <Show when={isLayersTreeOpened()}>
+                <LayersTreeDiv />
             </Show>
             <Show when={isLayersOrderOpened()}>
                 <LayersOrderDiv closeLayerOrderPanel={setLayersOrderOpened} />
+            </Show>
+            <Show when={isSearchOpened()}>
+                <SearchMinimal />
             </Show>
         </div>
     );

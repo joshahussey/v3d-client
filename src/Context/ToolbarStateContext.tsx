@@ -11,13 +11,16 @@ export function ToolbarStateContext(props: any) {
     const [isSearchOpened, setSearchOpened] = createSignal(false);
     const [isEditOpened, setEditOpened] = createSignal(false);
     const [isLayersOrderOpened, setLayersOrderOpened] = createSignal(false);
-    const [isBasemapTerrainOpened, setBasemapTerrainOpened] = createSignal(true);
+    const [isBasemapTerrainOpened, setBasemapTerrainOpened] = createSignal(false);
+    const [isLayersTreeOpened, setLayersTreeOpened] = createSignal(true);
     const [serviceExpandedMap, setServiceExpandedMap] = createStore<ServiceStatusEntry[]>([]);
     return (
         <ToolbarContext.Provider
             value={{
                 isLayersOpened,
                 setLayersOpened,
+                isLayersTreeOpened,
+                setLayersTreeOpened,
                 isSaveOpened,
                 setSaveOpened,
                 isLoadOpened,

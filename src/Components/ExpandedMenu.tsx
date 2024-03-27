@@ -10,7 +10,7 @@ export function ExpandedMenu(): JSX.Element {
     const { isLayersOpened, isSaveOpened, isLoadOpened, isCatalogOpened, isSearchOpened } = useToolbarStateContext() as any;
 
     return (
-        <Show when={isLayersOpened() || isSaveOpened() || isLoadOpened() || isCatalogOpened() || isSearchOpened()}>
+        <Show when={isLayersOpened()}>
             <div id="ExpandedMenu" class="cslt-toolbar-expanded">
                 <Show when={isLayersOpened()}>
                     <LayersDiv />

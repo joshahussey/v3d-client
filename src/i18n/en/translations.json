@@ -17,7 +17,9 @@
     "layerSettingsHeightScaleSliderLabel": "Height Scale: ",
     "layerSettingsResolutionSliderLabel": "Resolution: ",
     "layerSettingsStyleSelectorLabel":"Style: ",
-
+    
+    "searchButtonText": "Search",
+    "geocoderSearchButton": "Search",
     "geoHeaderSearchButton": "Search",
     "geoHeaderLanguageButton": "Français",
 

@@ -18,6 +18,8 @@
     "layerSettingsResolutionSliderLabel": "FR_Resolution: ",
     "layerSettingsStyleSelectorLabel":"FR_Style: ",
 
+    "searchButtonText": "FR_Search",
+    "geocoderSearchButton": "FR_Search",
     "geoHeaderSearchButton": "FR_Search",
     "geoHeaderLanguageButton": "English",
 

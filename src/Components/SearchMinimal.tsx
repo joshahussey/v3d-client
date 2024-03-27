@@ -11,7 +11,7 @@ import { translate as t } from "../i18n/Translator";
  * Represents a component for handling search functionality and toggling search state.
  * @returns {JSX.Element} A JSX element representing the search component.
  */
-export function Search(): JSX.Element {
+export function SearchMinimal(): JSX.Element {
     const { isSearchOpened, setSearchOpened } = useToolbarStateContext() as any;
     let searchRef: any;
     let isSearchCreated = false;
@@ -34,9 +34,7 @@ export function Search(): JSX.Element {
                 geoCoderSpan.classList.add("cslt-cesium-toolbar-search-span");
                 geoCoderSpan.classList.remove("cesium-geocoder-searchButton");
                 geoCoderSpan.removeChild(geoCoderSpan.querySelector("svg")!);
-                const img = document.createElement("img");
-                img.src = "./Icons/search.png";
-                geoCoderSpan.appendChild(img);
+                geoCoderSpan.textContent = t("geocoderSearchButton");
                 searchRef.appendChild(geoCoderForm);
                 searchRef.appendChild(geoCoderResults);
                 geoCoderResults.style.display = "unset";
@@ -46,11 +44,6 @@ export function Search(): JSX.Element {
     });
 
     return (
-        <div class="search-panel" >
-            <div class="search-panel-header-div">
-                <span class="search-panel-header-label"> {t("searchPanelSearch")} </span>
-            </div>
             <div ref={searchRef} id="SearchInput" class="cslt-search-input" />
-        </div>
     );
 }

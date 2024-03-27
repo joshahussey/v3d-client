@@ -1,4 +1,4 @@
-import { JSX } from "solid-js";
+import { JSX, createEffect } from "solid-js";
 import { useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { ToolbarButton } from "./Components";
 import { translate as t } from "../i18n/Translator";
@@ -12,10 +12,14 @@ export function ToolbarNav(): JSX.Element {
     const {
         isLayersOpened,
         setLayersOpened,
+        isLayersTreeOpened,
+        setLayersTreeOpened,
         isLayersOrderOpened,
         setLayersOrderOpened,
         isBasemapTerrainOpened,
-        setBasemapTerrainOpened
+        setBasemapTerrainOpened,
+        isSearchOpened,
+        setSearchOpened,
     } = useToolbarStateContext() as any;
     const layerOrderIcon = (
         <svg
@@ -24,7 +28,7 @@ export function ToolbarNav(): JSX.Element {
             preserveAspectRatio="xMidYMid meet"
             viewBox="0 0 24 24"
             focusable="false"
-            fill={isLayersOrderOpened() ? "#212121" : "#939393"}
+            fill={isLayersOpened() && isLayersOrderOpened() ? "#212121" : "#939393"}
             class="toolbar-button-image"
         >
             <g id="swap_vert">
@@ -39,7 +43,7 @@ export function ToolbarNav(): JSX.Element {
             preserveAspectRatio="xMidYMid meet"
             viewBox="0 0 24 24"
             focusable="false"
-            fill={isBasemapTerrainOpened() ? "#212121" : "#939393"}
+            fill={isLayersOpened() && isBasemapTerrainOpened() ? "#212121" : "#939393"}
             class="toolbar-button-image"
         >
             <g id="map">
@@ -54,7 +58,7 @@ export function ToolbarNav(): JSX.Element {
             preserveAspectRatio="xMidYMid meet"
             viewBox="0 0 24 24"
             focusable="false"
-            fill={isLayersOpened() ? "#212121" : "#939393"}
+            fill={isLayersOpened() && isLayersTreeOpened() ? "#212121" : "#939393"}
             class="toolbar-button-image"
         >
             <g id="layers">
@@ -62,46 +66,100 @@ export function ToolbarNav(): JSX.Element {
             </g>
         </svg>
     );
+    const searchOpenedIcon = (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fit=""
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 24 24"
+            focusable="false"
+            fill={isLayersOpened() && isSearchOpened() ? "#212121" : "#939393"}
+            class="toolbar-button-image">
+            <g id="search">
+                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z">
+                </path>
+            </g>
+        </svg>
+    );
+    createEffect(() => {
+        if (isSearchOpened()) {
+            setLayersOpened(true);
+            setLayersTreeOpened(false);
+            setLayersOrderOpened(false);
+            setBasemapTerrainOpened(false);
+        }
+    }
+    );
+    createEffect(() => {
+        if (isLayersOrderOpened()) {
+            setLayersOpened(true);
+            setLayersTreeOpened(false);
+            setSearchOpened(false);
+            setBasemapTerrainOpened(false);
+        }
+    }
+    );
+    createEffect(() => {
+        if (isBasemapTerrainOpened()) {
+            setLayersOpened(true);
+            setLayersTreeOpened(true);
+            setSearchOpened(false);
+            setLayersOrderOpened(false);
+        }
+    }
+    );
+    createEffect(() => {
+        if (isLayersTreeOpened()) {
+            setLayersOpened(true);
+            setSearchOpened(false);
+            setLayersOrderOpened(false);
+        }
+    }
+    );
+    createEffect(() => {
+        if (!isLayersTreeOpened() && !isLayersOrderOpened() && !isSearchOpened()){
+            setLayersOpened(false);
+        }
+    }
+    );
+
     return (
         <div class="cslt-toolbar-expanded">
             <div class="csltToolbarHeader">
                 <span
                     class="toolbarLayersLabel"
                     onClick={() => {
-                        setLayersOpened(!isLayersOpened());
+                        if(!isLayersOpened() && !isLayersTreeOpened() && !isLayersOrderOpened() && !isSearchOpened()){
+                            setLayersTreeOpened(true);
+                            setLayersOpened(true);
+                        } else {
+                            setLayersOpened(!isLayersOpened());
+                        }
                     }}
                 >
                     {t("toolbarNavLayers")}
                 </span>
-                <MapModeRockerButton/>
+                <MapModeRockerButton />
+                <ToolbarButton id="SearchButton"
+                    icon={searchOpenedIcon}
+                    onClick={() => { setSearchOpened(!isSearchOpened()); }}
+                    text={t("searchButtonText")} />
                 <ToolbarButton
                     id="LayerOrderButton"
                     icon={layerOrderIcon}
-                    onClick={() => {
-                        if (!isLayersOpened()) {
-                            setLayersOpened(!isLayersOpened());
-                        }
-                        setLayersOrderOpened(!isLayersOrderOpened());
-                    }}
+                    onClick={() => { setLayersOrderOpened(!isLayersOrderOpened()); }}
                     text={t("layerOrderButtonText")}
                 />
                 <ToolbarButton
                     id="BasemapTerrainButton"
                     icon={basemapTerrainOpenedIcon}
-                    onClick={() => {
-                        if (!isLayersOpened()) {
-                            setLayersOpened(!isLayersOpened());
-                        }
-                        setBasemapTerrainOpened(!isBasemapTerrainOpened());
-                    }}
+                    onClick={() => { setBasemapTerrainOpened(!isBasemapTerrainOpened()); }}
                     text={t("basemapTerrainButtonText")}
                 />
                 <ToolbarButton
                     id="LayersButton"
                     icon={layersOpened}
-                    onClick={() => {
-                        setLayersOpened(!isLayersOpened());
-                    }}
+                    onClick={() => { setLayersTreeOpened(!isLayersTreeOpened()); }}
                     text={t("layersButtonText")}
                 />
             </div>
