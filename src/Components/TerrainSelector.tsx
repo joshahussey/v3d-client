@@ -5,6 +5,8 @@ import { JSX } from "solid-js";
 import { cesiumBuiltInUID, googlePhotorealisticUID, osmBuildingsUID } from "../Constants";
 import { useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { translate as t } from "../i18n/Translator";
+import { saveViewParameters } from "../Utils/SaveView";
+import { CesiumWindow } from "../Wes";
 
 /**
  * Represents a component for selecting a terrain layer from available terrain sets.
@@ -21,37 +23,54 @@ export function TerrainSelector(): JSX.Element {
     createEffect(() => {
         if (selectedTerrain().uid == googlePhotorealisticUID) {
             (document.getElementById("baseMapSelectList") as HTMLSelectElement).disabled = true;
-            (document.getElementById("baseMapListItem") as HTMLElement).children[1].classList.add("selector-layer-disabled");
-            (document.getElementById("baseMapSelectListLabel") as HTMLElement).classList.add("selector-layer-label-disabled");
+            (document.getElementById("baseMapListItem") as HTMLElement).children[1].classList.add(
+                "selector-layer-disabled"
+            );
+            (document.getElementById("baseMapSelectListLabel") as HTMLElement).classList.add(
+                "selector-layer-label-disabled"
+            );
         } else {
             (document.getElementById("baseMapSelectList") as HTMLSelectElement).disabled = false;
-            (document.getElementById("baseMapListItem") as HTMLElement).children[1].classList.remove("selector-layer-disabled");
-            (document.getElementById("baseMapSelectListLabel") as HTMLElement).classList.remove("selector-layer-label-disabled");
+            (document.getElementById("baseMapListItem") as HTMLElement).children[1].classList.remove(
+                "selector-layer-disabled"
+            );
+            (document.getElementById("baseMapSelectListLabel") as HTMLElement).classList.remove(
+                "selector-layer-label-disabled"
+            );
         }
     });
     createEffect(() => {
         let refresh = false;
         for (const tileSet of tileSets()) {
+            if (tileSet.uid !== osmBuildingsUID) continue;
+
             // If the selected terrain layer is not Cesium Built In, turn off and disable OSM Buildings.
             if (selectedTerrain().uid != cesiumBuiltInUID) {
-                if (tileSet.uid == osmBuildingsUID && (tileSet.show || tileSet.enabled)) {
+                if (tileSet.show || tileSet.enabled) {
                     tileSet.show = false;
                     tileSet.enabled = false;
                     refresh = true;
-                    break;
                 }
-            // Otherwise, re-enable OSM Buildings.
-            } else {
-                if (tileSet.uid == osmBuildingsUID && !tileSet.enabled) {
-                    tileSet.enabled = true;
-                    refresh = true;
-                    break;
-                }
+                // Otherwise, re-enable OSM Buildings.
+            } else if (!tileSet.enabled) {
+                tileSet.enabled = true;
+                tileSet.show = true;
+                refresh = true;
             }
+
+            const cesiumWindow = window as CesiumWindow;
+            const optionsMap = cesiumWindow.optionsMap();
+            optionsMap.forEach((value: any, key: any) => {
+                if (key.uid === osmBuildingsUID) {
+                    value.show = tileSet.show;
+                    optionsMap.set(key, value);
+                }
+            });
+            saveViewParameters(cesiumWindow.Map3DViewer, cesiumWindow.optionsMap);
         }
         if (refresh) {
             // On the next UI tick, close and reopen the layer panel to refresh the UI.
-            
+
             // eslint-disable-next-line no-undef
             process.nextTick(() => {
                 setLayersOpened(false);

@@ -268,7 +268,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         console.log("Recieved message", parsedMessage);
         let args = parsedMessage.args;
         if (!Array.isArray(args)) {
-            args = [args]
+            args = [args];
         }
         let receivedMessageObjects: AddRequestObject[] = [];
         switch (parsedMessage.type) {
@@ -283,8 +283,8 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                         format: arg.format,
                         credit: arg.credit,
                         wgs84BoundingBox: arg.wgs84BoundingBox,
-                        serviceInfo: arg.serviceInfo,
-                    })
+                        serviceInfo: arg.serviceInfo
+                    });
                 }
                 Controller.addWMS(receivedMessageObjects);
                 Controller.raiseMapStateChangedEvent();
@@ -304,7 +304,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                         credit: arg.credit,
                         wgs84BoundingBox: arg.wgs84BoundingBox,
                         serviceInfo: arg.serviceInfo
-                    })
+                    });
                 }
                 Controller.addWMTS(receivedMessageObjects);
                 Controller.raiseMapStateChangedEvent();
@@ -319,7 +319,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                         credit: arg.credit,
                         wgs84BoundingBox: arg.wgs84BoundingBox,
                         serviceInfo: arg.serviceInfo
-                    })
+                    });
                 }
                 Controller.addArcGisWMS(receivedMessageObjects);
                 Controller.raiseMapStateChangedEvent();
@@ -327,12 +327,12 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             case "OGCMAP":
                 for (const arg of args) {
                     receivedMessageObjects.push({
-                        uid: arg.uid, 
-                        title: arg.title, 
+                        uid: arg.uid,
+                        title: arg.title,
                         url: arg.url,
-                        wgs84BoundingBox: arg.wgs84BoundingBox, 
+                        wgs84BoundingBox: arg.wgs84BoundingBox,
                         serviceInfo: arg.serviceInfo
-                    })
+                    });
                 }
                 Controller.addOgcMap(receivedMessageObjects);
                 Controller.raiseMapStateChangedEvent();
@@ -346,7 +346,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                         description: arg.description,
                         wgs84BoundingBox: arg.wgs84BoundingBox,
                         serviceInfo: arg.serviceInfo
-                    })
+                    });
                 }
                 Controller.addOGCFeature(receivedMessageObjects);
                 Controller.raiseMapStateChangedEvent();
@@ -362,7 +362,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                         id: arg.id,
                         wgs84BoundingBox: arg.wgs84BoundingBox,
                         serviceInfo: arg.serviceInfo
-                    })
+                    });
                 }
                 Controller.addOGCCoverage(receivedMessageObjects);
                 Controller.raiseMapStateChangedEvent();
@@ -370,12 +370,12 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             case "CELESTIAL":
                 for (const arg of args) {
                     receivedMessageObjects.push({
-                        uid: arg.uid, 
-                        url: arg.url, 
-                        title: arg.title, 
-                        description: arg.description, 
+                        uid: arg.uid,
+                        url: arg.url,
+                        title: arg.title,
+                        description: arg.description,
                         serviceInfo: arg.serviceInfo
-                    })
+                    });
                 }
                 Controller.addCelestial(receivedMessageObjects);
                 Controller.raiseMapStateChangedEvent();
@@ -389,7 +389,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                         description: arg.description,
                         wgs84BoundingBox: arg.wgs84BoundingBox,
                         serviceInfo: arg.serviceInfo
-                    })
+                    });
                 }
                 Controller.addSensorThings(receivedMessageObjects);
                 Controller.raiseMapStateChangedEvent();
@@ -402,7 +402,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                         title: arg.title,
                         description: arg.description,
                         serviceInfo: arg.serviceInfo
-                    })
+                    });
                 }
                 Controller.addGeoJSON(receivedMessageObjects);
                 Controller.raiseMapStateChangedEvent();
@@ -410,12 +410,12 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             case "KML":
                 for (const arg of args) {
                     receivedMessageObjects.push({
-                        uid: arg.uid, 
+                        uid: arg.uid,
                         url: arg.url,
-                        title: arg.title, 
-                        description: arg.description, 
+                        title: arg.title,
+                        description: arg.description,
                         serviceInfo: arg.serviceInfo
-                    })
+                    });
                 }
                 Controller.addKml(receivedMessageObjects);
                 Controller.raiseMapStateChangedEvent();
@@ -423,12 +423,12 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             case "3DTILES":
                 for (const arg of args) {
                     receivedMessageObjects.push({
-                        uid: arg.uid, 
-                        url: arg.url, 
-                        title: arg.title, 
-                        description: arg.description, 
+                        uid: arg.uid,
+                        url: arg.url,
+                        title: arg.title,
+                        description: arg.description,
                         serviceInfo: arg.serviceInfo
-                    })
+                    });
                 }
                 Controller.add3DTiles(receivedMessageObjects);
                 Controller.raiseMapStateChangedEvent();
@@ -781,7 +781,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
      */
     async function addLayers(viewer?: Viewer, optionsMap?: any) {
         addingLayers = true;
-        let hasZoomed = false
+        let hasZoomed = false;
         while (dataSourcesToBeAdded.size > 0) {
             const layerOptions = dataSourcesToBeAdded.values();
             const layerOption = layerOptions.next().value;
@@ -791,8 +791,13 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             }
             await addDataSource(layerOption);
             if (!hasZoomed) {
-                hasZoomed = true
-                zoomTo((dataSourceLayers.get(dataSourceLayers.length - 1) as WesDataSource | KmlDataSource | GeoJsonDataSource));
+                hasZoomed = true;
+                zoomTo(
+                    dataSourceLayers.get(dataSourceLayers.length - 1) as
+                        | WesDataSource
+                        | KmlDataSource
+                        | GeoJsonDataSource
+                );
             }
             dataSourcesToBeAdded.delete(layerOption);
         }
@@ -805,8 +810,8 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             }
             await addAdditionalLayerOption(layerOption);
             if (!hasZoomed) {
-                hasZoomed = true
-                zoomTo((imageryLayers.get(imageryLayers.length - 1)) as WesImageryLayer);
+                hasZoomed = true;
+                zoomTo(imageryLayers.get(imageryLayers.length - 1) as WesImageryLayer);
             }
             imageryLayersToBeAdded.delete(layerOption);
         }
@@ -819,7 +824,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             }
             await add3dTiles(layerOption);
             if (!hasZoomed) {
-                hasZoomed = true
+                hasZoomed = true;
                 zoomTo(tileSets()[tileSets().length - 1]);
             }
             tilesetsToBeAdded.delete(layerOption);
@@ -1116,6 +1121,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         //     );
         // }
         tileset.uid = option.uid;
+        tileset.show = option.show;
         optionsMap().set(tileset, option);
         window.dispatchEvent(new Event("tilesetAdded"));
     }

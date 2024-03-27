@@ -221,6 +221,8 @@ const Map3DController = window.Map3DController
               const mapState = Map3DController.getMapState();
               let primitiveLayers = mapState.primitiveLayers;
               for (const tilesObject of add3DTilesObject) {
+                  let show = true;
+                  if (Object.prototype.hasOwnProperty.call(tilesObject, "show")) show = tilesObject.show;
                   const option = {
                       uid: tilesObject.uid,
                       type: "3D_TILES",
@@ -228,7 +230,7 @@ const Map3DController = window.Map3DController
                       description: tilesObject.description,
                       url: tilesObject.url,
                       serviceInfo: tilesObject.serviceInfo,
-                      show: true
+                      show
                   };
                   primitiveLayers = primitiveLayers.filter(l => l.uid !== tilesObject.uid);
                   primitiveLayers = [...primitiveLayers, option];
