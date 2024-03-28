@@ -1,8 +1,29 @@
-import { createContext, createSignal, useContext } from "solid-js";
-import { createStore } from "solid-js/store";
+import { Accessor, createContext, createSignal, Setter, useContext } from "solid-js";
+import { createStore, SetStoreFunction } from "solid-js/store";
 
 export type ServiceStatusEntry = { serviceUid: string; serviceOpenedStatus: boolean };
-const ToolbarContext = createContext();
+export type ToolbarContextType = {
+    isLayersOpened: Accessor<boolean>;
+    setLayersOpened: Setter<boolean>;
+    isSaveOpened: Accessor<boolean>;
+    setSaveOpened: Setter<boolean>;
+    isLoadOpened: Accessor<boolean>;
+    setLoadOpened: Setter<boolean>;
+    isCatalogOpened: Accessor<boolean>;
+    setCatalogOpened: Setter<boolean>;
+    isSearchOpened: Accessor<boolean>;
+    setSearchOpened: Setter<boolean>;
+    isEditOpened: Accessor<boolean>;
+    setEditOpened: Setter<boolean>;
+    isLayersOrderOpened: Accessor<boolean>;
+    setLayersOrderOpened: Setter<boolean>;
+    isBasemapTerrainOpened: Accessor<boolean>;
+    setBasemapTerrainOpened: Setter<boolean>;
+    isLayersTreeOpened: Accessor<boolean>;
+    setLayersTreeOpened: Setter<boolean>;
+    serviceExpandedMap: ServiceStatusEntry[];
+    setServiceExpandedMap: SetStoreFunction<ServiceStatusEntry[]>;
+}
 export function ToolbarStateContext(props: any) {
     const [isLayersOpened, setLayersOpened] = createSignal(false);
     const [isSaveOpened, setSaveOpened] = createSignal(false);
@@ -43,7 +64,7 @@ export function ToolbarStateContext(props: any) {
         </ToolbarContext.Provider>
     );
 }
-
+const ToolbarContext = createContext<ToolbarContextType>();
 export function useToolbarStateContext() {
     return useContext(ToolbarContext);
 }

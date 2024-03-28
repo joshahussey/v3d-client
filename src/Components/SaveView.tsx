@@ -1,4 +1,4 @@
-import { useToolbarStateContext } from "../Context/ToolbarStateContext";
+import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { saveViewParameters } from "../Utils/SaveView";
 import { CesiumWindow } from "../Wes";
 import { createSignal } from "solid-js";
@@ -13,7 +13,7 @@ export function SaveView(): JSX.Element {
     const [title, setTitle] = createSignal("");
     const [description, setDescription] = createSignal("");
 
-    const { setSaveOpened } = useToolbarStateContext() as any;
+    const { setSaveOpened } = useToolbarStateContext() as ToolbarContextType;
 
     return (
         <div class="save-view">

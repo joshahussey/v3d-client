@@ -1,5 +1,5 @@
 import { Select, createOptions } from "@thisbeyond/solid-select";
-import { useInterfaceContext } from "../Context/UIContext";
+import { UIContextType, useInterfaceContext } from "../Context/UIContext";
 import { translate as t } from "../i18n/Translator";
 
 /**
@@ -9,7 +9,7 @@ import { translate as t } from "../i18n/Translator";
  * <BasemapSelector />
  */
 export function BasemapSelector() {
-    const { baseLayers, selectedLayer, setSelectedLayer } = useInterfaceContext() as any;
+    const { baseLayers, selectedLayer, setSelectedLayer } = useInterfaceContext() as UIContextType;
     const baseMapLayers = baseLayers();
     const properties = createOptions(baseMapLayers, {
         key: "name"

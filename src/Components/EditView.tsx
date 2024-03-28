@@ -1,11 +1,11 @@
 import { createSignal } from "solid-js";
 import { CesiumWindow, ViewRecord } from "../Wes";
-import { useToolbarStateContext } from "../Context/ToolbarStateContext";
+import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { MAX_CHARS_100, MAX_CHARS_1024, VIEWS_SERVLET_URL } from "../Constants";
 import { saveViewParameters } from "../Utils/SaveView";
 
 export function EditView(view: ViewRecord) {
-    const { setEditOpened, setLoadOpened } = useToolbarStateContext() as any;
+    const { setEditOpened, setLoadOpened } = useToolbarStateContext() as ToolbarContextType;
 
     const [title, setTitle] = createSignal(view.title);
     const [description, setDescription] = createSignal(view.description);

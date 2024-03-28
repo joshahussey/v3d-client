@@ -1,9 +1,9 @@
 import { Select, createOptions } from "@thisbeyond/solid-select";
 import { createEffect } from "solid-js";
-import { useInterfaceContext } from "../Context/UIContext";
+import { UIContextType, useInterfaceContext } from "../Context/UIContext";
 import { JSX } from "solid-js";
 import { cesiumBuiltInUID, googlePhotorealisticUID, osmBuildingsUID } from "../Constants";
-import { useToolbarStateContext } from "../Context/ToolbarStateContext";
+import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { translate as t } from "../i18n/Translator";
 import { saveViewParameters } from "../Utils/SaveView";
 import { CesiumWindow } from "../Wes";
@@ -13,8 +13,8 @@ import { CesiumWindow } from "../Wes";
  * @returns {JSX.Element} A JSX element representing the terrain selector.
  */
 export function TerrainSelector(): JSX.Element {
-    const { terrainSets, selectedTerrain, setSelectedTerrain, tileSets } = useInterfaceContext() as any;
-    const { setLayersOpened } = useToolbarStateContext() as any;
+    const { terrainSets, selectedTerrain, setSelectedTerrain, tileSets } = useInterfaceContext() as UIContextType;
+    const { setLayersOpened } = useToolbarStateContext() as ToolbarContextType;
     const terrainSetsArray = terrainSets();
     const properties = createOptions(terrainSetsArray, {
         key: "name"

@@ -1,5 +1,5 @@
 import { JSX, For, createSignal, createEffect, Setter } from "solid-js";
-import { useInterfaceContext } from "../Context/UIContext";
+import { UIContextType, useInterfaceContext } from "../Context/UIContext";
 import { translate as t } from "../i18n/Translator";
 
 /**
@@ -9,7 +9,7 @@ import { translate as t } from "../i18n/Translator";
  */
 export function LayersOrderDiv(props: { closeLayerOrderPanel: Setter<boolean> }): JSX.Element {
     const { closeLayerOrderPanel } = props;
-    const { imageLayers } = useInterfaceContext() as any;
+    const { imageLayers } = useInterfaceContext() as UIContextType;
     const layers = (window as any).Map3DViewer.imageryLayers;
 
     const [selectedLayer, setSelectedLayer] = createSignal(layers[1], { equals: false });

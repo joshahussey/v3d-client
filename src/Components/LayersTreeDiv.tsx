@@ -1,10 +1,10 @@
 import { BasemapSelector } from "./BasemapSelector";
 import { TerrainSelector } from "./TerrainSelector";
-import { JSX, Show, createSignal } from "solid-js";
+import { JSX, Show } from "solid-js";
 import { ServiceInfo, Wes3DTileSet, WesImageryLayer } from "../Wes";
 import WesDataSource from "../Datasources/WesDataSource";
 import { LayersListDiv } from "./LayersListDiv";
-import { useToolbarStateContext } from "../Context/ToolbarStateContext";
+import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
 
 export type ServiceEntryInput = {
     service: ServiceInfo;
@@ -18,7 +18,7 @@ export type ServiceEntryInput = {
 export function LayersTreeDiv(): JSX.Element {
     const {
         isBasemapTerrainOpened
-    } = useToolbarStateContext() as any;
+    } = useToolbarStateContext() as ToolbarContextType;
 
     return (
         <div class="layers-view-layer-tree-panel">

@@ -1,18 +1,18 @@
 import { For, JSX, createSignal, createEffect } from "solid-js";
-import { useInterfaceContext } from "../Context/UIContext";
+import { UIContextType, useInterfaceContext } from "../Context/UIContext";
 import { ServiceEntry } from "./ServiceEntry";
 import { ServiceInfo, WesImageryLayer, Wes3DTileSet } from "../Wes";
 import { ServiceEntryInput } from "./LayersDiv";
 import WesDataSource from "../Datasources/WesDataSource";
-import { useToolbarStateContext, ServiceStatusEntry } from "../Context/ToolbarStateContext";
+import { useToolbarStateContext, ServiceStatusEntry, ToolbarContextType } from "../Context/ToolbarStateContext";
 
 /**
  * Represents a component for displaying a list of all layers in reverse order.
  * @returns {JSX.Element} A JSX element representing the layers.
  */
 export function LayersListDiv(): JSX.Element {
-    const { serviceExpandedMap, setServiceExpandedMap } = useToolbarStateContext() as any;
-    const { imageLayers, datasources, tileSets } = useInterfaceContext() as any;
+    const { serviceExpandedMap, setServiceExpandedMap } = useToolbarStateContext() as ToolbarContextType;
+    const { imageLayers, datasources, tileSets } = useInterfaceContext() as UIContextType;
 
     const [allLayers, setAllLayers] = createSignal(
         imageLayers().slice().concat(datasources().slice(), tileSets().slice()),
@@ -33,6 +33,7 @@ export function LayersListDiv(): JSX.Element {
             ...(serviceExpandedMap.filter((service: ServiceStatusEntry) => servList.includes(service.serviceUid)))
         ]);
     }
+    // eslint-disable-next-line solid/reactivity
     cleanServiceExpanded(allLayers().map((serv: any) => serv.serviceInfo.serviceId))
 
     createEffect(() => {

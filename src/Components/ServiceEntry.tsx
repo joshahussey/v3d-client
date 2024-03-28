@@ -6,7 +6,7 @@ import { ServiceEntryInput } from "./LayersDiv";
 import { WesImageryLayer, Wes3DTileSet } from "../Wes";
 import WesDataSource from "../Datasources/WesDataSource";
 import { ImageryLayer, Cesium3DTileset, KmlDataSource } from "cesium";
-import { useToolbarStateContext, ServiceStatusEntry } from "../Context/ToolbarStateContext";
+import { useToolbarStateContext, ServiceStatusEntry, ToolbarContextType } from "../Context/ToolbarStateContext";
 import { GeoJsonDataSource } from "cesium";
 import SensorThingsDataSource from "../Datasources/SensorThingsDataSource";
 import CoverageApiDataSource from "../Datasources/CoverageApiDataSource";
@@ -20,7 +20,7 @@ export type makeCheckboxStatus = () => void;
  * @returns {JSX.Element} A JSX element representing the service entry.
  */
 export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
-    const { serviceExpandedMap, setServiceExpandedMap } = useToolbarStateContext() as any;
+    const { serviceExpandedMap, setServiceExpandedMap } = useToolbarStateContext() as ToolbarContextType;
     const isExpanded = getServiceExpandedStatus(entry.service.serviceId);
     const [opened, setOpened] = createSignal(isExpanded != null ? isExpanded : true);
     if (isExpanded === null) {

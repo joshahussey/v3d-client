@@ -2,17 +2,21 @@ import { JSX, Show } from "solid-js";
 import { ServiceInfo, Wes3DTileSet, WesImageryLayer } from "../Wes";
 import WesDataSource from "../Datasources/WesDataSource";
 import { LayersOrderDiv } from "./LayersOrderDiv";
-import { useToolbarStateContext } from "../Context/ToolbarStateContext";
+import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { LayersTreeDiv } from "./LayersTreeDiv";
 import { SearchMinimal } from "./SearchMinimal";
 
 export type ServiceEntryInput = {
     service: ServiceInfo;
-    layers: WesImageryLayer[] | WesDataSource[] | Wes3DTileSet[];
+    layers: (WesImageryLayer | WesDataSource | Wes3DTileSet)[];
 };
 
 /**
- * Represents a component for displaying a list of different types of layers.
+ * Represents the component containing all other panels in the UI, such as the:
+ *  - Layers Tree Panel
+ *  - Basemap/Terrain Selector
+ *  - Layer Order Panel
+ *  - Search Panel
  * @returns {JSX.Element} A JSX element representing the layers div.
  */
 export function LayersDiv(): JSX.Element {
@@ -21,11 +25,10 @@ export function LayersDiv(): JSX.Element {
         setLayersOrderOpened,
         isSearchOpened,
         isLayersTreeOpened,
-    } = useToolbarStateContext() as any;
-    let layerViewRef: any;
+    } = useToolbarStateContext() as ToolbarContextType;
 
     return (
-        <div class="layers-view" ref={layerViewRef}>
+        <div class="layers-view">
             <Show when={isLayersTreeOpened()}>
                 <LayersTreeDiv />
             </Show>

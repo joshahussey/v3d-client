@@ -1,5 +1,5 @@
 import { JSX, createEffect } from "solid-js";
-import { useToolbarStateContext } from "../Context/ToolbarStateContext";
+import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { ToolbarButton } from "./Components";
 import { translate as t } from "../i18n/Translator";
 import { MapModeRockerButton } from "./MapModeRockerButton";
@@ -20,7 +20,7 @@ export function ToolbarNav(): JSX.Element {
         setBasemapTerrainOpened,
         isSearchOpened,
         setSearchOpened,
-    } = useToolbarStateContext() as any;
+    } = useToolbarStateContext() as ToolbarContextType;
     const layerOrderIcon = (
         <svg
             xmlns="http://www.w3.org/2000/svg"

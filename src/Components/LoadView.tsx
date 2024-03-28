@@ -1,7 +1,7 @@
 import { createEffect, createResource, createSignal, For, Show, Signal, Suspense } from "solid-js";
 import { createStore, reconcile, unwrap } from "solid-js/store";
 import { CesiumWindow, ViewRecord } from "../Wes";
-import { useToolbarStateContext } from "../Context/ToolbarStateContext";
+import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { applyViewParameters, loadViewParameters } from "../Utils/SaveView";
 import { zoomToLoadedView } from "../Utils/SaveView";
 import { fuzzySearch } from "@thisbeyond/solid-select";
@@ -64,7 +64,7 @@ export function LoadView() {
         }
     });
 
-    const { isLoadOpened, setLoadOpened, isEditOpened, setEditOpened } = useToolbarStateContext() as any;
+    const { isLoadOpened, setLoadOpened, isEditOpened, setEditOpened } = useToolbarStateContext() as ToolbarContextType;
     createEffect(() => {
         if (isEditOpened() && (!isLoadOpened() || selectedView() == null)) {
             setEditOpened(false);

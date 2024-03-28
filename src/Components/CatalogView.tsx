@@ -1,8 +1,8 @@
-import { useToolbarStateContext } from "../Context/ToolbarStateContext";
+import { useToolbarStateContext, ToolbarContextType } from "../Context/ToolbarStateContext";
 import ClickOutsideToolbar from "./Directives/ClickOutsideToolbar";
 
 export function CatalogView() {
-    const { setCatalogOpened } = useToolbarStateContext() as any;
+    const { setCatalogOpened } = useToolbarStateContext() as ToolbarContextType;
 
     (window as any).setCatalogOpen = function (isOpen: boolean) {
         setCatalogOpened(isOpen);

@@ -1,4 +1,4 @@
-import { useToolbarStateContext } from "../Context/ToolbarStateContext";
+import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { CesiumWindow } from "../Wes";
 import { JSX, createEffect } from "solid-js";
 import { Geocoder } from "cesium";
@@ -12,7 +12,7 @@ import { translate as t } from "../i18n/Translator";
  * @returns {JSX.Element} A JSX element representing the search component.
  */
 export function Search(): JSX.Element {
-    const { isSearchOpened, setSearchOpened } = useToolbarStateContext() as any;
+    const { isSearchOpened, setSearchOpened } = useToolbarStateContext() as ToolbarContextType;
     let searchRef: any;
     let isSearchCreated = false;
     createEffect(() => {

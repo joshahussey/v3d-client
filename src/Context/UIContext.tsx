@@ -36,6 +36,40 @@ let isLoading: Accessor<LoadingRequestCode>;
 let setIsLoading: Setter<LoadingRequestCode>;
 let loadingRequestMap: Accessor<Map<string, any>>
 let setLoadingRequestMap: Setter<Map<string, any>>
+
+export type UIContextType = {
+    baseLayers: Accessor<WesImageryLayer[]>;
+    setBaseLayers: Setter<WesImageryLayer[]>;
+    selectedLayer: Accessor<WesImageryLayer>;
+    setSelectedLayer: Setter<WesImageryLayer>;
+    datasources: Accessor<WesDataSource[]>;
+    setDatasources: Setter<WesDataSource[]>;
+    imageLayers: Accessor<WesImageryLayer[]>;
+    setImageLayers: Setter<WesImageryLayer[]>;
+    terrainSets: Accessor<WesTerrainObject[]>;
+    setTerrainSets: Setter<WesTerrainObject[]>;
+    selectedTerrain: Accessor<WesTerrainObject>;
+    setSelectedTerrain: Setter<WesTerrainObject>;
+    tileSets: Accessor<Wes3DTileSet[]>;
+    setTileSets: Setter<Wes3DTileSet[]>;
+    selectedHome: Accessor<number[]>;
+    setSelectedHome: Setter<number[]>;
+    timeMap: Accessor<Map<string, number[]>>;
+    setTimeMap: Setter<Map<string, number[]>>;
+    displayClock: Accessor<boolean>;
+    setDisplayClock: Setter<boolean>;
+    clockStore: Accessor<any>;
+    setClockStore: Setter<any>;
+    sourcesWithLegends: Accessor<any>;
+    setSourcesWithLegends: Setter<any>;
+    osmBuildingsLayer: Accessor<string>;
+    setOsmBuildingsLayer: Setter<string>;
+    isLoading: Accessor<LoadingRequestCode>;
+    setIsLoading: Setter<LoadingRequestCode>;
+    loadingRequestMap: Accessor<Map<string, any>>;
+    setLoadingRequestMap: Setter<Map<string, any>>;
+}
+
 export function getContextSignals(
     BaseLayers: Accessor<WesImageryLayer[]>,
     SetBaseLayers: Setter<WesImageryLayer[]>,
@@ -99,7 +133,7 @@ export function getContextSignals(
     loadingRequestMap = LoadingRequestMap;
     setLoadingRequestMap = SetLoadingRequestMap;
 }
-const InterfaceContext = createContext();
+const InterfaceContext = createContext<UIContextType>();
 
 export function InterfaceProvider(props: any) {
     const signals = {

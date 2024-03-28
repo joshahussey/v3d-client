@@ -2,7 +2,7 @@ import { Cesium3DTileset, GeoJsonDataSource, ImageryLayer, KmlDataSource } from 
 import { CesiumWindow, Wes3DTileSet, Wes3dMapLayer, WesImageryLayer } from "../Wes";
 import WesDataSource from "../Datasources/WesDataSource";
 import CoverageApiDataSource from "../Datasources/CoverageApiDataSource";
-import { useInterfaceContext } from "../Context/UIContext";
+import { UIContextType, useInterfaceContext } from "../Context/UIContext";
 import { JSX } from "solid-js";
 import CelestialBodyDataSource from "../Datasources/CelestialBodyDataSource";
 
@@ -22,7 +22,7 @@ export function DeleteLayerButton(layer: {
     isEnabled?: boolean;
 }): JSX.Element {
     const { sourcesWithLegends, setSourcesWithLegends, osmBuildingsLayer, setOsmBuildingsLayer } =
-        useInterfaceContext() as any;
+        useInterfaceContext() as UIContextType;
     return (
         <button
             class="cesium-button remove-button layer-entry-button-flex"

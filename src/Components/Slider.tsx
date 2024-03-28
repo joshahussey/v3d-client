@@ -1,4 +1,4 @@
-import { useInterfaceContext } from "../Context/UIContext";
+import { UIContextType, useInterfaceContext } from "../Context/UIContext";
 import { Show, createEffect, onMount } from "solid-js";
 import { JulianDate, Timeline } from "cesium";
 import Moment from "moment";
@@ -7,7 +7,7 @@ import { CesiumWindow } from "../Wes";
 const CesiumClient = window as CesiumWindow;
 let timeLineMounted = false;
 export function Slider() {
-    const { displayClock } = useInterfaceContext() as any;
+    const { displayClock } = useInterfaceContext() as UIContextType;
     let clockDiv: HTMLDivElement;
     function onTimelineScrubfunction(e) {
         const clock = e.clock;

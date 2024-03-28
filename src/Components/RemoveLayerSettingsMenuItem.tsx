@@ -2,7 +2,7 @@ import { Cesium3DTileset, GeoJsonDataSource, ImageryLayer, KmlDataSource } from 
 import { CesiumWindow, Wes3DTileSet, WesImageryLayer } from "../Wes";
 import WesDataSource from "../Datasources/WesDataSource";
 import CoverageApiDataSource from "../Datasources/CoverageApiDataSource";
-import { useInterfaceContext } from "../Context/UIContext";
+import { UIContextType, useInterfaceContext } from "../Context/UIContext";
 import { JSX, Show } from "solid-js";
 import CelestialBodyDataSource from "../Datasources/CelestialBodyDataSource";
 import { translate as t } from "../i18n/Translator";
@@ -19,7 +19,7 @@ export function RemoveLayerSettingsMenuItem(props: {
 }): JSX.Element {
     const { layers, onDone } = props;
     const { sourcesWithLegends, setSourcesWithLegends, osmBuildingsLayer, setOsmBuildingsLayer } =
-        useInterfaceContext() as any;
+        useInterfaceContext() as UIContextType;
 
     function removeLayers() {
         onDone()

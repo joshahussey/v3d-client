@@ -261,13 +261,8 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             throw new Error(t("3dMapLoadError1"));
     }
 
-    const [lastMessage, setLastMessage] = createSignal<string>("", { equals: false });
-    webSocket.addEventListener("message", e => {
-        setLastMessage(e.data);
-    });
-    // eslint-disable-next-line solid/reactivity
-    createEffect(async () => {
-        const message = lastMessage();
+    webSocket.addEventListener("message", async e => {
+        const message = e.data;
         if (!message) return;
         const parsedMessage = await JSON.parse(message);
         if (parsedMessage.type === "LOADING_NOTIFIER") {
