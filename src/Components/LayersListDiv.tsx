@@ -33,7 +33,6 @@ export function LayersListDiv(): JSX.Element {
             ...(serviceExpandedMap.filter((service: ServiceStatusEntry) => servList.includes(service.serviceUid)))
         ]);
     }
-    // eslint-disable-next-line solid/reactivity
     cleanServiceExpanded(allLayers().map((serv: any) => serv.serviceInfo.serviceId))
 
     createEffect(() => {

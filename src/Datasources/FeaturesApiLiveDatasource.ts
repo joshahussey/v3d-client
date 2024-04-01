@@ -1,7 +1,7 @@
 import { EntityCollection, JulianDate, Viewer } from "cesium";
 import WesDataSource from "./WesDataSource";
 import { requestFeatures } from "../Utils/Requests";
-import { CesiumWindow, FeaturesCollectionTemporal, ServiceInfo } from "../Wes";
+import { CesiumWindow, FeaturesCollectionTemporal, LegendSource, ServiceInfo } from "../Wes";
 import { DatasourceTypes } from "../Constants";
 import { iso8601PeriodToObject } from "../Utils/TimeParser";
 const CesiumClient = window as CesiumWindow;
@@ -71,7 +71,7 @@ function setBounds(datasource: FeaturesApiLiveDataSource, temporal: FeaturesColl
         currentTime: selectedDate,
         lowerTimeBound: start,
         upperTimeBound: stop
-    });
+    } as LegendSource);
     CesiumClient.setSourcesWithLegends(sourcesWithLegends);
     return;
 }

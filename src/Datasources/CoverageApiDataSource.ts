@@ -30,7 +30,8 @@ import {
     FormattedUserStyles,
     UserStyleDefinition,
     ServiceInfo,
-    ImageryBounds
+    ImageryBounds,
+    LegendSource
 } from "../Wes";
 import { SldParse } from "../Utils/Wes3dSldStyler";
 import { translate as t } from "../i18n/Translator"
@@ -470,7 +471,7 @@ export default class CoverageApiDataSource extends WesDataSource {
         const selectedDate =
             this._currentTimeString == null ? null : JulianDate.fromDate(new Date(this._currentTimeString));
         const styles = this._formattedStyles;
-        let sourceWithLegend;
+        let sourceWithLegend: LegendSource;
         if (
             styles &&
             styles.length &&

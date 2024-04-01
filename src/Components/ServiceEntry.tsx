@@ -94,7 +94,7 @@ export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
                     serviceCheckBoxState={checkboxState}
                 />
             );
-        } else if ((layer instanceof WesDataSource) || (layer instanceof GeoJsonDataSource) || (layer instanceof KmlDataSource)) {
+        } else if ((layer instanceof KmlDataSource) || (layer instanceof GeoJsonDataSource) ||(layer instanceof WesDataSource)) {
             allLayerDivs.push(
                 <DatasourceEntry
                     datasource={layer}
@@ -105,9 +105,9 @@ export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
         }
     }
 
-    let checkboxRef: any;
+    let checkboxRef: HTMLInputElement | undefined;
     createEffect(() => {
-        if (checkboxState() != undefined) {
+        if (checkboxState() != undefined && checkboxRef != null) {
             checkboxRef.indeterminate = checkboxState() == 2;
         }
     });

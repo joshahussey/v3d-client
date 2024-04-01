@@ -19,7 +19,6 @@ export function LayerSettingsButton(props: {
     primitiveLayer?: Wes3DTileSet;
     isEnabled: boolean;
 }): JSX.Element {
-    // eslint-disable-next-line solid/reactivity
     const { opened, setOpened, datasource, imageryLayer, primitiveLayer, isEnabled } = props;
     const [layerSettingsMenuShown, setLayerSettingsMenuShown] = createSignal(false);
 

@@ -94,6 +94,18 @@ type CoverageReferenceObject = {
     };
 };
 
+type LegendSource = {
+    uid: string;
+    minValue?: number;
+    maxValue?: number;
+    id: string;
+    uom?: string;
+    currentTime: JulianDate;
+    lowerTimeBound: JulianDate;
+    upperTimeBound: JulianDate;
+    symbolizer?: CesiumRasterSymbolizer
+}
+
 interface CoverageAxesObject extends Object {
     x: AxisObject;
     y: AxisObject;
@@ -113,8 +125,8 @@ interface AxisObject extends Object {
 type CesiumWindow = Window &
     typeof globalThis & {
         aoiBufferPrimitives?: Array<GroundPrimitive>;
-        sourcesWithLegends: Accessor<any[]>;
-        setSourcesWithLegends: Setter<never[]>;
+        sourcesWithLegends: Accessor<LegendSource[]>;
+        setSourcesWithLegends: Setter<LegendSource[]>;
         setTimeMap: Setter<Map<number, number>>;
         timeMap: Accessor<Map<number, number>>;
         Map3DViewer: Viewer;

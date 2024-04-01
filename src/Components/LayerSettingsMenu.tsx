@@ -36,7 +36,6 @@ export function LayerSettingsMenu(props: {
         ref,
         onFocusOutEvent,
         setLayerSettingsMenuShown
-    // eslint-disable-next-line solid/reactivity
     } = props;
 
     function openSettings() {

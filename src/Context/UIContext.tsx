@@ -1,17 +1,20 @@
 import { Accessor, Setter, createContext, useContext } from "solid-js";
-import { Wes3DTileSet, WesImageryLayer, WesTerrainObject } from "../Wes";
+import { LegendSource, Wes3DTileSet, WesImageryLayer, WesTerrainObject } from "../Wes";
 import WesDataSource from "../Datasources/WesDataSource";
+import { Clock, GeoJsonDataSource, KmlDataSource } from "cesium";
+import { SetStoreFunction } from "solid-js/store";
 export enum LoadingRequestCode {
     STARTED = 0,
     FINISHED = 1,
-    ERROR = 2
+    ERROR = 2,
+    UNSET = 3
 }
 let baseLayers: Accessor<WesImageryLayer[]>;
 let setBaseLayers: Setter<WesImageryLayer[]>;
 let selectedLayer: Accessor<WesImageryLayer>;
 let setSelectedLayer: Setter<WesImageryLayer>;
-let datasources: Accessor<WesDataSource[]>;
-let setDatasources: Setter<WesDataSource[]>;
+let datasources: Accessor<(WesDataSource | KmlDataSource | GeoJsonDataSource)[]>;
+let setDatasources: Setter<(WesDataSource | KmlDataSource | GeoJsonDataSource)[]>;
 let imageLayers: Accessor<WesImageryLayer[]>;
 let setImageLayers: Setter<WesImageryLayer[]>;
 let terrainSets: Accessor<WesTerrainObject[]>;
@@ -26,24 +29,24 @@ let timeMap: Accessor<Map<string, number[]>>;
 let setTimeMap: Setter<Map<string, number[]>>;
 let displayClock: Accessor<boolean>;
 let setDisplayClock: Setter<boolean>;
-let clockStore: Accessor<any>;
-let setClockStore: Setter<any>;
-let sourcesWithLegends: Accessor<any>;
-let setSourcesWithLegends: Setter<any>;
+let clockStore: Clock;
+let setClockStore: SetStoreFunction<Clock>;
+let sourcesWithLegends: Accessor<LegendSource[]>;
+let setSourcesWithLegends: Setter<LegendSource[]>;
 let osmBuildingsLayer: Accessor<string>;
 let setOsmBuildingsLayer: Setter<string>;
 let isLoading: Accessor<LoadingRequestCode>;
 let setIsLoading: Setter<LoadingRequestCode>;
-let loadingRequestMap: Accessor<Map<string, any>>
-let setLoadingRequestMap: Setter<Map<string, any>>
+let loadingRequestMap: Accessor<Map<string, ReturnType<typeof setTimeout>>>
+let setLoadingRequestMap: Setter<Map<string, ReturnType<typeof setTimeout>>>
 
 export type UIContextType = {
     baseLayers: Accessor<WesImageryLayer[]>;
     setBaseLayers: Setter<WesImageryLayer[]>;
     selectedLayer: Accessor<WesImageryLayer>;
     setSelectedLayer: Setter<WesImageryLayer>;
-    datasources: Accessor<WesDataSource[]>;
-    setDatasources: Setter<WesDataSource[]>;
+    datasources: Accessor<(WesDataSource | KmlDataSource | GeoJsonDataSource)[]>;
+    setDatasources: Setter<(WesDataSource | KmlDataSource | GeoJsonDataSource)[]>;
     imageLayers: Accessor<WesImageryLayer[]>;
     setImageLayers: Setter<WesImageryLayer[]>;
     terrainSets: Accessor<WesTerrainObject[]>;
@@ -58,16 +61,16 @@ export type UIContextType = {
     setTimeMap: Setter<Map<string, number[]>>;
     displayClock: Accessor<boolean>;
     setDisplayClock: Setter<boolean>;
-    clockStore: Accessor<any>;
-    setClockStore: Setter<any>;
-    sourcesWithLegends: Accessor<any>;
-    setSourcesWithLegends: Setter<any>;
+    clockStore: Clock;
+    setClockStore: SetStoreFunction<Clock>;
+    sourcesWithLegends: Accessor<LegendSource[]>;
+    setSourcesWithLegends: Setter<LegendSource[]>;
     osmBuildingsLayer: Accessor<string>;
     setOsmBuildingsLayer: Setter<string>;
     isLoading: Accessor<LoadingRequestCode>;
     setIsLoading: Setter<LoadingRequestCode>;
-    loadingRequestMap: Accessor<Map<string, any>>;
-    setLoadingRequestMap: Setter<Map<string, any>>;
+    loadingRequestMap: Accessor<Map<string, ReturnType<typeof setTimeout>>>;
+    setLoadingRequestMap: Setter<Map<string, ReturnType<typeof setTimeout>>>;
 }
 
 export function getContextSignals(
@@ -75,8 +78,8 @@ export function getContextSignals(
     SetBaseLayers: Setter<WesImageryLayer[]>,
     SelectedLayer: Accessor<WesImageryLayer>,
     SetSelectedLayer: Setter<WesImageryLayer>,
-    Datasources: Accessor<WesDataSource[]>,
-    SetDatasources: Setter<WesDataSource[]>,
+    Datasources: Accessor<(WesDataSource | KmlDataSource | GeoJsonDataSource)[]>,
+    SetDatasources: Setter<(WesDataSource | KmlDataSource | GeoJsonDataSource)[]>,
     ImageLayers: Accessor<WesImageryLayer[]>,
     SetImageLayers: Setter<WesImageryLayer[]>,
     TerrainSets: Accessor<WesTerrainObject[]>,
@@ -91,16 +94,16 @@ export function getContextSignals(
     SetTimeMap: Setter<Map<string, number[]>>,
     DisplayClock: Accessor<boolean>,
     SetDisplayClock: Setter<boolean>,
-    ClockStore: Accessor<any>,
-    SetClockStore: Setter<any>,
-    SourcesWithLegends: Accessor<any>,
-    SetSourcesWithLegends: Setter<any>,
+    ClockStore: Clock,
+    SetClockStore: SetStoreFunction<Clock>,
+    SourcesWithLegends: Accessor<LegendSource[]>,
+    SetSourcesWithLegends: Setter<LegendSource[]>,
     OsmBuildingsLayer: Accessor<string>,
     SetOsmBuildingsLayer: Setter<string>,
     IsLoading: Accessor<LoadingRequestCode>,
     SetIsLoading: Setter<LoadingRequestCode>,
-    LoadingRequestMap: Accessor<Map<string, any>>,
-    SetLoadingRequestMap: Setter<Map<string, any>>
+    LoadingRequestMap: Accessor<Map<string, ReturnType<typeof setTimeout>>>,
+    SetLoadingRequestMap: Setter<Map<string, ReturnType<typeof setTimeout>>>
 ) {
     baseLayers = BaseLayers;
     setBaseLayers = SetBaseLayers;

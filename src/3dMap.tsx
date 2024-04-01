@@ -2,7 +2,6 @@ import CesiumNavigation from "cesium-navigation-es6";
 import "../node_modules/cesium/Build/Cesium/Widgets/widgets.css";
 import "./CSS/cslt.scss";
 import "./CSS/style.scss";
-import { AddRequestObject } from "./3dMapControllerTypes";
 import FeaturesApiDataSource from "./Datasources/FeaturesApiDataSource";
 import SensorThingsDataSource from "./Datasources/SensorThingsDataSource";
 import { Accessor, createEffect, createSignal } from "solid-js";
@@ -39,7 +38,8 @@ import {
     WesImagerylayers,
     WesPrimitiveObject,
     WesTerrainObject,
-    WesWebMapTileServiceImageryProvider
+    WesWebMapTileServiceImageryProvider,
+    LegendSource
 } from "./Wes";
 import { createStore } from "solid-js/store";
 import { createLiveWmsPeriodString, isLiveWms } from "./Utils/TimeParser";
@@ -106,9 +106,6 @@ const load = async function (mapState: MapState): Promise<Viewer> {
     GoogleMaps.defaultApiKey = mapState.googleToken;
     let basemapOptions = mapState.baseMapLayers;
     let imageryOptions = mapState.imageLayers;
-    let terrainOptions = mapState.terrainSets;
-    let dataSourceOptions = mapState.dataSources;
-    let primitiveOptions = mapState.primitiveLayers;
     const basemapOption = mapState.baseMapLayers[0];
     const baseImageryProvider = (await getImageryProvider(basemapOption)) as ImageryProvider;
     const baseImageryLayer = new ImageryLayer(baseImageryProvider, {});
@@ -157,7 +154,6 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         clockViewModel: clockModel
     });
 
-
     //Cesium wont let you change the text in the tooltip of the fullscreen button, so we do it manually.
     try {
         const fullscreenButton = document.getElementsByClassName("cesium-fullscreenButton");
@@ -193,7 +189,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
     const imageryLayers = viewer.imageryLayers;
 
     //Create Context
-    const [selectedLayer, setSelectedLayer] = createSignal(baseImageryLayer);
+    const [selectedLayer, setSelectedLayer] = createSignal(baseImageryLayer as WesImageryLayer);
     const [selectedTerrain, setSelectedTerrain] = createSignal(terrainOption);
     const [imageLayers, setImageLayers] = createSignal([] as WesImageryLayer[], {
         equals: false
@@ -202,7 +198,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
     const [baseLayers, setBaseLayers] = createSignal([] as WesImageryLayer[], {
         equals: false
     });
-    const [datasources, setDatasources] = createSignal([] as WesDataSource[], {
+    const [datasources, setDatasources] = createSignal([] as (WesDataSource | KmlDataSource | GeoJsonDataSource)[], {
         equals: false
     });
     const [terrainSets, setTerrainSets] = createSignal([] as WesTerrainObject[]);
@@ -210,18 +206,15 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         equals: false
     });
     (window as CesiumWindow).optionsMap = optionsMap;
-    const [selectedTerrainSet, setSelectedTerrainSet] = createSignal([] as WesTerrainObject[], {
-        equals: false
-    });
-    const [isLoading, setIsLoading] = createSignal()
-    const [loadingRequestMap, setLoadingRequestMap] = createSignal(new Map(), {})
+    const [isLoading, setIsLoading] = createSignal(LoadingRequestCode.UNSET);
+    const [loadingRequestMap, setLoadingRequestMap] = createSignal(new Map(), {});
     const [selectedHome, setSelectedHome] = createSignal(HOME_POSITION);
     const [timeMap, setTimeMap] = createSignal(new Map(), { equals: false });
     (window as CesiumWindow).timeMap = timeMap;
     (window as CesiumWindow).setTimeMap = setTimeMap;
     const [displayClock, setDisplayClock] = createSignal(false);
     const [clockStore, setClockStore] = createStore(viewer.clock);
-    const [sourcesWithLegends, setSourcesWithLegends] = createSignal([], {
+    const [sourcesWithLegends, setSourcesWithLegends] = createSignal([] as LegendSource[], {
         equals: false
     });
     (window as CesiumWindow).sourcesWithLegends = sourcesWithLegends;
@@ -268,22 +261,20 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         if (parsedMessage.type === "LOADING_NOTIFIER") {
             setIsLoading(LoadingRequestCode.STARTED);
             loadingRequestMap().set(
-                parsedMessage.uuid, 
-                setTimeout(
-                    () => {
-                        setIsLoading(LoadingRequestCode.ERROR)
-                        loadingRequestMap().delete(parsedMessage.uuid)
-                    }, 30000
-                )
-            )
+                parsedMessage.uuid,
+                setTimeout(() => {
+                    setIsLoading(LoadingRequestCode.ERROR);
+                    loadingRequestMap().delete(parsedMessage.uuid);
+                }, 30000)
+            );
         } else if (parsedMessage.type === "LOADING_FAILED_NOTIFIER") {
             setIsLoading(LoadingRequestCode.ERROR);
-            clearTimeout(loadingRequestMap().get(parsedMessage.uuid))
-            loadingRequestMap().delete(parsedMessage.uuid)
+            clearTimeout(loadingRequestMap().get(parsedMessage.uuid));
+            loadingRequestMap().delete(parsedMessage.uuid);
         } else {
             addLayerFromBackend(parsedMessage);
-            clearTimeout(loadingRequestMap().get(parsedMessage.uuid))
-            loadingRequestMap().delete(parsedMessage.uuid)
+            clearTimeout(loadingRequestMap().get(parsedMessage.uuid));
+            loadingRequestMap().delete(parsedMessage.uuid);
             setIsLoading(LoadingRequestCode.FINISHED);
         }
     });
@@ -378,7 +369,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                                 dataSource._renderedPrimitive = undefined;
                                 if (dataSource._hasLegend) {
                                     setSourcesWithLegends(
-                                        sourcesWithLegends().filter((source: any) => source.uid !== dataSource.uid)
+                                        sourcesWithLegends().filter(source => source.uid !== dataSource.uid)
                                     );
                                 }
                                 (window as CesiumWindow).Map3DViewer.dataSources.remove(dataSource, true);
@@ -469,9 +460,9 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             ) {
                 if (!datasources().includes(source)) {
                     optionsMap().delete(source);
-                    if (timeMap().has(source.uid)) {
+                    if (timeMap().has((source as WesDataSource).uid)) {
                         const tempTimeMap = timeMap();
-                        tempTimeMap.delete(source.uid);
+                        tempTimeMap.delete((source as WesDataSource).uid);
                         setTimeMap(tempTimeMap);
                     }
                 }
@@ -483,7 +474,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         const sources = datasources();
         sources.forEach(datasource => {
             for (const option of map.values()) {
-                if (option.uid === datasource.uid) {
+                if (option.uid === (datasource as WesDataSource).uid) {
                     mapStateOptions.add(option);
                     return;
                 }
@@ -520,9 +511,9 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             }
             if (source instanceof ImageryLayer && inBaseLayers === false && inImageLayers === false) {
                 optionsMap().delete(source);
-                if (timeMap().has(source.uid)) {
+                if (timeMap().has((source as WesImageryLayer).uid)) {
                     const tempTimeMap = timeMap();
-                    tempTimeMap.delete(source.uid);
+                    tempTimeMap.delete((source as WesImageryLayer).uid);
                     setTimeMap(tempTimeMap);
                 }
             }
@@ -594,9 +585,6 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         mapState = Controller.getMapState();
         imageryOptions = mapState.imageLayers;
         basemapOptions = mapState.baseMapLayers;
-        dataSourceOptions = mapState.dataSources;
-        primitiveOptions = mapState.primitiveLayers;
-        terrainOptions = mapState.terrainSets;
     }
 
     /**
@@ -923,7 +911,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                 case "ionResource":
                     return new IonImageryProvider({
                         assetId: option.IonResourceAssetId
-                    } as any);
+                    } as IonImageryProvider.ConstructorOptions);
 
                 default:
                     throw t("3dMapGetImageryProviderError1");
@@ -946,7 +934,9 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         }
         let tileset;
         if (option?.name === "Open Street Map Buildings") {
-            tileset = primitiveLayers.add(await createOsmBuildingsAsync({ projectTo2D: true }));
+            tileset = primitiveLayers.add(
+                await createOsmBuildingsAsync({ projectTo2D: true } as Cesium3DTileset.ConstructorOptions)
+            );
             tileset.style = BLUE_TILE_STYLE;
             tileset.serviceInfo = {
                 serviceId: standAloneLayersServiceUID,

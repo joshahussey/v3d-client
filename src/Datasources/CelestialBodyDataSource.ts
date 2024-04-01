@@ -12,7 +12,7 @@ import {
     Viewer
 } from "cesium";
 import WesDataSource from "./WesDataSource";
-import { CesiumWindow, ServiceInfo } from "../Wes";
+import { CesiumWindow, ServiceInfo, LegendSource } from "../Wes";
 import { Kilometer, EciVec3, eciToGeodetic, gstime, propagate, twoline2satrec } from "satellite.js";
 import { DatasourceTypes } from "../Constants";
 const CesiumClient = window as CesiumWindow;
@@ -44,7 +44,7 @@ export default class CelestialBodyDataSource extends WesDataSource {
             CesiumClient.setTimeMap(tempTimeMap);
 
             const sourcesWithLegends = CesiumClient.sourcesWithLegends();
-            const source = sourcesWithLegends.find((src: any) => src.uid == this.uid);
+            const source = sourcesWithLegends.find((src: LegendSource)  => src.uid == this.uid);
             if (JulianDate.lessThan(this._viewer.clock.currentTime, source.lowerTimeBound)) {
                 source.lowerTimeBound = this._viewer.clock.currentTime;
             }
@@ -142,12 +142,12 @@ export default class CelestialBodyDataSource extends WesDataSource {
                 currentTime: JulianDate.fromDate(this._date),
                 lowerTimeBound: JulianDate.fromDate(this._firstDate),
                 upperTimeBound: JulianDate.fromDate(this._lastDate)
-            });
+            } as LegendSource);
             CesiumClient.setSourcesWithLegends(sourcesWithLegends);
         } else {
             tempTimeMap.delete(this.uid);
             CesiumClient.setSourcesWithLegends(
-                CesiumClient.sourcesWithLegends().filter((source: any) => source.uid !== this.uid)
+                CesiumClient.sourcesWithLegends().filter((source: LegendSource) => source.uid !== this.uid)
             );
         }
         CesiumClient.setTimeMap(tempTimeMap);
@@ -240,7 +240,7 @@ export default class CelestialBodyDataSource extends WesDataSource {
 
         // Update the upper bound time for the service to the new end time.
         const sourcesWithLegends = CesiumClient.sourcesWithLegends();
-        const source = sourcesWithLegends.find((src: any) => src.uid == this.uid);
+        const source = sourcesWithLegends.find((src: LegendSource) => src.uid == this.uid);
         source.upperTimeBound = julianEndTime;
         CesiumClient.setSourcesWithLegends(sourcesWithLegends);
 
