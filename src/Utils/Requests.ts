@@ -1,5 +1,5 @@
 import { BBox } from "geojson";
-import { OGCFeature } from "../Wes";
+import { OGCFeature } from "../types";
 import { Resource } from "cesium";
 
 export async function requestFeatures(bbox: BBox, url: string) {

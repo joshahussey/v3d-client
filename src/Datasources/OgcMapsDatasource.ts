@@ -7,7 +7,7 @@ import {
     Viewer,
     Rectangle
 } from "cesium";
-import { ServiceInfo, ImageryBounds } from "../Wes";
+import { ServiceInfo, ImageryBounds } from "../types";
 import WesDataSource from "./WesDataSource";
 
 export default class OgcMapsDatasource extends WesDataSource {

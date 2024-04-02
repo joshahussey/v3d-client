@@ -17,7 +17,7 @@ import {
     ScaleDenominator,
     SortedXmlRules,
     UserStyleDefinition
-} from "../Wes";
+} from "../types";
 import WesDataSource from "../Datasources/WesDataSource";
 import CoverageApiDataSource from "../Datasources/CoverageApiDataSource";
 import { translate as t } from "../i18n/Translator";

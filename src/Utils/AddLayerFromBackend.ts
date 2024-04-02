@@ -1,5 +1,5 @@
 import { AddRequestObject } from "../3dMapControllerTypes";
-import { CesiumWindow } from "../Wes";
+import { CesiumWindow } from "../types";
 const Controller = (window as CesiumWindow).Map3DController;
 
 export async function addLayerFromBackend(parsedMessage: any) {

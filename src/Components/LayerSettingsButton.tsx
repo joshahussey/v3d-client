@@ -1,6 +1,6 @@
 import { JSX, createSignal, createEffect, Accessor } from "solid-js";
 import { LayerSettingsMenu } from "./LayerSettingsMenu";
-import { Wes3DTileSet, Wes3dMapLayer, WesImageryLayer } from "../Wes";
+import { Wes3DTileSet, Wes3dMapLayer, WesImageryLayer } from "../types";
 
 /**
  * @param {Accessor<boolean>} props.opened Whether the layer settings is expanded.

@@ -10,34 +10,52 @@ import {
     ImageryLayerCollection,
     DataSourceCollection,
     Color,
-    GroundPrimitive
+    GroundPrimitive,
+    HorizontalOrigin,
+    VerticalOrigin,
+    Scene,
+    EntityCollection,
+    EntityCluster,
+    Rectangle,
+    JulianDate,
+    GeoJsonDataSource,
+    PrimitiveCollection,
+    WebMapServiceImageryProvider,
+    WebMapTileServiceImageryProvider,
+    ArcGisMapServerImageryProvider,
+    IonImageryProvider,
+    Cesium3DTileStyle,
+    PolylineOutlineMaterialProperty,
+    ShadowMode,
+    ColorBlendMode,
+    LabelStyle,
+    Material
 } from "cesium";
 import CoverageApiDataSource from "./Datasources/CoverageApiDataSource";
-import { Setter } from "solid-js";
-import { warn } from "console";
-interface WesDatasources extends DataSourceCollection {
+import { Accessor, Setter } from "solid-js";
+import CelestialBodyDataSource from "./Datasources/CelestialBodyDataSource";
+export interface WesDatasources extends DataSourceCollection {
     _dataSources: WesDataSource[];
 }
-
-interface WesImagerylayers extends ImageryLayerCollection {
+export interface WesImagerylayers extends ImageryLayerCollection {
     _layers: WesImageryLayer[];
 }
 
-type CoverageResponse = {
+export type CoverageResponse = {
     type: "Coverage";
     domain: CoverageDomain;
     parameters: CoverageParameters;
     ranges: CoverageRanges;
 };
 
-type CoverageDomain = {
+export type CoverageDomain = {
     type: "Domain";
     domainType: CoverageDomainTypes;
     axes: CoverageDomainAxes;
     referencing: CoverageReferencing;
 };
 
-type CoverageParameters = {
+export type CoverageParameters = {
     [key: string]: {
         type: string;
         description: string;
@@ -46,7 +64,7 @@ type CoverageParameters = {
     };
 };
 
-type CoverageRanges = {
+export type CoverageRanges = {
     [key: string]: {
         type: string;
         dataType: string;
@@ -56,8 +74,8 @@ type CoverageRanges = {
     };
 };
 
-type CoverageDomainTypes = "Grid";
-type CoverageDomainAxes = {
+export type CoverageDomainTypes = "Grid";
+export type CoverageDomainAxes = {
     [key: string]: CoverageAxis | { values: string[] } | undefined;
     x: CoverageAxis;
     y: CoverageAxis;
@@ -65,28 +83,28 @@ type CoverageDomainAxes = {
     t?: { values: string[] };
 };
 
-type CoverageReferencing = CoverageReferenceObject[];
+export type CoverageReferencing = CoverageReferenceObject[];
 
-type CoverageUnit = {
+export type CoverageUnit = {
     unit: {
         symbol: string;
     };
 };
 
-type CoverageProperty = {
+export type CoverageProperty = {
     id: string;
     label: { [key: string]: string };
 };
 
-type CoverageAxis = AxesRange | number[];
+export type CoverageAxis = AxesRange | number[];
 
-type AxesRange = {
+export type AxesRange = {
     start: number;
     stop: number;
     num: number;
 };
 
-type CoverageReferenceObject = {
+export type CoverageReferenceObject = {
     coordinates: keyof CoverageDomainAxes;
     system: {
         [key: string]: string;
@@ -94,7 +112,7 @@ type CoverageReferenceObject = {
     };
 };
 
-type LegendSource = {
+export type LegendSource = {
     uid: string;
     minValue?: number;
     maxValue?: number;
@@ -105,24 +123,22 @@ type LegendSource = {
     upperTimeBound: JulianDate;
     symbolizer?: CesiumRasterSymbolizer
 }
-
-interface CoverageAxesObject extends Object {
+export interface CoverageAxesObject extends Object {
     x: AxisObject;
     y: AxisObject;
 }
 
-type FeaturesCollectionTemporal = {
+export type FeaturesCollectionTemporal = {
     interval: string[][];
     resolution: string;
     trs: string;
 };
-
-interface AxisObject extends Object {
+export interface AxisObject extends Object {
     start: number;
     stop: number;
     num: number;
 }
-type CesiumWindow = Window &
+export type CesiumWindow = Window &
     typeof globalThis & {
         aoiBufferPrimitives?: Array<GroundPrimitive>;
         sourcesWithLegends: Accessor<LegendSource[]>;
@@ -133,14 +149,14 @@ type CesiumWindow = Window &
         Map3DController: Map3DController;
         optionsMap: Accessor<any>;
     };
-type WesTerrainObject = {
+export type WesTerrainObject = {
     uid: string;
     name: string;
     url: string;
     type: "Terrain";
 };
 
-type WesImageryObject = {
+export type WesImageryObject = {
     uid: string;
     type: string;
     cesiumBuiltinType?: string;
@@ -163,7 +179,7 @@ type WesImageryObject = {
     bounds: ImageryBounds;
 };
 
-type WesPrimitiveObject = {
+export type WesPrimitiveObject = {
     uid: string;
     name: string;
     type: string;
@@ -172,7 +188,7 @@ type WesPrimitiveObject = {
     serviceInfo: ServiceInfo;
 };
 
-type WesDataSourceObject = {
+export type WesDataSourceObject = {
     description: string;
     uid: string;
     name: string;
@@ -185,22 +201,21 @@ type WesDataSourceObject = {
     bounds: ImageryBounds;
 };
 
-type WesLayerPropertiesObject = WesImageryObject | WesDataSourceObject | WesPrimitiveObject | WesTerrainObject;
+export type WesLayerPropertiesObject = WesImageryObject | WesDataSourceObject | WesPrimitiveObject | WesTerrainObject;
 
-type ServiceInfo = {
+export type ServiceInfo = {
     serviceTitle: string;
     serviceId: string;
     serviceUrl: string;
 };
 
-type ImageryBounds = {
+export type ImageryBounds = {
     minX: number;
     minY: number;
     maxX: number;
     maxY: number;
 }
-
-interface WesGeoJsonDataSource extends GeoJsonDataSource {
+export interface WesGeoJsonDataSource extends GeoJsonDataSource {
     description: string;
     uid: string;
     name: string;
@@ -211,8 +226,7 @@ interface WesGeoJsonDataSource extends GeoJsonDataSource {
     serviceInfo: ServiceInfo;
     bounds: ImageryBounds;
 }
-
-interface WesImageryLayer extends ImageryLayer {
+export interface WesImageryLayer extends ImageryLayer {
     name: string;
     uid: string;
     type: string;
@@ -230,34 +244,34 @@ interface WesImageryLayer extends ImageryLayer {
     description: string;
     serviceInfo: ServiceInfo;
 }
-interface WesPrimitiveCollection extends PrimitiveCollection {
+export interface WesPrimitiveCollection extends PrimitiveCollection {
     name?: string;
     uid?: string;
     url: string;
 }
-interface WesWebMapServiceImageryProvider extends WebMapServiceImageryProvider {
+export interface WesWebMapServiceImageryProvider extends WebMapServiceImageryProvider {
     name?: string;
 }
-interface WesWebMapTileServiceImageryProvider extends WebMapTileServiceImageryProvider {
+export interface WesWebMapTileServiceImageryProvider extends WebMapTileServiceImageryProvider {
     name?: string;
 }
-interface WesArcGisMapServerImageryProvider extends ArcGisMapServerImageryProvider {
+export interface WesArcGisMapServerImageryProvider extends ArcGisMapServerImageryProvider {
     name?: string;
 }
-interface Wes3DTileSet extends Cesium3DTileset {
+export interface Wes3DTileSet extends Cesium3DTileset {
     _url: string;
     name: string;
     type: string;
     uid: string;
     enabled?: boolean;
 }
-type WesImageryProvider =
+export type WesImageryProvider =
     | WesWebMapServiceImageryProvider
     | WesWebMapTileServiceImageryProvider
     | WesArcGisMapServerImageryProvider
     | IonImageryProvider;
 
-type Wes3dMapLayer =
+export type Wes3dMapLayer =
     | WesImageryLayer
     | WesPrimitiveCollection
     | FeaturesApiDataSource
@@ -266,13 +280,13 @@ type Wes3dMapLayer =
     | CoverageApiDataSource
     | Wes3DTileSet;
 
-type ChangeFlag = {
+export type ChangeFlag = {
     layers: boolean;
     primitives: boolean;
     dataSources: boolean;
 } | null;
-type Map3DController = any;
-type MapState = {
+export type Map3DController = any;
+export type MapState = {
     accessToken: string;
     googleToken: string;
     baseMapLayers: WesImageryObject[];
@@ -283,8 +297,7 @@ type MapState = {
     cameraPosition: number[];
     saveLayerParameters: { show: boolean; alpha?: number; uid: string }[];
 };
-
-interface cesiumViewModel {
+export interface cesiumViewModel {
     layers: Array<any>;
     tileSets: Array<any>;
     baseLayers: Array<any>;
@@ -322,19 +335,18 @@ interface cesiumViewModel {
     isFeaturesApiDataSource: Function;
     osmStyle: Cesium3DTileStyle;
 }
-type UserStyleDefinition = {
+export type UserStyleDefinition = {
     index: number;
     name: string;
     dataSource: WesDataSource;
 };
-type Cluster = [boolean, number, number, number, number];
-type FeatureArray = OGCFeature[];
-type PixelPosition = [number, number];
-type GeoJSONCoordinate = [number, number, number];
-type FeatureWeightIdentifier = [number, number, number, Set<number>];
-type JsonCluster = [...Cluster, number];
-type FeaturesJson = Array<JsonCluster | OGCFeature>;
-interface OGCFeature extends GeoJSON.Feature {
+export type Cluster = [boolean, number, number, number, number];
+export type FeatureArray = OGCFeature[];
+export type PixelPosition = [number, number];
+export type GeoJSONCoordinate = [number, number, number];
+export type FeatureWeightIdentifier = [number, number, number, Set<number>];
+export type JsonCluster = [...Cluster, number];
+export type FeaturesJson = Array<JsonCluster | OGCFeature>;export interface OGCFeature extends GeoJSON.Feature {
     id: string;
     name?: string;
     screenSpaceCoordinate: Cartesian2;
@@ -346,17 +358,17 @@ interface OGCFeature extends GeoJSON.Feature {
     numberInCluster: number;
 }
 
-type CesiumPolylineDescriptor = {
+export type CesiumPolylineDescriptor = {
     material: PolylineOutlineMaterialProperty;
     width: number;
 };
 
-type CesiumLineDescriptor = {
+export type CesiumLineDescriptor = {
     material: Color;
     width: number;
 };
 
-type TddRule = {
+export type TddRule = {
     Name?: string;
     Title?: string;
     Abstract?: string;
@@ -368,7 +380,7 @@ type TddRule = {
     RasterSymbolizer?: TddRasterSymbolizer;
 };
 
-type TddFilter = {
+export type TddFilter = {
     PropertyIsEqualTo?: TddPropertyComparisonFilter;
     PropertyIsNotEqualTo?: TddPropertyComparisonFilter;
     PropertyIsLessThan?: TddPropertyComparisonFilter;
@@ -381,30 +393,30 @@ type TddFilter = {
     Or?: TddFilter[];
 };
 
-type TddPropertyComparisonFilter = {
+export type TddPropertyComparisonFilter = {
     PropertyName: string;
     Literal: string | number;
 };
 
-type TddPropertyExistsFilter = {
+export type TddPropertyExistsFilter = {
     PropertyName: string;
 };
 
-type TddPointSymbolizer = {
+export type TddPointSymbolizer = {
     Point?: PointProperty;
     Model?: ModelProperty;
     Label?: LabelProperty;
     Billboard?: BillboardProperty;
 };
 
-type pointProperty = {
+export type PointProperty = {
     Color: RGBA;
     OutlineColor?: RGBA;
     OutlineWidth?: number;
     Size: number;
 };
 
-type ModelProperty = {
+export type ModelProperty = {
     url: string;
     Scale?: number;
     MinimumPixelSize?: number;
@@ -427,9 +439,9 @@ type ModelProperty = {
     };
 };
 
-type RGBA = [number, number, number, number];
+export type RGBA = [number, number, number, number];
 
-type LabelProperty = {
+export type LabelProperty = {
     Text: string | { PropertyName: string };
     Font?: font;
     LabelStyle?: LabelStyle;
@@ -457,7 +469,7 @@ type LabelProperty = {
     };
 }
 
-type BillboardProperty = {
+export type BillboardProperty = {
     Image: string;
     Scale?: number;
     PixelOffset?: {
@@ -482,7 +494,7 @@ type BillboardProperty = {
     };
 };
 
-type TddPolygonSymbolizer = {
+export type TddPolygonSymbolizer = {
     ExtrudedHeight?: number;
     TextureRotation?: number;
     Fill?: boolean;
@@ -496,9 +508,9 @@ type TddPolygonSymbolizer = {
     ZIndex?: number;
 };
 
-type FormattedUserStyles = FormattedFeatureTypeStyleRules[];
-type FormattedFeatureTypeStyleRules = FormattedFeatureTypeStyleRule[];
-type FormattedFeatureTypeStyleRule = {
+export type FormattedUserStyles = FormattedFeatureTypeStyleRules[];
+export type FormattedFeatureTypeStyleRules = FormattedFeatureTypeStyleRule[];
+export type FormattedFeatureTypeStyleRule = {
     filters: FilterObject[];
     maxScaleDenominator: ScaleDenominator[];
     minScaleDenominator: ScaleDenominator[];
@@ -507,26 +519,25 @@ type FormattedFeatureTypeStyleRule = {
     polygonSymbolizers: CesiumPolygonSymbolizer[];
     textSymbolizers: CesiumTextSymbolizer[];
     rasterSymbolizers: CesiumRasterSymbolizer[];
-};
-interface FilterObject {
+};export interface FilterObject {
     operator: "and" | "or" | null;
     comparisons: any;
 }
-type ScaleDenominator = number;
-type CesiumPointSymbolizer = {
+export type ScaleDenominator = number;
+export type CesiumPointSymbolizer = {
     size: number;
     headingKey: string;
     externalGraphicUrl: string;
 };
-type CesiumLineSymbolizer = CesiumPolylineDescriptor | CesiumLineDescriptor;
-type CesiumPolygonSymbolizer = {
+export type CesiumLineSymbolizer = CesiumPolylineDescriptor | CesiumLineDescriptor;
+export type CesiumPolygonSymbolizer = {
     outlineColor: Color;
     outlineAlpha: number;
     outlineWidth: number;
     fillColor: Color;
     fillAlpha: number;
 };
-type CesiumTextSymbolizer = {
+export type CesiumTextSymbolizer = {
     font: string;
     fontSize: string;
     color: Color;
@@ -537,15 +548,14 @@ type CesiumTextSymbolizer = {
     pixelOffset: Cartesian2;
     textKey: string;
 };
-type ColorMapEntry = {
+export type ColorMapEntry = {
     color: Color;
     quantity: number;
 };
-type CesiumRasterSymbolizer = {
+export type CesiumRasterSymbolizer = {
     opacity: number;
     colorMap: ColorMapEntry[];
-};
-interface SortedXmlRules {
+};export interface SortedXmlRules {
     filters: (Element | FilterObject)[];
     minScaleDenominators: (Element | ScaleDenominator)[];
     maxScaleDenominators: (Element | ScaleDenominator)[];
@@ -555,8 +565,7 @@ interface SortedXmlRules {
     polygonSymbolizers: (Element | CesiumPolygonSymbolizerObject)[];
     rasterSymbolizers: (Element | CesiumRasterSymbolizerObject)[];
 }
-
-interface FeatureClusters {
+export interface FeatureClusters {
     Constructor: FeatureClusters;
     _minimumDistance: number;
     _minimumClusterSize: number;
@@ -564,19 +573,16 @@ interface FeatureClusters {
     _clusters: Cluster[];
     _scene: Scene;
 }
-type GeoJsonGetAllResult = [Array<indexedPoint>, Array<indexedLine>, Array<indexedPolygon>];
-
-interface GeoJsonGeometry {
+export type GeoJsonGetAllResult = [Array<indexedPoint>, Array<indexedLine>, Array<indexedPolygon>];
+export interface GeoJsonGeometry {
     type: "Point" | "MultiPoint" | "LineString" | "MultiLineString" | "Polygon" | "MultiPolygon" | "GeometryCollection";
     coordinates?: [];
 }
-
-interface GeoJsonAoi {
+export interface GeoJsonAoi {
     geometry: GeoJsonGeometry;
     properties?: any;
 }
-
-interface ViewRecord {
+export interface ViewRecord {
     id: bigint;
     title: string;
     description?: string;

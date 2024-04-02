@@ -1,5 +1,5 @@
 import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
-import { CesiumWindow } from "../Wes";
+import { CesiumWindow } from "../types";
 import { JSX, createEffect } from "solid-js";
 import { Geocoder } from "cesium";
 import ClickOutsideToolbar from "./Directives/ClickOutsideToolbar";

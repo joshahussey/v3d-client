@@ -14,7 +14,7 @@ import {
 } from "cesium";
 import WesDataSource from "./WesDataSource";
 import { AOI_COLOR, AOI_DATASOURCE_ID, AOI_DRAW_PIXEL_WIDTH, BUFFER_COLOR } from "../Constants";
-import { CesiumWindow, GeoJsonAoi, ServiceInfo } from "../Wes";
+import { CesiumWindow, GeoJsonAoi, ServiceInfo } from "../types";
 import { translate as t } from "../i18n/Translator";
 
 type AoiDrawables = {

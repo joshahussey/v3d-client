@@ -32,7 +32,7 @@ import {
     ServiceInfo,
     ImageryBounds,
     LegendSource
-} from "../Wes";
+} from "../types";
 import { SldParse } from "../Utils/Wes3dSldStyler";
 import { translate as t } from "../i18n/Translator"
 

@@ -3,7 +3,7 @@ import { ImageryEntry } from "./ImageryEntry";
 import { PrimitiveEntry } from "./PrimitiveEntry";
 import { DatasourceEntry } from "./DatasourceEntry";
 import { ServiceEntryInput } from "./LayersDiv";
-import { WesImageryLayer, Wes3DTileSet } from "../Wes";
+import { WesImageryLayer, Wes3DTileSet } from "../types";
 import WesDataSource from "../Datasources/WesDataSource";
 import { ImageryLayer, Cesium3DTileset, KmlDataSource } from "cesium";
 import { useToolbarStateContext, ServiceStatusEntry, ToolbarContextType } from "../Context/ToolbarStateContext";

@@ -1,5 +1,5 @@
 import { Accessor, Setter, createContext, useContext } from "solid-js";
-import { LegendSource, Wes3DTileSet, WesImageryLayer, WesTerrainObject } from "../Wes";
+import { LegendSource, Wes3DTileSet, WesImageryLayer, WesTerrainObject } from "../types";
 import WesDataSource from "../Datasources/WesDataSource";
 import { Clock, GeoJsonDataSource, KmlDataSource } from "cesium";
 import { SetStoreFunction } from "solid-js/store";

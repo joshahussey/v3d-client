@@ -1,5 +1,5 @@
 import { JSX, Show, createSignal, Accessor } from "solid-js";
-import { Wes3DTileSet } from "../Wes";
+import { Wes3DTileSet } from "../types";
 import { ShowOnMapCheckbox } from "./ShowOnMapCheckbox";
 import { makeCheckboxStatus } from "./ServiceEntry";
 import { LayerSettingsButton } from "./LayerSettingsButton";

@@ -1,29 +1,6 @@
 name: standalone3d
 
 services:
-  server:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-      args:
-        BACKEND_PORT_ARG: $BACKEND_PORT
-        CERTS_DIR_ARG: $CERTS_DIR
-        TLS_CERT_LOC_ARG: $TLS_CERT_LOC
-        TLS_KEY_LOC_ARG: $TLS_KEY_LOC
-        DOMAIN_NAME_ARG: $DOMAIN_NAME
-        ROOT_DIR_3D_ARG: $ROOT_DIR_3D
-        HTTP_PORT_ARG: $HTTP_PORT
-        HTTPS_PORT_ARG: $HTTPS_PORT
-        ADMIN_PORT_ARG: $ADMIN_PORT
-        CADDYFILE: $CADDYFILE
-    ports:
-      - "$HTTP_PORT:$HTTP_PORT"
-      - "$HTTPS_PORT:$HTTPS_PORT"
-      - "$ADMIN_PORT:$ADMIN_PORT"
-    volumes:
-      - docker_web:/srv
-      - ./logs/:/cslt/logs
-      - $CERTS_DIR:/certs
   frontend:
     build:
       context: .
@@ -35,7 +12,7 @@ services:
         HTTPS_PORT_ARG: $HTTPS_PORT
         ADMIN_PORT_ARG: $ADMIN_PORT
     volumes:
-      - docker_web:/cslt/web
+      - /opt/standalone/web:/cslt/web
   backend:
     ports:
       - "$BACKEND_PORT:$BACKEND_PORT"
@@ -46,7 +23,4 @@ services:
         BACKEND_PORT_ARG: $BACKEND_PORT
     volumes:
       - ./logs/:/cslt/backend/logs
-      - docker_web:/cslt/web
-volumes: 
-  docker_web:
-    driver: local
+      - /opt/standalone/web:/cslt/web

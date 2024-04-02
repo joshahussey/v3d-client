@@ -1,5 +1,5 @@
 import { Rectangle, Matrix4, Cartesian3, BoundingSphere } from "cesium";
-import { CesiumWindow, WesImageryLayer, Wes3dMapLayer, Wes3DTileSet } from "../Wes";
+import { CesiumWindow, WesImageryLayer, Wes3dMapLayer, Wes3DTileSet } from "../types";
 import CoverageApiDataSource from "../Datasources/CoverageApiDataSource";
 import CelestialBodyDataSource from "../Datasources/CelestialBodyDataSource";
 import { JSX } from "solid-js";

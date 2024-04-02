@@ -12,7 +12,7 @@ import {
     CustomDataSource
 } from "cesium";
 import { BBox } from "geojson";
-import { UserStyleDefinition, ServiceInfo } from "../Wes";
+import { UserStyleDefinition, ServiceInfo } from "../types";
 import { translate as t } from "../i18n/Translator";
 
 const MOVEMENT_DELAY_MS = 50;

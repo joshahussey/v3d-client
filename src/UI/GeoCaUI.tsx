@@ -4,7 +4,7 @@ import { InterfaceProvider } from "../Context/UIContext";
 import { ExpandedMenu, ToolbarNav } from "../Components/Components";
 import { Slider } from "../Components/Slider";
 import { Legend } from "../Components/Legend";
-import { CesiumWindow } from "../Wes";
+import { CesiumWindow } from "../types";
 import { translate as t } from "../i18n/Translator";
 import { LoadingIndicator } from "../Components/LoadingIndicator";
 

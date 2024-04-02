@@ -2,7 +2,7 @@ import { Accessor, Setter } from "solid-js";
 import FeaturesApiDataSource from "../Datasources/FeaturesApiDataSource";
 import { Cartesian3, Cesium3DTileset, ImageryLayer, Rectangle, Viewer } from "cesium";
 import CelestialBodyDataSource from "../Datasources/CelestialBodyDataSource";
-import { CesiumWindow } from "../Wes";
+import { CesiumWindow } from "../types";
 
 function enumKeys<O extends object, K extends keyof O = keyof O>(obj: O): K[] {
     return Object.keys(obj).filter(k => Number.isNaN(+k)) as K[];

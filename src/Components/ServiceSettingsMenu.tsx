@@ -1,5 +1,5 @@
 import { JSX } from "solid-js";
-import { WesImageryLayer, Wes3DTileSet } from "../Wes";
+import { WesImageryLayer, Wes3DTileSet } from "../types";
 import WesDataSource from "../Datasources/WesDataSource";
 import { RemoveLayerSettingsMenuItem } from "./RemoveLayerSettingsMenuItem";
 

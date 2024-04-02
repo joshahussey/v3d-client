@@ -1,5 +1,5 @@
 import { JSX, Show } from "solid-js";
-import { ServiceInfo, Wes3DTileSet, WesImageryLayer } from "../Wes";
+import { ServiceInfo, Wes3DTileSet, WesImageryLayer } from "../types";
 import WesDataSource from "../Datasources/WesDataSource";
 import { LayersOrderDiv } from "./LayersOrderDiv";
 import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";

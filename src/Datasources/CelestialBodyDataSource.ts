@@ -12,7 +12,7 @@ import {
     Viewer
 } from "cesium";
 import WesDataSource from "./WesDataSource";
-import { CesiumWindow, ServiceInfo, LegendSource } from "../Wes";
+import { CesiumWindow, ServiceInfo, LegendSource } from "../types";
 import { Kilometer, EciVec3, eciToGeodetic, gstime, propagate, twoline2satrec } from "satellite.js";
 import { DatasourceTypes } from "../Constants";
 const CesiumClient = window as CesiumWindow;

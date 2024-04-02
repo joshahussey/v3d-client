@@ -1,6 +1,6 @@
-import { createEffect, createResource, createSignal, For, Show, Signal, Suspense } from "solid-js";
+import { createEffect, createResource, createSignal, For, JSX, Show, Signal, Suspense } from "solid-js";
 import { createStore, reconcile, unwrap } from "solid-js/store";
-import { CesiumWindow, ViewRecord } from "../Wes";
+import { CesiumWindow, ViewRecord } from "../types";
 import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { applyViewParameters, loadViewParameters } from "../Utils/SaveView";
 import { zoomToLoadedView } from "../Utils/SaveView";
@@ -10,7 +10,7 @@ import { EditView } from "./EditView";
 /**
  * @returns {JSX.Element} A JSX Element representing the Load View panel.
  */
-export function LoadView() {
+export function LoadView(): JSX.Element {
     const [resource, { refetch }] = createResource(fetchViews, {
         storage: createDeepSignal
     });

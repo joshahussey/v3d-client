@@ -1,5 +1,5 @@
 import WesDataSource from "../Datasources/WesDataSource";
-import { CesiumWindow, Wes3DTileSet, WesImageryLayer } from "../Wes";
+import { CesiumWindow, Wes3DTileSet, WesImageryLayer } from "../types";
 import {
     BoundingSphere,
     Cartesian3,

@@ -2,7 +2,7 @@ import { UIContextType, useInterfaceContext } from "../Context/UIContext";
 import { Show, createEffect, onMount } from "solid-js";
 import { JulianDate, Timeline } from "cesium";
 import Moment from "moment";
-import { CesiumWindow } from "../Wes";
+import { CesiumWindow } from "../types";
 
 const CesiumClient = window as CesiumWindow;
 let timeLineMounted = false;

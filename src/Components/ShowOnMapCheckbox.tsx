@@ -1,5 +1,5 @@
 import { Cesium3DTileset, GeoJsonDataSource, ImageryLayer, KmlDataSource } from "cesium";
-import { Wes3DTileSet, Wes3dMapLayer, WesImageryLayer } from "../Wes";
+import { Wes3DTileSet, Wes3dMapLayer, WesImageryLayer } from "../types";
 import WesDataSource from "../Datasources/WesDataSource";
 import { JSX, createSignal, Accessor, createEffect } from "solid-js";
 import CoverageApiDataSource from "../Datasources/CoverageApiDataSource";

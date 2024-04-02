@@ -1,5 +1,5 @@
 import { Cesium3DTileset, GeoJsonDataSource, ImageryLayer, KmlDataSource } from "cesium";
-import { CesiumWindow, Wes3DTileSet, Wes3dMapLayer, WesImageryLayer } from "../Wes";
+import { CesiumWindow, Wes3DTileSet, Wes3dMapLayer, WesImageryLayer } from "../types";
 import WesDataSource from "../Datasources/WesDataSource";
 import CoverageApiDataSource from "../Datasources/CoverageApiDataSource";
 import { UIContextType, useInterfaceContext } from "../Context/UIContext";

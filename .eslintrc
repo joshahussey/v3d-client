@@ -3,21 +3,22 @@
     "parser": "@typescript-eslint/parser",
     "plugins": [
         "@typescript-eslint",
-	"solid"
+        "solid"
     ],
     "extends": [
         "eslint:recommended",
         "plugin:@typescript-eslint/eslint-recommended",
         "plugin:@typescript-eslint/recommended",
-	"plugin:solid/recommended",
-	"plugin:solid/typescript"
+        "plugin:solid/recommended",
+        "plugin:solid/typescript"
     ],
     "rules": {
         "@typescript-eslint/no-explicit-any": "warn",
         "@typescript-eslint/no-non-null-assertion": "warn",
-	"@typescript-eslint/no-unused-vars": "warn",
-	"no-useless-escape": "warn",
-	"no-mixed-spaces-and-tabs": "warn"
+        "@typescript-eslint/no-unused-vars": "warn",
+        "solid/reactivity": "off",
+        "no-useless-escape": "warn",
+        "no-mixed-spaces-and-tabs": "warn"
     },
     "env": {
         "browser": true,

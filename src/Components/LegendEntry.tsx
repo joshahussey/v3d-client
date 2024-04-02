@@ -2,7 +2,7 @@ import { JulianDate } from "cesium";
 import Moment from "moment";
 import { DatasourceTypes } from "../Constants";
 import { Show } from "solid-js";
-import { CesiumRasterSymbolizer } from "../Wes";
+import { CesiumRasterSymbolizer } from "../types";
 export function LegendEntry(description: {
     source: {
         type: string;

@@ -1,6 +1,6 @@
 import { Cartesian3, Color, ConstantProperty, Entity, HeightReference, PolygonHierarchy } from "cesium";
 import SensorThingsDataSource from "../Datasources/SensorThingsDataSource";
-import { OGCFeature, GeoJsonGetAllResult } from "../Wes";
+import { OGCFeature, GeoJsonGetAllResult } from "../types";
 import GeoJsonDecoder from "./GeoJsonDecoder";
 import * as GeoJSON from "geojson";
 import { Feature } from "geojson";

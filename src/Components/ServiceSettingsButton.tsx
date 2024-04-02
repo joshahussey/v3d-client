@@ -1,5 +1,5 @@
 import { createSignal, createEffect } from "solid-js";
-import { Wes3DTileSet, Wes3dMapLayer, WesImageryLayer } from "../Wes";
+import { Wes3DTileSet, Wes3dMapLayer, WesImageryLayer } from "../types";
 import { ServiceSettingsMenu } from "./ServiceSettingsMenu";
 
 export function ServiceSettingsButton(props: { layers: (Wes3dMapLayer | WesImageryLayer | Wes3DTileSet)[] }): Element {

@@ -1,7 +1,7 @@
 import { createEffect, createSignal } from "solid-js";
 import { ToolbarButton } from "./ToolbarButton";
 import { SceneMode } from "cesium";
-import { CesiumWindow } from "../Wes";
+import { CesiumWindow } from "../types";
 import { translate as t } from "../i18n/Translator";
 
 export function MapModeRockerButton(): Element {

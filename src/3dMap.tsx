@@ -40,7 +40,7 @@ import {
     WesTerrainObject,
     WesWebMapTileServiceImageryProvider,
     LegendSource
-} from "./Wes";
+} from "./types";
 import { createStore } from "solid-js/store";
 import { createLiveWmsPeriodString, isLiveWms } from "./Utils/TimeParser";
 import FeaturesApiLiveDataSource from "./Datasources/FeaturesApiLiveDatasource";

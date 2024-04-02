@@ -1,5 +1,5 @@
 import { Cartesian3, Scene, SceneTransforms, Viewer } from "cesium";
-import { FeatureArray, OGCFeature } from "../Wes";
+import { FeatureArray, OGCFeature } from "../types";
 import KDBush from "kdbush";
 export default class FastFeatureClusters {
     _minimumDistance: number;

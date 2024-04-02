@@ -1,4 +1,4 @@
-import { OGCFeature } from "../Wes";
+import { OGCFeature } from "../types";
 
 export function getTddRuleMatches(rawFeature: OGCFeature, userStyle: any): any[] {
     const matchedRules = [];

@@ -1,8 +1,0 @@
-#!/usr/bin/env murex
-
-docker compose down -v --rmi all --remove-orphans
-docker image ls -qa -> xargs docker image rm -f
-docker buildx prune -a -f
-docker rm -fv
-rm -rf ./logs/*
-docker compose up --force-recreate -d

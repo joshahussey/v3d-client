@@ -1,13 +1,13 @@
 import { Cartesian3, DataSource, Math as CesiumMath, HeightReference, SceneMode, VerticalOrigin, Viewer, Entity, ConstantProperty } from "cesium";
 import { colorFromRGBGradient, rgbaToHex } from "./Utils";
 
-let defaultCache: Map<string, HTMLCanvasElement> = new Map<string, HTMLCanvasElement>();
+const defaultCache: Map<string, HTMLCanvasElement> = new Map<string, HTMLCanvasElement>();
 
 export function styleDefaultClusters(dataSource: DataSource, viewer: Viewer) {
     dataSource.clustering.clusterEvent.addEventListener(
         function (clusteredEntities, cluster) {
-            let camDist = viewer.camera.positionCartographic.height;
-            let depthDistCondition = camDist + 6378137;
+            const camDist = viewer.camera.positionCartographic.height;
+            const depthDistCondition = camDist + 6378137;
             cluster.label.show = false;
             cluster.billboard.show = true;
             cluster.billboard.id = cluster.label.id;
@@ -31,8 +31,8 @@ export function styleDefaultClusters(dataSource: DataSource, viewer: Viewer) {
 
 export function styleGeoJsonBillboard(dataSource: DataSource, viewer: Viewer) {
     dataSource.entities.collectionChanged.addEventListener(function (_collection, added, _removed) {
-        let camDist = viewer.camera.positionCartographic.height;
-        let depthDistCondition = camDist + 6378137;
+        const camDist = viewer.camera.positionCartographic.height;
+        const depthDistCondition = camDist + 6378137;
         added.forEach(function (entity: Entity) {
             if (entity.billboard) {
                 entity.billboard.disableDepthTestDistance = new ConstantProperty(depthDistCondition);

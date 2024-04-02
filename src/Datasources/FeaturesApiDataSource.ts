@@ -42,7 +42,7 @@ import {
     TddPolygonSymbolizer,
     TddRule,
     ImageryBounds
-} from "../Wes";
+} from "../types";
 import { BBox } from "geojson";
 import { LabelGraphics } from "cesium";
 import { buildLine, buildPoint, buildPolygon } from "../Utils/Utils";

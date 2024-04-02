@@ -1,6 +1,6 @@
 import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { saveViewParameters } from "../Utils/SaveView";
-import { CesiumWindow } from "../Wes";
+import { CesiumWindow } from "../types";
 import { createSignal } from "solid-js";
 import { MAX_CHARS_100, MAX_CHARS_1024, VIEWS_SERVLET_URL } from "../Constants";
 import { JSX } from "solid-js";

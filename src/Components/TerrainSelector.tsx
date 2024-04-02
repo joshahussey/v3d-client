@@ -6,7 +6,7 @@ import { cesiumBuiltInUID, googlePhotorealisticUID, osmBuildingsUID } from "../C
 import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { translate as t } from "../i18n/Translator";
 import { saveViewParameters } from "../Utils/SaveView";
-import { CesiumWindow } from "../Wes";
+import { CesiumWindow } from "../types";
 
 /**
  * Represents a component for selecting a terrain layer from available terrain sets.

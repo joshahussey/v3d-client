@@ -1,4 +1,4 @@
-import { ServiceInfo } from "./Wes";
+import { ServiceInfo } from "./types";
 
 export type WGS84BoundingBox = {
     minX: number;
