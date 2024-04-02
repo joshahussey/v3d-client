@@ -24,10 +24,8 @@ export function ToolbarNav(): JSX.Element {
     const layerOrderIcon = (
         <svg
             xmlns="http://www.w3.org/2000/svg"
-            fit=""
             preserveAspectRatio="xMidYMid meet"
             viewBox="0 0 24 24"
-            focusable="false"
             fill={isLayersOpened() && isLayersOrderOpened() ? "#212121" : "#939393"}
             class="toolbar-button-image"
         >
@@ -39,10 +37,8 @@ export function ToolbarNav(): JSX.Element {
     const basemapTerrainOpenedIcon = (
         <svg
             xmlns="http://www.w3.org/2000/svg"
-            fit=""
             preserveAspectRatio="xMidYMid meet"
             viewBox="0 0 24 24"
-            focusable="false"
             fill={isLayersOpened() && isBasemapTerrainOpened() ? "#212121" : "#939393"}
             class="toolbar-button-image"
         >
@@ -54,10 +50,8 @@ export function ToolbarNav(): JSX.Element {
     const layersOpened = (
         <svg
             xmlns="http://www.w3.org/2000/svg"
-            fit=""
             preserveAspectRatio="xMidYMid meet"
             viewBox="0 0 24 24"
-            focusable="false"
             fill={isLayersOpened() && isLayersTreeOpened() ? "#212121" : "#939393"}
             class="toolbar-button-image"
         >
@@ -69,10 +63,8 @@ export function ToolbarNav(): JSX.Element {
     const searchOpenedIcon = (
         <svg
             xmlns="http://www.w3.org/2000/svg"
-            fit=""
             preserveAspectRatio="xMidYMid meet"
             viewBox="0 0 24 24"
-            focusable="false"
             fill={isLayersOpened() && isSearchOpened() ? "#212121" : "#939393"}
             class="toolbar-button-image">
             <g id="search">

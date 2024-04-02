@@ -69,13 +69,6 @@ func HandleKml(ctx ReqContext) error {
 	defer file.Close()
 	logI(ctx.sessionID, fmt.Sprintf("Uploaded File: %+v\nFile Size: %+v\nMIME Header: %+v\n", handler.Filename, handler.Size, handler.Header), "HandleKmlFormFile")
 
-	//Make Directory To Store KMLs If Needed
-	path := "/cslt/web/services/kml/"
-	err = os.MkdirAll(path, 0777)
-	if err != nil {
-		return KE("MkdirAll", err)
-	}
-
 	//Read Bytes From Form File
 	inputFileBytes, err := io.ReadAll(file)
 	if err != nil {
@@ -90,35 +83,27 @@ func HandleKml(ctx ReqContext) error {
 	}
 	inputFileHash := fmt.Sprintf("%x", inputHasher.Sum(nil))
 
-	// Check Inilf File With Name Exists
-	kmlServicePath := "/cslt/web/services/kml/" + handler.Filename
+	// Check If Directory With Hash Exists
+	kmlServicePath := "/cslt/web/services/kml/" + inputFileHash
 	_, err = os.Stat(kmlServicePath)
 	if err == nil {
-		//Get Existing File Hash
-		existingFileBytes, err := os.ReadFile(kmlServicePath)
-		if err != nil {
-			return KE("ReadFile", err)
-		}
-		existingFileHasher := sha256.New()
-		_, err = existingFileHasher.Write(existingFileBytes)
-		if err != nil {
-			return KE("Write", err)
-		}
-		existingHash := fmt.Sprintf("%x", existingFileHasher.Sum(nil))
-
-		if inputFileHash == existingHash {
-			logI(ctx.sessionID, fmt.Sprintf("File with hash %s already exists. Sending preprocessed services...\n", inputFileHash), "HandleShapeFileExists")
-			sendKmlMessage(handler.Filename, existingHash, &client, clientFound, ctx, &errorList, &mutex)
-			layerList = append(layerList, handler.Filename)
-			sendKmlResponse(ctx, errorList, layerList)
-			return nil
-		}
+		logI(ctx.sessionID, fmt.Sprintf("File with hash %s already exists. Sending preprocessed services...\n", inputFileHash), "HandleShapeFileExists")
+		sendKmlMessage(handler.Filename, inputFileHash, &client, clientFound, ctx, &errorList, &mutex)
+		layerList = append(layerList, handler.Filename)
+		sendKmlResponse(ctx, errorList, layerList)
+		return nil
 	} else if !os.IsNotExist(err) {
 		return KE("Stat", err)
 	}
 
+	// Make the directory for the file hash
+	err = os.MkdirAll(kmlServicePath, 0777) // /cslt/web/services/kml/SHA256
+	if err != nil {
+		return KE("HandleKmlMkdir", err)
+	}
+
 	//Create The Cache File
-	kmlPath := path + handler.Filename
+	kmlPath := kmlServicePath + "/" + handler.Filename
 	cacheFile, err := os.Create(kmlPath)
 	if err != nil {
 		return KE("Create", err)
@@ -148,7 +133,7 @@ func sendKmlMessage(fileName string, serviceUid string, client *Client, clientFo
 	message := KmlUrlMessage{}
 	message.Kind = "KML"
 	message.Args.Uid = serviceUid
-	message.Args.Url = "./services/kml/" + fileName
+	message.Args.Url = "./services/kml/" + serviceUid + "/" + fileName
 	message.Args.Title = fileName
 	message.Args.Description = fmt.Sprintf("Contents of %s", fileName)
 	message.Args.ServiceInfo.ServiceTitle = fileName
