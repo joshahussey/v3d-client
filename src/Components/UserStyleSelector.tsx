@@ -1,6 +1,7 @@
 import { Select, createOptions } from "@thisbeyond/solid-select";
 import { JSX, createSignal } from "solid-js";
 import WesDataSource from "../Datasources/WesDataSource";
+import {UserStyleDefinition} from "../types"
 import { translate as t } from "../i18n/Translator";
 
 /**
@@ -10,7 +11,7 @@ import { translate as t } from "../i18n/Translator";
  * @returns {JSX.Element} A JSX element representing the user style selector.
  */
 export function UserStyleSelector(layer: { datasource: WesDataSource }): JSX.Element {
-    const [userStyles, setUserStyles] = createSignal(layer.datasource._userStylesArray != undefined ? layer.datasource._userStylesArray : []);
+    const [userStyles] = createSignal(layer.datasource._userStylesArray != undefined ? layer.datasource._userStylesArray : []);
     const [selectedStyle, setSelectedStyle] = createSignal(
         layer.datasource._userStylesArray != undefined && layer.datasource._userStyle != undefined ? layer.datasource._userStylesArray[layer.datasource._userStyle] : undefined
     );
@@ -19,7 +20,7 @@ export function UserStyleSelector(layer: { datasource: WesDataSource }): JSX.Ele
         key: "name"
     });
 
-    const selectStyle = (style: any) => {
+    const selectStyle = (style: UserStyleDefinition) => {
         if (!style) return;
         if (selectedStyle() !== style) {
             setSelectedStyle(style);

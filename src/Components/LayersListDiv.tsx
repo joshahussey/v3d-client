@@ -5,6 +5,7 @@ import { ServiceInfo, WesImageryLayer, Wes3DTileSet } from "../types";
 import { ServiceEntryInput } from "./LayersDiv";
 import WesDataSource from "../Datasources/WesDataSource";
 import { useToolbarStateContext, ServiceStatusEntry, ToolbarContextType } from "../Context/ToolbarStateContext";
+type allLayersType = (WesImageryLayer | WesDataSource | Wes3DTileSet)
 
 /**
  * Represents a component for displaying a list of all layers in reverse order.
@@ -14,8 +15,11 @@ export function LayersListDiv(): JSX.Element {
     const { serviceExpandedMap, setServiceExpandedMap } = useToolbarStateContext() as ToolbarContextType;
     const { imageLayers, datasources, tileSets } = useInterfaceContext() as UIContextType;
 
-    const [allLayers, setAllLayers] = createSignal(
-        imageLayers().slice().concat(datasources().slice(), tileSets().slice()),
+    const [allLayers, setAllLayers] = createSignal<allLayersType[]>(
+        (imageLayers().slice() as allLayersType[]).concat(
+            (datasources().slice() as allLayersType[]), 
+            (tileSets().slice() as allLayersType[])
+        ),
         {
             equals: false
         }
@@ -33,10 +37,15 @@ export function LayersListDiv(): JSX.Element {
             ...(serviceExpandedMap.filter((service: ServiceStatusEntry) => servList.includes(service.serviceUid)))
         ]);
     }
-    cleanServiceExpanded(allLayers().map((serv: any) => serv.serviceInfo.serviceId))
+    cleanServiceExpanded(allLayers().map((serv: allLayersType) => serv.serviceInfo.serviceId))
 
     createEffect(() => {
-        setAllLayers(imageLayers().slice().concat(datasources().slice(), tileSets().slice()));
+        setAllLayers(
+            (imageLayers().slice() as allLayersType[]).concat(
+                (datasources().slice() as allLayersType[]), 
+                (tileSets().slice() as allLayersType[])
+            )
+        );
     });
     createEffect(() => {
         const serviceMapped = new Map();
@@ -63,7 +72,12 @@ export function LayersListDiv(): JSX.Element {
         setServiceMap(serviceMapped);
     });
 
-    setAllLayers(imageLayers().slice().concat(datasources().slice(), tileSets().slice()));
+    setAllLayers(
+        (imageLayers().slice() as allLayersType[]).concat(
+            (datasources().slice() as allLayersType[]), 
+            (tileSets().slice() as allLayersType[])
+        )
+    )
 
     function mapToObjects(map: Map<ServiceInfo, Array<WesImageryLayer | WesDataSource | Wes3DTileSet>>) {
         const arrOfObjects = [];

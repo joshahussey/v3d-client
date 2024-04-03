@@ -12,14 +12,14 @@ import { translate as t } from "../i18n/Translator";
  */
 export function CoverageApiDropdown(datasource: { datasource: WesDataSource }): JSX.Element {
     const [settings, setSettings] = createStore(datasource.datasource);
-    const setAlpha = (e: any) => {
-        setSettings({ alpha: Number(e.target.value) });
+    const setAlpha = (e: Event) => {
+        setSettings({ alpha: Number((e.target as HTMLInputElement).value) });
     };
-    const setHeight = (e: any) => {
-        setSettings({ heightExaggeration: Number(e.target.value) });
+    const setHeight = (e: Event) => {
+        setSettings({ heightExaggeration: Number((e.target as HTMLInputElement).value) });
     };
-    const setResolution = (e: any) => {
-        setSettings({ maxResolution: Number(e.target.value) });
+    const setResolution = (e: Event) => {
+        setSettings({ maxResolution: Number((e.target as HTMLInputElement).value) });
     };
     return (
         <Show when={datasource.datasource instanceof CoverageApiDataSource}>

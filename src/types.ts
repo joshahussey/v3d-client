@@ -2,8 +2,6 @@
 //
 import {
     Cartesian2,
-    Event as CesiumEvent,
-    DataSource,
     ImageryLayer,
     Cesium3DTileset,
     Viewer,
@@ -14,9 +12,6 @@ import {
     HorizontalOrigin,
     VerticalOrigin,
     Scene,
-    EntityCollection,
-    EntityCluster,
-    Rectangle,
     JulianDate,
     GeoJsonDataSource,
     PrimitiveCollection,
@@ -24,16 +19,20 @@ import {
     WebMapTileServiceImageryProvider,
     ArcGisMapServerImageryProvider,
     IonImageryProvider,
-    Cesium3DTileStyle,
     PolylineOutlineMaterialProperty,
     ShadowMode,
     ColorBlendMode,
     LabelStyle,
-    Material
+    Material,
+    Timeline
 } from "cesium";
+import GeoJSON from "geojson";
+import WesDataSource from "./Datasources/WesDataSource";
+import FeaturesApiDataSource from "./Datasources/FeaturesApiDataSource";
 import CoverageApiDataSource from "./Datasources/CoverageApiDataSource";
 import { Accessor, Setter } from "solid-js";
 import CelestialBodyDataSource from "./Datasources/CelestialBodyDataSource";
+import { indexedPoint, indexedLine, indexedPolygon } from "./Utils/Utils";
 export interface WesDatasources extends DataSourceCollection {
     _dataSources: WesDataSource[];
 }
@@ -123,7 +122,7 @@ export type LegendSource = {
     upperTimeBound: JulianDate;
     symbolizer?: CesiumRasterSymbolizer
 }
-export interface CoverageAxesObject extends Object {
+export type CoverageAxesObject = object & {
     x: AxisObject;
     y: AxisObject;
 }
@@ -133,7 +132,7 @@ export type FeaturesCollectionTemporal = {
     resolution: string;
     trs: string;
 };
-export interface AxisObject extends Object {
+export type AxisObject = object & {
     start: number;
     stop: number;
     num: number;
@@ -148,7 +147,9 @@ export type CesiumWindow = Window &
         Map3DViewer: Viewer;
         Map3DController: Map3DController;
         optionsMap: Accessor<any>;
+        timeline?: Timeline;
     };
+
 export type WesTerrainObject = {
     uid: string;
     name: string;
@@ -264,6 +265,7 @@ export interface Wes3DTileSet extends Cesium3DTileset {
     type: string;
     uid: string;
     enabled?: boolean;
+    serviceInfo: ServiceInfo;
 }
 export type WesImageryProvider =
     | WesWebMapServiceImageryProvider
@@ -280,11 +282,6 @@ export type Wes3dMapLayer =
     | CoverageApiDataSource
     | Wes3DTileSet;
 
-export type ChangeFlag = {
-    layers: boolean;
-    primitives: boolean;
-    dataSources: boolean;
-} | null;
 export type Map3DController = any;
 export type MapState = {
     accessToken: string;
@@ -297,44 +294,6 @@ export type MapState = {
     cameraPosition: number[];
     saveLayerParameters: { show: boolean; alpha?: number; uid: string }[];
 };
-export interface cesiumViewModel {
-    layers: Array<any>;
-    tileSets: Array<any>;
-    baseLayers: Array<any>;
-    dataSources: Array<any>;
-    optionsMap: Map<any, any>;
-    terrainSets: WesTerrainObject[];
-    upLayer: Wes3dMapLayer | null;
-    downLayer: Wes3dMapLayer | null;
-    selectedLayer: Wes3dMapLayer | null;
-    isSelectableLayer: Function;
-    isBasemapLayer: Function;
-    raise: Function;
-    lower: Function;
-    removeLayer: Function;
-    raisePrimitive: Function;
-    lowerPrimitive: Function;
-    removePrimitive: Function;
-    zoomToTiles: Function;
-    isOsmBuildingsOnGoogleTerrain: Function;
-    checkboxValue: Function;
-    canRaise: Function;
-    canLower: Function;
-    canLowerPrimitive: Function;
-    changed: Function;
-    menuDisplay: Function;
-    isOSMBuildings: Function;
-    has3dLayers: Function;
-    get3dLayers: Function;
-    hasTerrainOptions: Function;
-    shouldShowZoom: Function;
-    measure: Function;
-    selectedTerrain: WesTerrainObject | null;
-    getUserStyles: Function;
-    selectedUserStyle: Function | null;
-    isFeaturesApiDataSource: Function;
-    osmStyle: Cesium3DTileStyle;
-}
 export type UserStyleDefinition = {
     index: number;
     name: string;
@@ -346,7 +305,8 @@ export type PixelPosition = [number, number];
 export type GeoJSONCoordinate = [number, number, number];
 export type FeatureWeightIdentifier = [number, number, number, Set<number>];
 export type JsonCluster = [...Cluster, number];
-export type FeaturesJson = Array<JsonCluster | OGCFeature>;export interface OGCFeature extends GeoJSON.Feature {
+export type FeaturesJson = Array<JsonCluster | OGCFeature>;
+export interface OGCFeature extends GeoJSON.Feature {
     id: string;
     name?: string;
     screenSpaceCoordinate: Cartesian2;
@@ -375,9 +335,9 @@ export type TddRule = {
     Filter?: TddFilter;
     ElseFilter?: TddFilter;
     PointSymbolizer?: TddPointSymbolizer;
-    LineSymbolizer?: TddLineSymbolizer;
+    LineSymbolizer?: any;
     PolygonSymbolizer?: TddPolygonSymbolizer;
-    RasterSymbolizer?: TddRasterSymbolizer;
+    RasterSymbolizer?: any;
 };
 
 export type TddFilter = {
@@ -441,9 +401,14 @@ export type ModelProperty = {
 
 export type RGBA = [number, number, number, number];
 
+type Font = {
+    family: string;
+    size: number;
+}
+
 export type LabelProperty = {
     Text: string | { PropertyName: string };
-    Font?: font;
+    Font?: Font;
     LabelStyle?: LabelStyle;
     Scale?: number;
     ShowBackground?: boolean;
@@ -555,15 +520,16 @@ export type ColorMapEntry = {
 export type CesiumRasterSymbolizer = {
     opacity: number;
     colorMap: ColorMapEntry[];
-};export interface SortedXmlRules {
+};
+export interface SortedXmlRules {
     filters: (Element | FilterObject)[];
     minScaleDenominators: (Element | ScaleDenominator)[];
     maxScaleDenominators: (Element | ScaleDenominator)[];
-    textSymbolizers: (Element | CesiumTextSymbolizerObject)[];
-    lineSymbolizers: (Element | CesiumLineSymbolizerObject | CesiumLineDescriptor)[];
-    pointSymbolizers: (Element | CesiumPointSymbolizerObject)[];
-    polygonSymbolizers: (Element | CesiumPolygonSymbolizerObject)[];
-    rasterSymbolizers: (Element | CesiumRasterSymbolizerObject)[];
+    textSymbolizers: (Element | CesiumTextSymbolizer)[];
+    lineSymbolizers: (Element | CesiumLineSymbolizer | CesiumLineDescriptor)[];
+    pointSymbolizers: (Element | CesiumPointSymbolizer)[];
+    polygonSymbolizers: (Element | CesiumPolygonSymbolizer)[];
+    rasterSymbolizers: (Element | CesiumRasterSymbolizer)[];
 }
 export interface FeatureClusters {
     Constructor: FeatureClusters;
@@ -586,33 +552,4 @@ export interface ViewRecord {
     id: bigint;
     title: string;
     description?: string;
-}
-
-export declare module WesDataSource {
-    export declare class WesDataSource extends DataSource {
-        Constructor: WesDataSource;
-        _name: string;
-        _changed: CesiumEvent;
-        _error: CesiumEvent;
-        _isLoading: boolean;
-        _loading: CesiumEvent;
-        _isLoaded: boolean;
-        _type: string;
-        _entityCollection: EntityCollection;
-        _entityCluster: EntityCluster;
-        _url: string;
-        _show: boolean;
-        _viewer: Viewer;
-        _scratchRectangle: Rectangle;
-        _isInitialized: boolean;
-        _isCancelledIdMap: Set<number>;
-        _currentLoadId: number;
-        _fetchRequestAbortController: AbortController;
-        _removed: boolean;
-        initialize: Function;
-        stop: Function;
-        isCancelled: Function;
-        _setLoading: Function;
-        fetchJson: Function;
-    }
 }

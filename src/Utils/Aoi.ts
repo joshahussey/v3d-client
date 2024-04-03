@@ -19,7 +19,7 @@ export async function handleAoiEvent(event: string) {
     const viewer = (window as CesiumWindow).Map3DViewer;
     const datasources = viewer.dataSources as WesDatasources;
 
-    let uncastAoiDatasource = datasources._dataSources.find(ds => (ds as any).uid === "AOI");
+    let uncastAoiDatasource = datasources._dataSources.find(ds => ds.uid === "AOI");
     let aoiDatasource: AoiDataSource;
 
     if (geoJson) {

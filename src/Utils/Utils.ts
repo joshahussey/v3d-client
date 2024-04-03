@@ -9,9 +9,9 @@ import { FeatureCollection } from "geojson";
 import { GeometryCollection } from "geojson";
 import { translate as t } from "../i18n/Translator";
 
-type indexedPoint = [GeoJSON.Point["coordinates"], number];
-type indexedLine = [GeoJSON.LineString["coordinates"], number];
-type indexedPolygon = [GeoJSON.Polygon["coordinates"], number];
+export type indexedPoint = [GeoJSON.Point["coordinates"], number];
+export type indexedLine = [GeoJSON.LineString["coordinates"], number];
+export type indexedPolygon = [GeoJSON.Polygon["coordinates"], number];
 
 export function showThings(that: SensorThingsDataSource, value: boolean, selectedThing: Entity | null) {
     const collection = that._things;

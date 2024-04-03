@@ -1,6 +1,6 @@
-import { Accessor, Setter } from "solid-js";
+import { Accessor } from "solid-js";
 import FeaturesApiDataSource from "../Datasources/FeaturesApiDataSource";
-import { Cartesian3, Cesium3DTileset, ImageryLayer, Rectangle, Viewer } from "cesium";
+import { Cartesian3, Cesium3DTileset, ImageryLayer, Viewer } from "cesium";
 import CelestialBodyDataSource from "../Datasources/CelestialBodyDataSource";
 import { CesiumWindow } from "../types";
 

@@ -1,15 +1,21 @@
 import { UIContextType, useInterfaceContext } from "../Context/UIContext";
 import { Show, createEffect, onMount } from "solid-js";
-import { JulianDate, Timeline } from "cesium";
+import { Clock, JulianDate, Timeline } from "cesium";
 import Moment from "moment";
 import { CesiumWindow } from "../types";
+
+type SetTimeEvent = Event & {
+    timeSeconds: number;
+    timeJulian: JulianDate;
+    clock: Clock;
+}
 
 const CesiumClient = window as CesiumWindow;
 let timeLineMounted = false;
 export function Slider() {
     const { displayClock } = useInterfaceContext() as UIContextType;
-    let clockDiv: HTMLDivElement;
-    function onTimelineScrubfunction(e) {
+    let clockDiv: HTMLDivElement | undefined;
+    function onTimelineScrubfunction(e: SetTimeEvent) {
         const clock = e.clock;
         clock.currentTime = e.timeJulian;
         clock.shouldAnimate = false;
@@ -17,7 +23,7 @@ export function Slider() {
     }
 
     createEffect(() => {
-        if (displayClock()) {
+        if (displayClock() && clockDiv) {
             onMount(() => {
                 Timeline.prototype.makeLabel = function (date: JulianDate) {
                     return Moment(JulianDate.toDate(date)).format("DD/MM/YYYY");
@@ -32,7 +38,7 @@ export function Slider() {
         }
     });
     createEffect(() => {
-        if (displayClock()) {
+        if (displayClock() && clockDiv) {
             if (timeLineMounted) {
                 CesiumClient.timeline.destroy();
                 CesiumClient.timeline = new Timeline(clockDiv, CesiumClient.Map3DViewer.clock);

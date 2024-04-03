@@ -29,7 +29,7 @@ export default class WesDataSource extends CustomDataSource {
     _entityCollection: EntityCollection | CompositeEntityCollection;
     _entityCluster: EntityCluster;
     _url: string;
-    _serviceInfo: ServiceInfo;
+    serviceInfo: ServiceInfo;
     _show: boolean;
     _viewer: Viewer;
     _scratchRectangle: Rectangle;
@@ -68,7 +68,7 @@ export default class WesDataSource extends CustomDataSource {
         this._entityCollection = new EntityCollection(this);
         this._entityCluster = new EntityCluster();
         this._url = url.endsWith("/") ? url : `${url}/`;
-        this._serviceInfo = serviceInfo;
+        this.serviceInfo = serviceInfo;
         this._show = true;
         this._viewer = viewer;
         this._scratchRectangle = new Rectangle();
@@ -182,12 +182,6 @@ export default class WesDataSource extends CustomDataSource {
             viewer: {
                 get: function () {
                     return this._viewer;
-                }
-            },
-
-            serviceInfo: {
-                get: function () {
-                    return this._serviceInfo;
                 }
             }
         });
