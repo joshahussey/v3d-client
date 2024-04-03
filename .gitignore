@@ -9,7 +9,7 @@ deploy/
 prep.mx
 rebuild_docker.mx
 .direnv
-_.envrc
+.envrc
 dockerpush.sh
 fl.bak
 flake.lock
