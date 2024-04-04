@@ -41,7 +41,9 @@ import {
     WesWebMapTileServiceImageryProvider,
     LegendSource,
     WesGeoJsonDataSource,
-    WesKmlDataSource
+    WesKmlDataSource,
+    WesLayerPropertiesObject,
+    Wes3dMapLayer
 } from "./types";
 import { createStore } from "solid-js/store";
 import { createLiveWmsPeriodString, isLiveWms } from "./Utils/TimeParser";
@@ -78,10 +80,12 @@ import {
     JulianDate,
     KmlDataSource,
     Moon,
+    PrimitiveCollection,
     Rectangle,
     Resource,
     SceneMode,
     Sun,
+    TimeInterval,
     TimeIntervalCollection,
     Viewer,
     WebMapServiceImageryProvider,
@@ -90,6 +94,10 @@ import {
 import { zoomTo } from "./Utils/ZoomTo";
 import { styleDefaultClusters, styleGeoJsonBillboard } from "./Utils/ClusterStyling";
 import { addLayerFromBackend } from "./Utils/AddLayerFromBackend";
+
+type WesPrimitiveCollection = PrimitiveCollection & {
+    _primitives: Wes3DTileSet[];
+};
 
 const Controller = (window as CesiumWindow).Map3DController;
 
@@ -204,7 +212,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         equals: false
     });
     const [terrainSets, setTerrainSets] = createSignal([] as WesTerrainObject[]);
-    const [optionsMap, setOptionsMap] = createSignal(new Map(), {
+    const [optionsMap, setOptionsMap] = createSignal(new Map<Wes3dMapLayer, WesLayerPropertiesObject>(), {
         equals: false
     });
     (window as CesiumWindow).optionsMap = optionsMap;
@@ -222,7 +230,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
     (window as CesiumWindow).sourcesWithLegends = sourcesWithLegends;
     (window as CesiumWindow).setSourcesWithLegends = setSourcesWithLegends;
 
-    // @tag: WES_SPECIFIC 
+    // @tag: WES_SPECIFIC
     // Disable 'unused variable' warning, because WES calls this and it needs the
     // function to have 3 variable inputs even if we dont need it.
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -481,7 +489,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         sources.forEach(datasource => {
             for (const option of map.values()) {
                 if (option.uid === (datasource as WesDataSource).uid) {
-                    mapStateOptions.add(option);
+                    mapStateOptions.add(option as WesDataSourceObject);
                     return;
                 }
             }
@@ -530,20 +538,23 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         const sources = imageLayers();
         sources.forEach(imageryLayer => {
             for (const option of map.values()) {
-                if (option.uid === imageryLayer.uid && basemapOptions.includes(option) === false) {
-                    mapStateOptions.add(option);
+                if (option.uid === imageryLayer.uid && basemapOptions.includes(option as WesImageryObject) === false) {
+                    mapStateOptions.add(option as WesImageryObject);
                     return;
                 }
             }
         });
         const stateLayers = Array.from(mapStateOptions);
-        stateLayers.push(map.get(selectedLayer()));
+        const selLayer = map.get(selectedLayer());
+        stateLayers.push(selLayer as WesImageryObject);
         mapState.imageLayers = stateLayers;
         Controller.setMapState(mapState);
     }
 
     function syncPrimitiveLayers() {
-        const primitivesLayersArray: Wes3DTileSet[] = (viewer.scene.primitives as any)._primitives.slice();
+        const primitivesLayersArray: Wes3DTileSet[] = (
+            viewer.scene.primitives as WesPrimitiveCollection
+        )._primitives.slice();
         const filteredPrimitivesArray: Wes3DTileSet[] = [];
         primitivesLayersArray.forEach((layer: Wes3DTileSet) => {
             if (layer instanceof Cesium3DTileset) {
@@ -554,7 +565,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         setTileSets(filteredPrimitivesArray);
         for (const source of optionsMap().keys()) {
             if (source instanceof Cesium3DTileset) {
-                if (!tileSets().includes(source as Wes3DTileSet)) {
+                if (!tileSets().includes(source as unknown as Wes3DTileSet)) {
                     optionsMap().delete(source);
                 }
             }
@@ -566,7 +577,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         sources.forEach(tileset => {
             for (const option of map.values()) {
                 if (option.uid === tileset.uid) {
-                    mapStateOptions.add(option);
+                    mapStateOptions.add(option as WesPrimitiveObject);
                     return;
                 }
             }
@@ -623,7 +634,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
     /**
      * Add a new layer to the already opened client
      */
-    async function addLayers(viewer?: Viewer, optionsMap?: any) {
+    async function addLayers(viewer?: Viewer, optionsMap?: Accessor<Map<Wes3dMapLayer, WesLayerPropertiesObject>>) {
         addingLayers = true;
         let hasZoomed = false;
         while (dataSourcesToBeAdded.size > 0) {
@@ -709,14 +720,18 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             layer.uid = option.uid;
             setSelectedLayer(layer);
         } else {
-            layer = ImageryLayer.fromProviderAsync(await getImageryProvider(option), {});
+            const imageryProvider = getImageryProvider(option);
+            if (imageryProvider == null) {
+                return;
+            }
+            layer = ImageryLayer.fromProviderAsync(imageryProvider, {});
             (layer as WesImageryLayer).name = option.name;
             (layer as WesImageryLayer).uid = option.uid;
         }
         const baseLayerArray = baseLayers();
         baseLayerArray.push(layer as WesImageryLayer);
         setBaseLayers(baseLayerArray);
-        optionsMap().set(layer, option);
+        optionsMap().set(layer as WesImageryLayer, option);
     }
 
     function addTerrainSets(option: WesTerrainObject) {
@@ -746,7 +761,9 @@ const load = async function (mapState: MapState): Promise<Viewer> {
 
         switch (terrainUID) {
             case wgsEllipsoidUID: {
-                (viewer.scene.primitives as any)._primitives.forEach(function (primitive: Wes3DTileSet) {
+                (viewer.scene.primitives as WesPrimitiveCollection)._primitives.forEach(function (
+                    primitive: Wes3DTileSet
+                ) {
                     if (primitive._url && primitive._url.includes("google")) {
                         primitive.show = false;
                     }
@@ -757,7 +774,9 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                 break;
             }
             case cesiumBuiltInUID: {
-                (viewer.scene.primitives as any)._primitives.forEach(function (primitive: Wes3DTileSet) {
+                (viewer.scene.primitives as WesPrimitiveCollection)._primitives.forEach(function (
+                    primitive: Wes3DTileSet
+                ) {
                     if (primitive._url && primitive._url.includes("google")) {
                         primitive.show = false;
                     }
@@ -782,7 +801,9 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                 break;
             }
             default: {
-                (viewer.scene.primitives as any)._primitives.forEach(function (primitive: Wes3DTileSet) {
+                (viewer.scene.primitives as WesPrimitiveCollection)._primitives.forEach(function (
+                    primitive: Wes3DTileSet
+                ) {
                     if (primitive._url && primitive._url.includes("google")) {
                         primitive.show = false;
                     }
@@ -822,7 +843,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
      * @param {*} option Json object stored in the session for a imagery layer.
      * @returns ImageryProvider for the provided json.
      */
-    async function getImageryProvider(option: WesImageryObject): Promise<WesImageryProvider | null> {
+    async function getImageryProvider(option: WesImageryObject): Promise<WesImageryProvider> {
         let bounds;
         if (option.bounds != undefined) {
             bounds = Rectangle.fromDegrees(
@@ -858,10 +879,10 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             });
         }
         if (option.type === "WMS") {
-            const isTemporal = await isLiveWms(option.name, option.url);
+            const isTemporal = await isLiveWms(option.layers, option.url);
             if (isTemporal) {
-                const wmsDescriptor = await createLiveWmsPeriodString(option.name);
-                const dataCallback = (interval: any, index: number) => {
+                const wmsDescriptor = await createLiveWmsPeriodString(option.layers);
+                const dataCallback = (interval: TimeInterval, index: number) => {
                     let time;
                     if (index === 0) {
                         time = JulianDate.toIso8601(interval.stop);
@@ -923,7 +944,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                     throw t("3dMapGetImageryProviderError1");
             }
         }
-        return null;
+        throw t("3dMapGetImageryProviderError1");
     }
 
     /**
@@ -999,15 +1020,20 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                     serviceUrl: imageryOption.serviceInfo.serviceUrl
                 })
             );
-            layer = ImageryLayer.fromProviderAsync(createdDatasource.provider as any, {});
+            if (createdDatasource.provider) {
+                layer = ImageryLayer.fromProviderAsync(createdDatasource.getProvider(), {});
+            }
         } else {
             if (imageryOption.uid === basemapOption.uid) {
                 layer = imageryLayers.get(0);
                 imageryLayers.remove(layer, false);
             } else {
-                const provider = await getImageryProvider(imageryOption);
+                const provider = getImageryProvider(imageryOption);
                 layer = ImageryLayer.fromProviderAsync(provider, {});
             }
+        }
+        if (layer == null) {
+            return;
         }
         layer.alpha = 1;
         layer.show = true;
@@ -1019,7 +1045,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             serviceUrl: imageryOption.serviceInfo.serviceUrl
         };
         const map = optionsMap();
-        map.set(layer, imageryOption);
+        map.set(layer as WesImageryLayer, imageryOption);
         setOptionsMap(map);
         imageryLayers.add(layer);
         imageryLayers.raiseToTop(layer);
@@ -1099,7 +1125,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                 break;
             case "geojson":
                 if (dataSourceOption.url != null && dataSourceOption.url != undefined) {
-                    const gjDataSource = (new GeoJsonDataSource(dataSourceOption.name) as WesGeoJsonDataSource);
+                    const gjDataSource = new GeoJsonDataSource(dataSourceOption.name) as WesGeoJsonDataSource;
                     loadGeoJsonDataSource(gjDataSource, dataSourceOption);
                     viewer.scene.morphComplete.addEventListener(() => {
                         loadGeoJsonDataSource(gjDataSource, dataSourceOption);
@@ -1125,7 +1151,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                     createdDataSource = await KmlDataSource.load(dataSourceOption.url, {
                         clampToGround: true
                     });
-                    createdDataSource = (createdDataSource as WesKmlDataSource)
+                    createdDataSource = createdDataSource as WesKmlDataSource;
                     createdDataSource.clustering.enabled = true;
                     createdDataSource.serviceInfo = {
                         serviceId: dataSourceOption.serviceInfo.serviceId,
@@ -1139,13 +1165,17 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                 }
                 break;
             case "coverage":
+                if (dataSourceOption.sourceLayerIndex == null) {
+                    console.warn(t("3dMapAddDatasourceWarning1"));
+                    dataSourceOption.sourceLayerIndex = 0;
+                }
                 createdDataSource = new CoverageApiDataSource(
                     dataSourceOption.description,
                     dataSourceOption.name,
                     dataSourceOption.url,
                     viewer,
                     dataSourceOption.id,
-                    dataSourceOption.sourceLayerIndex!,
+                    dataSourceOption.sourceLayerIndex,
                     dataSourceOption.uid,
                     dataSourceOption.bounds,
                     dataSourceOption.serviceInfo
@@ -1159,7 +1189,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         }
         if (createdDataSource != undefined) {
             const map = optionsMap();
-            map.set(createdDataSource, dataSourceOption);
+            map.set(createdDataSource as WesDataSource, dataSourceOption);
             setOptionsMap(map);
             await dataSourceLayers.add(createdDataSource as DataSource);
         }
@@ -1270,8 +1300,14 @@ const load = async function (mapState: MapState): Promise<Viewer> {
     function GeoCaHeader() {
         return <GeoCaHeaderDiv />;
     }
-    render(GeoCaHeader, document.getElementById("geoCaBorder")!);
-    render(App, document.getElementById("WesUserInterface")!);
+    const geoCaBorder = document.getElementById("geoCaBorder");
+    if (geoCaBorder) {
+        render(GeoCaHeader, geoCaBorder);
+    }
+    const wesUI = document.getElementById("WesUserInterface");
+    if (wesUI) {
+        render(App, wesUI);
+    }
 
     return viewer;
 };

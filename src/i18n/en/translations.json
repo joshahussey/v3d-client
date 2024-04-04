@@ -101,9 +101,13 @@
     "3dMapZoomOut":"Zoom Out",
     "3dMapLoadError1":"Unknown protocol -- cannot initialize web socket.",
     "3dMapGetImageryProviderError1":"Error: Unrecognized Cesium builtin option",
+    "3dMapGetImageryProviderError2":"Error: Unrecognized option type",
+    "3dMapAddDatasourceWarning1":"Coverage Datasource has invalid Source Layer Index, defaulting to 0.",
     "3dMapAddDatasourceError1":"Error: Datasource type is null",
     "3dMapAddDatasourceError2":"Error: Unrecognized data source type: {INPUT}",
-    
+
+    "OgcMapCouldNotGetProviderError": "Error: Could not get provider for ogc map service",
+
     "constantsOverlaysLabel":"Overlays",
 
     "map3dControllerFetchDefaultMapStateError1":"Failed to load Default Map State from {INPUT}",
