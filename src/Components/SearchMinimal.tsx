@@ -12,11 +12,14 @@ import { translate as t } from "../i18n/Translator";
  */
 export function SearchMinimal(): JSX.Element {
     const { isSearchOpened } = useToolbarStateContext() as ToolbarContextType;
-    let searchRef: any;
+    let searchRef: HTMLDivElement | undefined;
     let isSearchCreated = false;
     createEffect(() => {
         if (isSearchOpened() != undefined) {
             if (!isSearchCreated) {
+                if (!searchRef) {
+                    return;
+                }
                 const geocoders = USE_CESIUM_GEOCODER ? undefined : [new WesGeoCoderService()];
                 new Geocoder({
                     container: searchRef,
@@ -24,15 +27,30 @@ export function SearchMinimal(): JSX.Element {
                     scene: (window as CesiumWindow).Map3DViewer.scene
                 });
                 isSearchCreated = true;
-                const geoCoderForm = searchRef.querySelector("form")!;
-                const geoCoderResults = searchRef.querySelector("div")!;
-                const geoCoderInput = geoCoderForm.querySelector("input")!;
-                const geoCoderSpan = geoCoderForm.querySelector("span")!;
+                const geoCoderForm = searchRef.querySelector("form");
+                if (!geoCoderForm) {
+                    return;
+                }
+                const geoCoderResults = searchRef.querySelector("div");
+                if (!geoCoderResults) {
+                    return;
+                }
+                const geoCoderInput = geoCoderForm.querySelector("input");
+                if (!geoCoderInput) {
+                    return;
+                }
+                const geoCoderSpan = geoCoderForm.querySelector("span");
+                if (!geoCoderSpan) {
+                    return;
+                }
                 geoCoderForm.classList.add("cslt-cesium-toolbar-search-form");
                 geoCoderInput.classList.add("cslt-cesium-toolbar-search-input");
                 geoCoderSpan.classList.add("cslt-cesium-toolbar-search-span");
                 geoCoderSpan.classList.remove("cesium-geocoder-searchButton");
-                geoCoderSpan.removeChild(geoCoderSpan.querySelector("svg")!);
+                const svg = geoCoderSpan.querySelector("svg");
+                if (svg) {
+                    geoCoderSpan.removeChild(svg);
+                }
                 geoCoderSpan.textContent = t("geocoderSearchButton");
                 searchRef.appendChild(geoCoderForm);
                 searchRef.appendChild(geoCoderResults);

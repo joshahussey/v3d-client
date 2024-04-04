@@ -20,7 +20,9 @@ export function showEntityProperties(selectedEntity: Entity) {
 
 function styleInfoBox() {
     const infoBox = document.querySelectorAll("iframe[class='cesium-infoBox-iframe']");
-    const infoBoxDescriptionDiv = (infoBox[0] as HTMLIFrameElement).contentDocument!.querySelectorAll(
+    const contDoc = (infoBox[0] as HTMLIFrameElement).contentDocument;
+    if (contDoc == null) return;
+    const infoBoxDescriptionDiv = contDoc.querySelectorAll(
         "div.cesium-infoBox-description"
     )[0];
     (infoBoxDescriptionDiv as HTMLDivElement).style.color = "#000000";

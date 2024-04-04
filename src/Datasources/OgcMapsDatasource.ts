@@ -46,7 +46,7 @@ export default class OgcMapsDatasource extends WesDataSource {
                 height: "{height}"
             }
         });
-        this.provider = new UrlTemplateImageryProvider({
+        const provider = new UrlTemplateImageryProvider({
             url: resource,
             minimumLevel: 1,
             maximumLevel: 20,
@@ -54,6 +54,9 @@ export default class OgcMapsDatasource extends WesDataSource {
             tileWidth: 1500,
             tileHeight: 1500,
             rectangle: extents
-        })!;
+        });
+        if (provider != undefined) {
+            this.provider = provider;
+        }
     }
 }
