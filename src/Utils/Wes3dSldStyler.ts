@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { HorizontalOrigin, Resource, VerticalOrigin, Color, Cartesian2 } from "cesium";
 import { hexToRgbA } from "./Utils";
 import { PolylineOutlineMaterialProperty } from "cesium";
