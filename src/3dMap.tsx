@@ -39,7 +39,9 @@ import {
     WesPrimitiveObject,
     WesTerrainObject,
     WesWebMapTileServiceImageryProvider,
-    LegendSource
+    LegendSource,
+    WesGeoJsonDataSource,
+    WesKmlDataSource
 } from "./types";
 import { createStore } from "solid-js/store";
 import { createLiveWmsPeriodString, isLiveWms } from "./Utils/TimeParser";
@@ -220,7 +222,11 @@ const load = async function (mapState: MapState): Promise<Viewer> {
     (window as CesiumWindow).sourcesWithLegends = sourcesWithLegends;
     (window as CesiumWindow).setSourcesWithLegends = setSourcesWithLegends;
 
-    (window as any).fireBroadcastEvent = (event: any, eventId: any, _hasPayload: any) => {
+    // @tag: WES_SPECIFIC 
+    // Disable 'unused variable' warning, because WES calls this and it needs the
+    // function to have 3 variable inputs even if we dont need it.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (window as CesiumWindow).fireBroadcastEvent = (event: string, eventId: string, _hasPayload: boolean) => {
         if (!WES_3D_EVENTS.has(eventId)) return;
 
         if (eventId === "net.compusult.wes.client.cesium.Wes3dAoiEvent") {
@@ -680,7 +686,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         }
 
         // Null check as this won't exist the first time load is called -- it's set in ExpandedMenu.tsx
-        (window as any).setCatalogOpen?.(false);
+        (window as CesiumWindow).setCatalogOpen?.(false);
     }
 
     /**
@@ -741,7 +747,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         switch (terrainUID) {
             case wgsEllipsoidUID: {
                 (viewer.scene.primitives as any)._primitives.forEach(function (primitive: Wes3DTileSet) {
-                    if ((primitive as any)._url && (primitive as any)._url.includes("google")) {
+                    if (primitive._url && primitive._url.includes("google")) {
                         primitive.show = false;
                     }
                 });
@@ -752,7 +758,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             }
             case cesiumBuiltInUID: {
                 (viewer.scene.primitives as any)._primitives.forEach(function (primitive: Wes3DTileSet) {
-                    if ((primitive as any)._url && (primitive as any)._url.includes("google")) {
+                    if (primitive._url && primitive._url.includes("google")) {
                         primitive.show = false;
                     }
                 });
@@ -777,7 +783,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             }
             default: {
                 (viewer.scene.primitives as any)._primitives.forEach(function (primitive: Wes3DTileSet) {
-                    if ((primitive as any)._url && primitive._url.includes("google")) {
+                    if (primitive._url && primitive._url.includes("google")) {
                         primitive.show = false;
                     }
                 });
@@ -1093,21 +1099,21 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                 break;
             case "geojson":
                 if (dataSourceOption.url != null && dataSourceOption.url != undefined) {
-                    const gjDataSource = new GeoJsonDataSource(dataSourceOption.name);
+                    const gjDataSource = (new GeoJsonDataSource(dataSourceOption.name) as WesGeoJsonDataSource);
                     loadGeoJsonDataSource(gjDataSource, dataSourceOption);
                     viewer.scene.morphComplete.addEventListener(() => {
                         loadGeoJsonDataSource(gjDataSource, dataSourceOption);
                     }, removeSignal);
                     gjDataSource.clustering.enabled = true;
-                    (gjDataSource as any).serviceInfo = {
+                    gjDataSource.serviceInfo = {
                         serviceId: dataSourceOption.serviceInfo.serviceId,
                         serviceTitle: dataSourceOption.serviceInfo.serviceTitle,
                         serviceUrl: dataSourceOption.serviceInfo.serviceUrl
                     };
-                    (gjDataSource as any).uid = dataSourceOption.uid;
-                    (gjDataSource as any).description = dataSourceOption.description;
-                    (gjDataSource as any).name = dataSourceOption.name;
-                    (gjDataSource as any).url = dataSourceOption.url;
+                    gjDataSource.uid = dataSourceOption.uid;
+                    gjDataSource.description = dataSourceOption.description;
+                    gjDataSource.name = dataSourceOption.name;
+                    gjDataSource.url = dataSourceOption.url;
                     createdDataSource = gjDataSource;
                     createdDataSource.clustering.minimumClusterSize = 10;
                     styleDefaultClusters(createdDataSource, viewer);
@@ -1119,16 +1125,17 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                     createdDataSource = await KmlDataSource.load(dataSourceOption.url, {
                         clampToGround: true
                     });
+                    createdDataSource = (createdDataSource as WesKmlDataSource)
                     createdDataSource.clustering.enabled = true;
-                    (createdDataSource as any).serviceInfo = {
+                    createdDataSource.serviceInfo = {
                         serviceId: dataSourceOption.serviceInfo.serviceId,
                         serviceTitle: dataSourceOption.serviceInfo.serviceTitle,
                         serviceUrl: dataSourceOption.serviceInfo.serviceUrl
                     };
-                    (createdDataSource as any).uid = dataSourceOption.uid;
-                    (createdDataSource as any).description = dataSourceOption.description;
-                    (createdDataSource as any).name = dataSourceOption.name;
-                    (createdDataSource as any).url = dataSourceOption.url;
+                    createdDataSource.uid = dataSourceOption.uid;
+                    createdDataSource.description = dataSourceOption.description;
+                    createdDataSource.name = dataSourceOption.name;
+                    createdDataSource.url = dataSourceOption.url;
                 }
                 break;
             case "coverage":

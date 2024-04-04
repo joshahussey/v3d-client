@@ -9,9 +9,11 @@ import { Accessor, onCleanup } from "solid-js";
  *                                        to be executed when the click outside event is detected.
  */
 export default function ClickOutsideToolbar(el: Element, accessor: Accessor<() => any>) {
-    function clickOut(e: any) {
-        if (!document.getElementById("cslt-toolbar")?.contains(e.target) && !el.contains(e.target)) {
-            accessor()?.();
+    function clickOut(e: MouseEvent) {
+        if (e.target instanceof Node) {
+            if (!document.getElementById("cslt-toolbar")?.contains(e.target) && !el.contains(e.target)) {
+                accessor()?.();
+            }
         }
     }
     document.body.addEventListener("click", clickOut);

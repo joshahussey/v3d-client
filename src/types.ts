@@ -24,7 +24,8 @@ import {
     ColorBlendMode,
     LabelStyle,
     Material,
-    Timeline
+    Timeline,
+    KmlDataSource
 } from "cesium";
 import GeoJSON from "geojson";
 import WesDataSource from "./Datasources/WesDataSource";
@@ -33,6 +34,7 @@ import CoverageApiDataSource from "./Datasources/CoverageApiDataSource";
 import { Accessor, Setter } from "solid-js";
 import CelestialBodyDataSource from "./Datasources/CelestialBodyDataSource";
 import { indexedPoint, indexedLine, indexedPolygon } from "./Utils/Utils";
+import { CesiumPointSymbolizerObject, CesiumLineSymbolizerObject, CesiumPolygonSymbolizerObject, CesiumTextSymbolizerObject, CesiumRasterSymbolizerObject } from "./Utils/Wes3dSldStyler"
 export interface WesDatasources extends DataSourceCollection {
     _dataSources: WesDataSource[];
 }
@@ -148,6 +150,8 @@ export type CesiumWindow = Window &
         Map3DController: Map3DController;
         optionsMap: Accessor<any>;
         timeline?: Timeline;
+        setCatalogOpen?: (isOpen: boolean) => void;
+        fireBroadcastEvent: (event: string, eventId: string, _hasPayload: boolean) => void;
     };
 
 export type WesTerrainObject = {
@@ -227,6 +231,14 @@ export interface WesGeoJsonDataSource extends GeoJsonDataSource {
     serviceInfo: ServiceInfo;
     bounds: ImageryBounds;
 }
+export interface WesKmlDataSource extends KmlDataSource {
+    description: string;
+    uid: string;
+    name: string;
+    url: string;
+    serviceInfo: ServiceInfo;
+}
+
 export interface WesImageryLayer extends ImageryLayer {
     name: string;
     uid: string;
@@ -525,11 +537,11 @@ export interface SortedXmlRules {
     filters: (Element | FilterObject)[];
     minScaleDenominators: (Element | ScaleDenominator)[];
     maxScaleDenominators: (Element | ScaleDenominator)[];
-    textSymbolizers: (Element | CesiumTextSymbolizer)[];
-    lineSymbolizers: (Element | CesiumLineSymbolizer | CesiumLineDescriptor)[];
-    pointSymbolizers: (Element | CesiumPointSymbolizer)[];
-    polygonSymbolizers: (Element | CesiumPolygonSymbolizer)[];
-    rasterSymbolizers: (Element | CesiumRasterSymbolizer)[];
+    textSymbolizers: (Element | CesiumTextSymbolizerObject)[];
+    lineSymbolizers: (Element | CesiumLineSymbolizerObject | CesiumLineDescriptor)[];
+    pointSymbolizers: (Element | CesiumPointSymbolizerObject)[];
+    polygonSymbolizers: (Element | CesiumPolygonSymbolizerObject)[];
+    rasterSymbolizers: (Element | CesiumRasterSymbolizerObject)[];
 }
 export interface FeatureClusters {
     Constructor: FeatureClusters;

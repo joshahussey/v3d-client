@@ -22,8 +22,8 @@ export function ImageryEntry(props: {
     const { imageryLayer, syncServiceCheckboxCallback, serviceCheckBoxState } = props;
     const [opened, setOpened] = createSignal(false);
     const [settings, setSettings] = createStore(imageryLayer);
-    const setAlpha = (e: any) => {
-        setSettings({ alpha: e.target.value });
+    const setAlpha = (e: Event) => {
+        setSettings({ alpha: Number((e.target as HTMLInputElement).value) });
     };
 
     return (

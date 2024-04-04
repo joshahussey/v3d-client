@@ -1,5 +1,5 @@
 import { Cesium3DTileset, GeoJsonDataSource, ImageryLayer, KmlDataSource } from "cesium";
-import { CesiumWindow, Wes3DTileSet, Wes3dMapLayer, WesImageryLayer } from "../types";
+import { CesiumWindow, Wes3DTileSet, WesImageryLayer } from "../types";
 import WesDataSource from "../Datasources/WesDataSource";
 import CoverageApiDataSource from "../Datasources/CoverageApiDataSource";
 import { UIContextType, useInterfaceContext } from "../Context/UIContext";
@@ -16,7 +16,7 @@ import CelestialBodyDataSource from "../Datasources/CelestialBodyDataSource";
  * @returns {JSX.Element} A JSX element representing the delete layer button.
  */
 export function DeleteLayerButton(layer: {
-    datasource?: Wes3dMapLayer;
+    datasource?: WesDataSource;
     imageryLayer?: WesImageryLayer;
     primitiveLayer?: Wes3DTileSet;
     isEnabled?: boolean;

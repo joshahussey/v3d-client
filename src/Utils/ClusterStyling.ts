@@ -72,7 +72,11 @@ export function createClusterImage(numPoints: number) {
     const clusterCanvas: HTMLCanvasElement = document.createElement("CANVAS") as HTMLCanvasElement;
     clusterCanvas.width = canvasWidth;
     clusterCanvas.height = canvasHeight;
-    const billboardImage = clusterCanvas.getContext("2d")!;
+    const billboardImage = clusterCanvas.getContext("2d");
+    if (billboardImage == null) {
+        console.error("Could not get clusterCanvas context.")
+        return
+    }
     billboardImage.arc(canvasWidth / 2, canvasHeight / 2, (canvasWidth - 6) / 2, 0, 2 * CesiumMath.PI, false);
     billboardImage.imageSmoothingQuality = "high";
     billboardImage.strokeStyle = "#000000";

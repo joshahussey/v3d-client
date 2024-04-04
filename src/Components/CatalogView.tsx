@@ -1,10 +1,11 @@
 import { useToolbarStateContext, ToolbarContextType } from "../Context/ToolbarStateContext";
+import { CesiumWindow } from "../types";
 import ClickOutsideToolbar from "./Directives/ClickOutsideToolbar";
 
 export function CatalogView() {
     const { setCatalogOpened } = useToolbarStateContext() as ToolbarContextType;
 
-    (window as any).setCatalogOpen = function (isOpen: boolean) {
+    (window as CesiumWindow).setCatalogOpen = function (isOpen: boolean) {
         setCatalogOpened(isOpen);
     };
 

@@ -60,7 +60,7 @@ export type addArcGisWMS = {
 
 export type add3DTilesObject = {
     uid: string;
-    urlOrGeoJsonObject: string;
+    url: string;
     title: string;
     description: string;
     serviceInfo: ServiceInfo;

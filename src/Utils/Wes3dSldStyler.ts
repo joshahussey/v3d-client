@@ -19,7 +19,6 @@ import {
     UserStyleDefinition
 } from "../types";
 import WesDataSource from "../Datasources/WesDataSource";
-import CoverageApiDataSource from "../Datasources/CoverageApiDataSource";
 import { translate as t } from "../i18n/Translator";
 
 type Symbolizer =
@@ -29,18 +28,18 @@ type Symbolizer =
     | CesiumLineSymbolizerObject
     | CesiumScaleDenominatorSymbolizerObject;
 type CesiumScaleDenominatorSymbolizerObject = number;
-interface CesiumPointSymbolizerObject {
+export interface CesiumPointSymbolizerObject {
     size: string | number;
     headingKey: string;
     externalGraphicUrl: string;
 }
-interface CesiumLineSymbolizerObject {
+export interface CesiumLineSymbolizerObject {
     [key: string]: Color | number | string;
     color: string | Color;
     alpha: string | number;
     width: string | number;
 }
-interface CesiumPolygonSymbolizerObject {
+export interface CesiumPolygonSymbolizerObject {
     [key: string]: string | Color | number;
     outlineColor: string | Color;
     outlineAlpha: string | number;
@@ -48,7 +47,7 @@ interface CesiumPolygonSymbolizerObject {
     fillColor: string | Color;
     fillAlpha: string | number;
 }
-interface CesiumTextSymbolizerObject {
+export interface CesiumTextSymbolizerObject {
     [key: string]:
         | string
         | number
@@ -75,7 +74,7 @@ interface CesiumColorMapEntryObject {
     quantity: string | number;
 }
 
-interface CesiumRasterSymbolizerObject {
+export interface CesiumRasterSymbolizerObject {
     [key: string]: number | CesiumColorMapEntryObject[];
     opacity: number;
     colors: CesiumColorMapEntryObject[];

@@ -3,6 +3,11 @@ import { JSX, createSignal } from "solid-js";
 import FeaturesApiDataSource from "../Datasources/FeaturesApiDataSource";
 import { translate as t } from "../i18n/Translator";
 
+type highLightOption = {
+    name: string;
+    value: boolean;
+}
+
 /**
  * Represents a component for selecting highlighting options for a FeaturesApiDataSource layer.
  * @param {Object} layer - The layer object containing the FeaturesApiDataSource instance.
@@ -10,7 +15,7 @@ import { translate as t } from "../i18n/Translator";
  * @returns {JSX.Element} A JSX element representing the highlight selector.
  */
 export function HighlightSelector(layer: { datasource: FeaturesApiDataSource }): JSX.Element {
-    const [isHighlighted, setIsHighlighted] = createSignal((layer.datasource as any).isHighlighted);
+    const [isHighlighted, setIsHighlighted] = createSignal(layer.datasource.isHighlighted);
     const properties = createOptions(
         [
             { name: t("highlightSelectorOn"), value: true },
@@ -21,10 +26,10 @@ export function HighlightSelector(layer: { datasource: FeaturesApiDataSource }):
         }
     );
     const initialValue = isHighlighted() == true ? { name: t("highlightSelectorOn"), value: true } : { name: t("highlightSelectorOff"), value: false };
-    const selectHighlighting = (highlighted: any) => {
+    const selectHighlighting = (highlighted: highLightOption) => {
         if (highlighted == null) return;
         setIsHighlighted(highlighted);
-        (layer.datasource as any).isHighlighted = highlighted.value;
+        layer.datasource.isHighlighted = highlighted.value;
     };
     return (
         <>

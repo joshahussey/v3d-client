@@ -1,6 +1,7 @@
 import { JSX, createSignal, createEffect, Accessor } from "solid-js";
 import { LayerSettingsMenu } from "./LayerSettingsMenu";
-import { Wes3DTileSet, Wes3dMapLayer, WesImageryLayer } from "../types";
+import { Wes3DTileSet, WesImageryLayer } from "../types";
+import WesDataSource from "../Datasources/WesDataSource";
 
 /**
  * @param {Accessor<boolean>} props.opened Whether the layer settings is expanded.
@@ -14,7 +15,7 @@ import { Wes3DTileSet, Wes3dMapLayer, WesImageryLayer } from "../types";
 export function LayerSettingsButton(props: {
     opened: Accessor<boolean>;
     setOpened: (value: boolean) => void;
-    datasource?: Wes3dMapLayer;
+    datasource?: WesDataSource;
     imageryLayer?: WesImageryLayer;
     primitiveLayer?: Wes3DTileSet;
     isEnabled: boolean;
