@@ -144,8 +144,8 @@ export type CesiumWindow = Window &
         aoiBufferPrimitives?: Array<GroundPrimitive>;
         sourcesWithLegends: Accessor<LegendSource[]>;
         setSourcesWithLegends: Setter<LegendSource[]>;
-        setTimeMap: Setter<Map<number, number>>;
-        timeMap: Accessor<Map<number, number>>;
+        setTimeMap: Setter<Map<string, [JulianDate, JulianDate]>>;
+        timeMap: Accessor<Map<string, [JulianDate, JulianDate]>>;
         Map3DViewer: Viewer;
         Map3DController: Map3DController;
         optionsMap: Accessor<any>;
@@ -565,3 +565,23 @@ export interface ViewRecord {
     title: string;
     description?: string;
 }
+export type satrec = {
+    satnum: number;
+    epochyr: number;
+    epochdays: number;
+    ndot: number;
+    nddot: number;
+    bstar: number;
+    inclo: number;
+    nodeo: number;
+    ecco: number;
+    argpo: number;
+    mo: number;
+    no: number;
+    a: number;
+    alta: number;
+    altp: number;
+    jdsatepoch: number;
+    error: number;
+    error_message: string;
+};

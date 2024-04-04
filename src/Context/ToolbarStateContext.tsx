@@ -1,4 +1,4 @@
-import { Accessor, createContext, createSignal, Setter, useContext } from "solid-js";
+import { Accessor, createContext, createSignal, JSX, Setter, useContext } from "solid-js";
 import { createStore, SetStoreFunction } from "solid-js/store";
 
 export type ServiceStatusEntry = { serviceUid: string; serviceOpenedStatus: boolean };
@@ -24,7 +24,7 @@ export type ToolbarContextType = {
     serviceExpandedMap: ServiceStatusEntry[];
     setServiceExpandedMap: SetStoreFunction<ServiceStatusEntry[]>;
 }
-export function ToolbarStateContext(props: any) {
+export function ToolbarStateContext(props: { children: number | boolean | Node | JSX.ArrayElement | (string & object) | null | undefined; }) {
     const [isLayersOpened, setLayersOpened] = createSignal(false);
     const [isSaveOpened, setSaveOpened] = createSignal(false);
     const [isLoadOpened, setLoadOpened] = createSignal(false);

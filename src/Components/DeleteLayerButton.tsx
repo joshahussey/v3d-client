@@ -31,7 +31,11 @@ export function DeleteLayerButton(layer: {
                 if (layer.datasource && layer.datasource instanceof WesDataSource) {
                     (window as CesiumWindow).Map3DViewer.dataSources.remove(layer.datasource);
                     setSourcesWithLegends(
-                        sourcesWithLegends().filter(source => source.uid !== layer.datasource.uid)
+                        sourcesWithLegends().filter(source => {
+                            if (layer.datasource != null) {
+                                source.uid !== layer.datasource.uid
+                            }
+                        })
                     );
                     if (layer.datasource && layer.datasource instanceof CelestialBodyDataSource) {
                         layer.datasource.setServiceRunning(false);
@@ -40,7 +44,11 @@ export function DeleteLayerButton(layer: {
                 if (layer.imageryLayer && layer.imageryLayer instanceof ImageryLayer) {
                     (window as CesiumWindow).Map3DViewer.imageryLayers.remove(layer.imageryLayer);
                     setSourcesWithLegends(
-                        sourcesWithLegends().filter(source => source.uid !== layer.imageryLayer!.uid)
+                        sourcesWithLegends().filter(source => {
+                            if (layer.imageryLayer != null) {
+                                source.uid !== layer.imageryLayer.uid
+                            }
+                        })
                     );
                 }
                 if (layer.primitiveLayer && layer.primitiveLayer instanceof Cesium3DTileset) {

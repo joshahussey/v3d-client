@@ -8,7 +8,7 @@ import { Accessor, onCleanup } from "solid-js";
  * @param {Accessor<() => any>} accessor - A function accessor that returns a callback function
  *                                        to be executed when the click outside event is detected.
  */
-export default function ClickOutsideToolbar(el: Element, accessor: Accessor<() => any>) {
+export default function ClickOutsideToolbar(el: Element, accessor: Accessor<() => void>) {
     function clickOut(e: MouseEvent) {
         if (e.target instanceof Node) {
             if (!document.getElementById("cslt-toolbar")?.contains(e.target) && !el.contains(e.target)) {

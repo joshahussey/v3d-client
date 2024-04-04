@@ -25,35 +25,14 @@ export default class CelestialBodyDataSource extends WesDataSource {
     _date: Date;
     _firstDate: Date;
     _lastDate: Date;
-    _listener?: any;
+    _listener?: () => void;
     _isCurrent: boolean;
     constructor(description: string, name: string, url: string, viewer: Viewer, uid: string, serviceInfo: ServiceInfo) {
         super(description, name, url, viewer, uid, serviceInfo);
         this._type = "Celestial";
 
         //Listener for when the timeline value changes
-        this._listener = () => {
-            this._isCurrent = false;
-            this.updateService(0, true);
-
-            this._viewer.clock.canAnimate = true;
-            this._viewer.clock.shouldAnimate = true;
-
-            const tempTimeMap = CesiumClient.timeMap();
-            tempTimeMap.set(this.uid, [JulianDate.fromDate(this._firstDate), JulianDate.fromDate(this._lastDate)]);
-            CesiumClient.setTimeMap(tempTimeMap);
-
-            const sourcesWithLegends = CesiumClient.sourcesWithLegends();
-            const source = sourcesWithLegends.find((src: LegendSource)  => src.uid == this.uid);
-            if (JulianDate.lessThan(this._viewer.clock.currentTime, source.lowerTimeBound)) {
-                source.lowerTimeBound = this._viewer.clock.currentTime;
-            }
-            if (JulianDate.greaterThan(this._viewer.clock.currentTime, source.upperTimeBound)) {
-                source.upperTimeBound = this._viewer.clock.currentTime;
-            }
-            CesiumClient.setSourcesWithLegends(sourcesWithLegends);
-        };
-
+        this._listener = this.listener.bind(this);
         this._tleArray = [];
         if (this._url.endsWith("/")) {
             this._url = this._url.slice(0, -1);
@@ -67,6 +46,33 @@ export default class CelestialBodyDataSource extends WesDataSource {
         this._update = true;
         this.initialize(UPDATE_FREQUENCY_SECONDS * 1000);
     }
+
+    listener = () => {
+        this._isCurrent = false;
+        this.updateService(0, true);
+
+        this._viewer.clock.canAnimate = true;
+        this._viewer.clock.shouldAnimate = true;
+
+        const tempTimeMap = CesiumClient.timeMap();
+        tempTimeMap.set(this.uid, [JulianDate.fromDate(this._firstDate), JulianDate.fromDate(this._lastDate)]);
+        CesiumClient.setTimeMap(tempTimeMap);
+
+        const sourcesWithLegends = CesiumClient.sourcesWithLegends();
+        const source = sourcesWithLegends.find((src: LegendSource) => src.uid == this.uid);
+        if (source == null) {
+            this.loadService();
+            return;
+        }
+        if (JulianDate.lessThan(this._viewer.clock.currentTime, source.lowerTimeBound)) {
+            source.lowerTimeBound = this._viewer.clock.currentTime;
+        }
+        if (JulianDate.greaterThan(this._viewer.clock.currentTime, source.upperTimeBound)) {
+            source.upperTimeBound = this._viewer.clock.currentTime;
+        }
+        CesiumClient.setSourcesWithLegends(sourcesWithLegends);
+    };
+
     getKey(url: string) {
         return "cesiumCelestial-".concat(url);
     }
@@ -159,7 +165,7 @@ export default class CelestialBodyDataSource extends WesDataSource {
         if (isLoading) {
             return;
         }
-        CesiumClient.addEventListener("timeChanged", this._listener);
+        CesiumClient.addEventListener("timeChanged", this.listener);
         //Assign easy names
         const celestialBodies = this._entityCollection as EntityCollection;
 
@@ -193,7 +199,7 @@ export default class CelestialBodyDataSource extends WesDataSource {
         return;
     }
 
-    setDate(specifiedDate: Date | any = null) {
+    setDate(specifiedDate: Date | null = null) {
         if (specifiedDate != null) {
             this._date = specifiedDate;
         } else {
@@ -241,6 +247,10 @@ export default class CelestialBodyDataSource extends WesDataSource {
         // Update the upper bound time for the service to the new end time.
         const sourcesWithLegends = CesiumClient.sourcesWithLegends();
         const source = sourcesWithLegends.find((src: LegendSource) => src.uid == this.uid);
+        if (source == null) {
+            this.loadService();
+            return;
+        }
         source.upperTimeBound = julianEndTime;
         CesiumClient.setSourcesWithLegends(sourcesWithLegends);
 
@@ -265,7 +275,10 @@ export default class CelestialBodyDataSource extends WesDataSource {
         }
     }
 
-    updateCelestialPosition(sat: any, timeChanged: boolean = false) {
+    updateCelestialPosition(sat: Entity, timeChanged: boolean = false) {
+        if (sat.properties == null || sat.properties.satrec == null) {
+            return;
+        }
         const satrec = sat.properties.satrec.valueOf();
 
         // Get the date X seconds into the future
@@ -298,7 +311,10 @@ export default class CelestialBodyDataSource extends WesDataSource {
         } catch (err) {
             return;
         }
-        sat.position.addSample(JulianDate.fromDate(date), cesPosition);
+        if (sat.position == null) {
+            return;
+        }
+        (sat.position as SampledPositionProperty).addSample(JulianDate.fromDate(date), cesPosition);
         return;
     }
 
@@ -371,7 +387,7 @@ export default class CelestialBodyDataSource extends WesDataSource {
      * @param {string} tle2 Description line 2 of the tle
      * @returns {Date} Either the exact launch date, or the first date in the launch year.
      */
-    getLaunchDateFromRevs(tle1: string, tle2: string) {
+    getLaunchDateFromRevs(tle1: string, tle2: string): Date {
         //Calculate Epoch Year/Day/Time
         let epochYear = parseInt(tle1.split(" ").filter(Boolean)[3].substring(0, 2));
         const epochDays = parseFloat(tle1.split(" ").filter(Boolean)[3].substring(2));
@@ -415,7 +431,7 @@ export default class CelestialBodyDataSource extends WesDataSource {
      * @param {string} tleFirstLine The first description line of the tle.
      * @returns {Date} January 1st 00:00:00.000 of the launch year indicated in the tle.
      */
-    getLaunchYear(tleFirstLine: string) {
+    getLaunchYear(tleFirstLine: string): Date {
         let launchYear = tleFirstLine.split(" ")[2].substring(0, 2);
         if (launchYear <= new Date().getFullYear().toString().substring(2, 4)) {
             launchYear = "20" + launchYear;

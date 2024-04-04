@@ -15,23 +15,27 @@ export function LoadView(): JSX.Element {
         storage: createDeepSignal
     });
     const [selectedView, setSelectedView] = createSignal<ViewRecord>();
-    let editButtonRef: any;
-    let loadButtonRef: any;
+    let editButtonRef: HTMLButtonElement | undefined;
+    let loadButtonRef: HTMLButtonElement | undefined;
     createEffect(() => {
-        editButtonRef.disabled = selectedView() == null;
-        loadButtonRef.disabled = selectedView() == null;
+        if (editButtonRef) {
+            editButtonRef.disabled = selectedView() == null;
+        }
+        if (loadButtonRef) {
+            loadButtonRef.disabled = selectedView() == null;
+        }
     });
-    let viewListRef: any;
+    let viewListRef: HTMLUListElement | undefined;
     createEffect(() => {
         if (selectedView() != undefined && viewListRef) {
             for (const viewEntry of viewListRef.children) {
                 if (viewEntry.id == selectedView()?.id.toString()) {
                     // Do UI changes to signify a view being selected.
                     viewEntry.classList.add("load-view-entry-selected");
-                    viewEntry.children[2].children[0].checked = true;
+                    (viewEntry.children[2].children[0] as HTMLInputElement).checked = true;
                 } else {
                     // Get rid of UI changes for anything that is no longer selected.
-                    viewEntry.children[2].children[0].checked = false;
+                    (viewEntry.children[2].children[0] as HTMLInputElement).checked = false;
                     viewEntry.classList.remove("load-view-entry-selected");
                 }
             }
@@ -43,7 +47,7 @@ export function LoadView(): JSX.Element {
             for (const viewEntry of viewListRef.children) {
                 const result = fuzzySearch(
                     filterValue(),
-                    viewEntry.children[0].innerText + "" + viewEntry.children[1].innerText
+                    (viewEntry.children[0] as HTMLElement).innerText + "" + (viewEntry.children[1] as HTMLElement).innerText
                 );
                 if (result.score > 0 || filterValue() == "") {
                     // If fuzzySearch result > 0 or filterValue is empty, show the entry.
@@ -53,7 +57,7 @@ export function LoadView(): JSX.Element {
                     if (viewEntry.id == selectedView()?.id.toString()) {
                         // If the entry is selected, unselect it.
                         setSelectedView();
-                        viewEntry.children[2].children[0].checked = false;
+                        (viewEntry.children[2].children[0] as HTMLInputElement).checked = false;
                         viewEntry.classList.remove("load-view-entry-selected");
                     }
                     // If fuzzySearch result < 0, hide the entry.
@@ -87,7 +91,7 @@ export function LoadView(): JSX.Element {
                                 placeholder="Filter Views"
                             />
                             <nav class="load-view-layer-list-scroll">
-                                <ul class="load-view-list cslt-list" ref={viewListRef}>
+                                <ul class="load-view-list cslt-list" ref={(viewListRef as HTMLUListElement)}>
                                     <For each={resource()}>
                                         {view => (
                                             <li
@@ -116,7 +120,10 @@ export function LoadView(): JSX.Element {
                             class="load-view-load-button load-bottom-buttons"
                             ref={loadButtonRef}
                             onClick={() => {
-                                handleLoad(selectedView()!.id);
+                                const view = selectedView();
+                                if (view) {
+                                    handleLoad(view.id);
+                                }
                             }}
                         >
                             Load
@@ -124,8 +131,11 @@ export function LoadView(): JSX.Element {
                         <button
                             class="load-view-delete-button load-bottom-buttons"
                             onClick={async () => {
-                                const clear = await handleDelete(selectedView()!.id, refetch);
-                                if (clear) setSelectedView();
+                                const view = selectedView();
+                                if (view) {
+                                    const clear = await handleDelete(view.id, refetch);
+                                    if (clear) setSelectedView();
+                                }
                             }}
                         >
                             Delete
@@ -150,9 +160,17 @@ export function LoadView(): JSX.Element {
                     </div>
                 </div>
             </Show>
-            <Show when={isEditOpened() && selectedView()}>{EditView(selectedView()!)})</Show>
+            <Show when={isEditOpened() && selectedView()}>{editView(selectedView())})</Show>
         </>
     );
+}
+
+function editView(viewRecord: ViewRecord | undefined): JSX.Element {
+    const view = viewRecord;
+    if (view == undefined) {
+        return <></>;
+    }
+    return EditView(view);
 }
 
 async function handleLoad(viewId: bigint) {

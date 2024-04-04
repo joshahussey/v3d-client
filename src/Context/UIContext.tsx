@@ -1,4 +1,4 @@
-import { Accessor, Setter, createContext, useContext } from "solid-js";
+import { Accessor, JSX, Setter, createContext, useContext } from "solid-js";
 import { LegendSource, Wes3DTileSet, WesImageryLayer, WesTerrainObject } from "../types";
 import WesDataSource from "../Datasources/WesDataSource";
 import { Clock, GeoJsonDataSource, KmlDataSource } from "cesium";
@@ -138,7 +138,7 @@ export function getContextSignals(
 }
 const InterfaceContext = createContext<UIContextType>();
 
-export function InterfaceProvider(props: any) {
+export function InterfaceProvider(props: { children: number | boolean | Node | JSX.ArrayElement | (string & object) | null | undefined; }) {
     const signals = {
         baseLayers,
         setBaseLayers,

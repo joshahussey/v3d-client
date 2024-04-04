@@ -1,3 +1,4 @@
 config/
 src/Utils/Wes3dSldStyler.ts
 examples/
+src/solidjs-extension.d.ts

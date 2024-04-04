@@ -164,7 +164,7 @@ export default class AoiDataSource extends WesDataSource {
         entities.resumeEvents();
     }
 
-    async initialize(intervalms = 30000) {
+    async initialize() {
         this.loadService();
     }
 
