@@ -1,6 +1,6 @@
 import {
     add3DTilesObject,
-    addArcGisWMS,
+    addArcGisWMSObject,
     addCelestialObject,
     addGeoJSONObject,
     addKmlObject,
@@ -12,8 +12,20 @@ import {
     addWMSObject,
     addWMTSObject
 } from "../3dMapControllerTypes";
-import { CesiumWindow } from "../types";
-const Controller = (window as CesiumWindow).Map3DController;
+import {
+    add3DTiles,
+    addArcGisWMS,
+    addCelestial,
+    addGeoJSON,
+    addKml,
+    addOGCCoverage,
+    addOGCFeature,
+    addOgcMap,
+    addSensorThings,
+    addWMS,
+    addWMTS,
+    raiseMapStateChangedEvent
+} from "./Controller";
 
 export async function addLayerFromBackend(parsedMessage: { type: string; args: [AddRequestObject] }) {
     let args = parsedMessage.args;
@@ -36,8 +48,8 @@ export async function addLayerFromBackend(parsedMessage: { type: string; args: [
                     serviceInfo: arg.serviceInfo
                 });
             }
-            Controller.addWMS(receivedMessageObjects);
-            Controller.raiseMapStateChangedEvent();
+            addWMS(receivedMessageObjects as addWMSObject[]);
+            raiseMapStateChangedEvent();
             break;
         case "WMTS":
             for (const arg of args as [addWMTSObject]) {
@@ -56,11 +68,11 @@ export async function addLayerFromBackend(parsedMessage: { type: string; args: [
                     serviceInfo: arg.serviceInfo
                 });
             }
-            Controller.addWMTS(receivedMessageObjects);
-            Controller.raiseMapStateChangedEvent();
+            addWMTS(receivedMessageObjects as addWMTSObject[]);
+            raiseMapStateChangedEvent();
             break;
         case "ARCGISWMS":
-            for (const arg of args as [addArcGisWMS]) {
+            for (const arg of args as [addArcGisWMSObject]) {
                 receivedMessageObjects.push({
                     uid: arg.uid,
                     url: arg.url,
@@ -71,8 +83,8 @@ export async function addLayerFromBackend(parsedMessage: { type: string; args: [
                     serviceInfo: arg.serviceInfo
                 });
             }
-            Controller.addArcGisWMS(receivedMessageObjects);
-            Controller.raiseMapStateChangedEvent();
+            addArcGisWMS(receivedMessageObjects as addArcGisWMSObject[]);
+            raiseMapStateChangedEvent();
             break;
         case "OGCMAP":
             for (const arg of args as [addOGCMapObject]) {
@@ -84,8 +96,8 @@ export async function addLayerFromBackend(parsedMessage: { type: string; args: [
                     serviceInfo: arg.serviceInfo
                 });
             }
-            Controller.addOgcMap(receivedMessageObjects);
-            Controller.raiseMapStateChangedEvent();
+            addOgcMap(receivedMessageObjects as addOGCMapObject[]);
+            raiseMapStateChangedEvent();
             break;
         case "FEATURE":
             for (const arg of args as [addOGCFeatureObject]) {
@@ -98,8 +110,8 @@ export async function addLayerFromBackend(parsedMessage: { type: string; args: [
                     serviceInfo: arg.serviceInfo
                 });
             }
-            Controller.addOGCFeature(receivedMessageObjects);
-            Controller.raiseMapStateChangedEvent();
+            addOGCFeature(receivedMessageObjects as addOGCFeatureObject[]);
+            raiseMapStateChangedEvent();
             break;
         case "COVERAGE":
             for (const arg of args as [addOGCCoverageObject]) {
@@ -114,8 +126,8 @@ export async function addLayerFromBackend(parsedMessage: { type: string; args: [
                     serviceInfo: arg.serviceInfo
                 });
             }
-            Controller.addOGCCoverage(receivedMessageObjects);
-            Controller.raiseMapStateChangedEvent();
+            addOGCCoverage(receivedMessageObjects as addOGCCoverageObject[]);
+            raiseMapStateChangedEvent();
             break;
         case "CELESTIAL":
             for (const arg of args as [addCelestialObject]) {
@@ -127,8 +139,8 @@ export async function addLayerFromBackend(parsedMessage: { type: string; args: [
                     serviceInfo: arg.serviceInfo
                 });
             }
-            Controller.addCelestial(receivedMessageObjects);
-            Controller.raiseMapStateChangedEvent();
+            addCelestial(receivedMessageObjects as addCelestialObject[]);
+            raiseMapStateChangedEvent();
             break;
         case "SENSORTHINGS":
             for (const arg of args as [addSensorThingsObject]) {
@@ -141,8 +153,8 @@ export async function addLayerFromBackend(parsedMessage: { type: string; args: [
                     serviceInfo: arg.serviceInfo
                 });
             }
-            Controller.addSensorThings(receivedMessageObjects);
-            Controller.raiseMapStateChangedEvent();
+            addSensorThings(receivedMessageObjects as addSensorThingsObject[]);
+            raiseMapStateChangedEvent();
             break;
         case "GEOJSON":
             for (const arg of args as [addGeoJSONObject]) {
@@ -154,8 +166,8 @@ export async function addLayerFromBackend(parsedMessage: { type: string; args: [
                     serviceInfo: arg.serviceInfo
                 });
             }
-            Controller.addGeoJSON(receivedMessageObjects);
-            Controller.raiseMapStateChangedEvent();
+            addGeoJSON(receivedMessageObjects as addGeoJSONObject[]);
+            raiseMapStateChangedEvent();
             break;
         case "KML":
             for (const arg of args as [addKmlObject]) {
@@ -167,8 +179,8 @@ export async function addLayerFromBackend(parsedMessage: { type: string; args: [
                     serviceInfo: arg.serviceInfo
                 });
             }
-            Controller.addKml(receivedMessageObjects);
-            Controller.raiseMapStateChangedEvent();
+            addKml(receivedMessageObjects as addKmlObject[]);
+            raiseMapStateChangedEvent();
             break;
         case "3DTILES":
             for (const arg of args as [add3DTilesObject]) {
@@ -180,8 +192,8 @@ export async function addLayerFromBackend(parsedMessage: { type: string; args: [
                     serviceInfo: arg.serviceInfo
                 });
             }
-            Controller.add3DTiles(receivedMessageObjects);
-            Controller.raiseMapStateChangedEvent();
+            add3DTiles(receivedMessageObjects as add3DTilesObject[]);
+            raiseMapStateChangedEvent();
             break;
         default:
             break;

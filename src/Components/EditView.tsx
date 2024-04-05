@@ -3,6 +3,7 @@ import { CesiumWindow, ViewRecord } from "../types";
 import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { MAX_CHARS_100, MAX_CHARS_1024, VIEWS_SERVLET_URL } from "../Constants";
 import { saveViewParameters } from "../Utils/SaveView";
+import { getMapState } from "../Utils/Controller";
 
 export function EditView(view: ViewRecord) {
     const { setEditOpened, setLoadOpened } = useToolbarStateContext() as ToolbarContextType;
@@ -76,7 +77,7 @@ async function edit(id: bigint, title: string, description: string): Promise<boo
 
     const cesiumWindow = window as CesiumWindow;
     saveViewParameters(cesiumWindow.Map3DViewer, cesiumWindow.optionsMap);
-    const mapState = cesiumWindow.Map3DController.getMapState();
+    const mapState = getMapState();
 
     const args = {
         type: "editView",

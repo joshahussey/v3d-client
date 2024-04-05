@@ -34,7 +34,13 @@ import CoverageApiDataSource from "./Datasources/CoverageApiDataSource";
 import { Accessor, Setter } from "solid-js";
 import CelestialBodyDataSource from "./Datasources/CelestialBodyDataSource";
 import { indexedPoint, indexedLine, indexedPolygon } from "./Utils/Utils";
-import { CesiumPointSymbolizerObject, CesiumLineSymbolizerObject, CesiumPolygonSymbolizerObject, CesiumTextSymbolizerObject, CesiumRasterSymbolizerObject } from "./Utils/Wes3dSldStyler"
+import {
+    CesiumPointSymbolizerObject,
+    CesiumLineSymbolizerObject,
+    CesiumPolygonSymbolizerObject,
+    CesiumTextSymbolizerObject,
+    CesiumRasterSymbolizerObject
+} from "./Utils/Wes3dSldStyler";
 export interface WesDatasources extends DataSourceCollection {
     _dataSources: WesDataSource[];
 }
@@ -115,6 +121,7 @@ export type CoverageReferenceObject = {
 
 export type LegendSource = {
     uid: string;
+    type: string;
     minValue?: number;
     maxValue?: number;
     id: string;
@@ -122,12 +129,12 @@ export type LegendSource = {
     currentTime: JulianDate;
     lowerTimeBound: JulianDate;
     upperTimeBound: JulianDate;
-    symbolizer?: CesiumRasterSymbolizer
-}
+    symbolizer?: CesiumRasterSymbolizer;
+};
 export type CoverageAxesObject = object & {
     x: AxisObject;
     y: AxisObject;
-}
+};
 
 export type FeaturesCollectionTemporal = {
     interval: string[][];
@@ -138,7 +145,7 @@ export type AxisObject = object & {
     start: number;
     stop: number;
     num: number;
-}
+};
 export type CesiumWindow = Window &
     typeof globalThis & {
         aoiBufferPrimitives?: Array<GroundPrimitive>;
@@ -147,7 +154,6 @@ export type CesiumWindow = Window &
         setTimeMap: Setter<Map<string, [JulianDate, JulianDate]>>;
         timeMap: Accessor<Map<string, [JulianDate, JulianDate]>>;
         Map3DViewer: Viewer;
-        Map3DController: Map3DController;
         optionsMap: Accessor<Map<Wes3dMapLayer, WesLayerPropertiesObject>>;
         timeline?: Timeline;
         setCatalogOpen?: (isOpen: boolean) => void;
@@ -161,49 +167,140 @@ export type WesTerrainObject = {
     type: "Terrain";
 };
 
-export type WesImageryObject = {
+export type WesImageryObject = csltWMSOption | csltWMTSOption | csltArcGISWMSOption | csltOGCMapOption;
+export type csltWMTSOption = {
     uid: string;
     type: string;
-    cesiumBuiltinType?: string;
-    baseMapLayer: string;
     name: string;
-    layer: string;
     description: string;
     url: string;
+    serviceInfo: ServiceInfo;
+    bounds: ImageryBounds;
+    layer: string;
     style: string;
+    format: string;
     tileMatrixSetID: string;
     maximumLevel: number;
+    credit: string;
     show: boolean;
     alpha: number;
-    format: string;
+};
+export type csltOGCMapOption = {
+    uid: string;
+    type: string;
+    name: string;
+    show: boolean;
+    url: string;
+    serviceInfo: ServiceInfo;
+    bounds: ImageryBounds;
+    description: string;
     credit: string;
+};
+export type csltWMSOption = {
+    uid: string;
+    type: string;
+    name: string;
+    description: string;
+    url: string;
+    serviceInfo: ServiceInfo;
+    bounds: ImageryBounds;
     layers: string;
     parameters: { [key: string]: string };
-    IonResourceAssetId: number;
-    serviceInfo: ServiceInfo;
-    bounds: ImageryBounds;
-};
-
-export type WesPrimitiveObject = {
-    uid: string;
-    name: string;
-    type: string;
+    credit: string;
     show: boolean;
-    url: string;
-    serviceInfo: ServiceInfo;
+    alpha: number;
 };
-
-export type WesDataSourceObject = {
+export type csltArcGISWMSOption = {
+    uid: string;
+    type: string;
+    name: string;
     description: string;
-    uid: string;
-    name: string;
-    type: string;
     url: string;
-    show: boolean;
-    sourceLayerIndex: number | null;
-    id: string;
     serviceInfo: ServiceInfo;
     bounds: ImageryBounds;
+    credit: string;
+};
+export type csltCesiumBuiltInOption = {
+    uid: string;
+    cesiumBuiltinType: string;
+    name: string;
+    description: string;
+    type: string;
+    baseMapLayer: boolean;
+    IonResourceAssetId: number;
+}
+
+export type WesPrimitiveObject = cslt3DTilesOption;
+export type cslt3DTilesOption = {
+    uid: string;
+    type: string;
+    name: string;
+    description: string;
+    url: string;
+    serviceInfo: ServiceInfo;
+    show: boolean;
+};
+
+export type WesDataSourceObject =
+    | csltOGCCoverageOption
+    | csltOGCFeatureOption
+    | csltSensorThingsOption
+    | csltCelestialOption
+    | csltGeoJsonOption
+    | csltKMLOption;
+
+export type csltSensorThingsOption = {
+    uid: string;
+    type: string;
+    name: string;
+    description: string;
+    url: string;
+    bounds: ImageryBounds;
+    serviceInfo: ServiceInfo;
+};
+export type csltCelestialOption = {
+    uid: string;
+    type: string;
+    name: string;
+    description: string;
+    url: string;
+    serviceInfo: ServiceInfo;
+};
+export type csltGeoJsonOption = {
+    uid: string;
+    name: string;
+    description: string;
+    url: string;
+    type: string;
+    serviceInfo: ServiceInfo;
+};
+export type csltKMLOption = {
+    uid: string;
+    name: string;
+    description: string;
+    url: string;
+    type: string;
+    serviceInfo: ServiceInfo;
+};
+export type csltOGCFeatureOption = {
+    uid: string;
+    type: string;
+    name: string;
+    description: string;
+    url: string;
+    bounds: ImageryBounds;
+    serviceInfo: ServiceInfo;
+};
+export type csltOGCCoverageOption = {
+    uid: string;
+    type: string;
+    name: string;
+    description: string;
+    url: string;
+    bounds: ImageryBounds;
+    serviceInfo: ServiceInfo;
+    sourceLayerIndex: number;
+    id: string;
 };
 
 export type WesLayerPropertiesObject = WesImageryObject | WesDataSourceObject | WesPrimitiveObject | WesTerrainObject;
@@ -219,7 +316,7 @@ export type ImageryBounds = {
     minY: number;
     maxX: number;
     maxY: number;
-}
+};
 export interface WesGeoJsonDataSource extends GeoJsonDataSource {
     description: string;
     uid: string;
@@ -294,7 +391,6 @@ export type Wes3dMapLayer =
     | CoverageApiDataSource
     | Wes3DTileSet;
 
-export type Map3DController = any;
 export type MapState = {
     accessToken: string;
     googleToken: string;
@@ -401,10 +497,10 @@ export type ModelProperty = {
     ColorBlendAmount?: number;
     LightColor?: RGBA;
     Orientation?: {
-        Yaw: string|number|{PropertyName: string};
-        Pitch: string|number|{PropertyName: string};
-        Roll: string|number|{PropertyName: string};
-    }
+        Yaw: string | number | { PropertyName: string };
+        Pitch: string | number | { PropertyName: string };
+        Roll: string | number | { PropertyName: string };
+    };
     DistanceDisplayCondition?: {
         Near: number;
         Far: number;
@@ -416,7 +512,7 @@ export type RGBA = [number, number, number, number];
 type Font = {
     family: string;
     size: number;
-}
+};
 
 export type LabelProperty = {
     Text: string | { PropertyName: string };
@@ -444,7 +540,7 @@ export type LabelProperty = {
         Near: number;
         Far: number;
     };
-}
+};
 
 export type BillboardProperty = {
     Image: string;
@@ -496,7 +592,8 @@ export type FormattedFeatureTypeStyleRule = {
     polygonSymbolizers: CesiumPolygonSymbolizer[];
     textSymbolizers: CesiumTextSymbolizer[];
     rasterSymbolizers: CesiumRasterSymbolizer[];
-};export interface FilterObject {
+};
+export interface FilterObject {
     operator: "and" | "or" | null;
     comparisons: any;
 }

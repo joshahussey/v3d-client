@@ -27,7 +27,6 @@ import { showEntityProperties } from "./Utils/EntitySelection";
 import { applyViewParameters, loadViewParameters, saveViewParameters, zoomToLoadedView } from "./Utils/SaveView";
 import {
     CesiumWindow,
-    Map3DController,
     MapState,
     Wes3DTileSet,
     WesDataSourceObject,
@@ -43,8 +42,14 @@ import {
     WesGeoJsonDataSource,
     WesKmlDataSource,
     WesLayerPropertiesObject,
-    Wes3dMapLayer
+    Wes3dMapLayer,
+    csltWMTSOption,
+    csltWMSOption,
+    csltCesiumBuiltInOption,
+    csltOGCFeatureOption,
+    csltOGCCoverageOption
 } from "./types";
+import { getMapState, onLoad, setMapState } from "./Utils/Controller";
 import { createStore } from "solid-js/store";
 import { createLiveWmsPeriodString, isLiveWms } from "./Utils/TimeParser";
 import FeaturesApiLiveDataSource from "./Datasources/FeaturesApiLiveDatasource";
@@ -98,8 +103,6 @@ import { addLayerFromBackend } from "./Utils/AddLayerFromBackend";
 type WesPrimitiveCollection = PrimitiveCollection & {
     _primitives: Wes3DTileSet[];
 };
-
-const Controller = (window as CesiumWindow).Map3DController;
 
 localStorage.setItem("cesiumOpened", "true");
 window.onbeforeunload = function () {
@@ -495,7 +498,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             }
         });
         mapState.dataSources = Array.from(mapStateOptions);
-        Controller.setMapState(mapState);
+        setMapState(mapState);
     }
 
     function syncImageryLayers() {
@@ -548,7 +551,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         const selLayer = map.get(selectedLayer());
         stateLayers.push(selLayer as WesImageryObject);
         mapState.imageLayers = stateLayers;
-        Controller.setMapState(mapState);
+        setMapState(mapState);
     }
 
     function syncPrimitiveLayers() {
@@ -583,7 +586,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             }
         });
         mapState.primitiveLayers = Array.from(mapStateOptions);
-        Controller.setMapState(mapState);
+        setMapState(mapState);
     }
 
     function reorderBaseMapOptions(layer: WesImageryLayer) {
@@ -595,11 +598,11 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             }
         }
         mapState.baseMapLayers = basemapOptions;
-        Controller.setMapState(mapState);
+        setMapState(mapState);
     }
 
     async function getLayerStates() {
-        mapState = Controller.getMapState();
+        mapState = getMapState();
         imageryOptions = mapState.imageLayers;
         basemapOptions = mapState.baseMapLayers;
     }
@@ -830,7 +833,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                     }
                 }
                 mapState.terrainSets = terrainSetsArray;
-                Controller.setMapState(mapState);
+                setMapState(mapState);
                 setTerrainSets(terrainSetsArray);
             }
         }
@@ -858,11 +861,11 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             return new WebMapTileServiceImageryProvider({
                 url: resource,
                 //name: option.name,
-                layer: option.layer,
-                style: option.style,
-                format: option.format,
-                tileMatrixSetID: option.tileMatrixSetID,
-                maximumLevel: option.maximumLevel,
+                layer: (option as csltWMTSOption).layer,
+                style: (option as csltWMTSOption).style,
+                format: (option as csltWMTSOption).format,
+                tileMatrixSetID: (option as csltWMTSOption).tileMatrixSetID,
+                maximumLevel: (option as csltWMTSOption).maximumLevel,
                 credit: option.credit
             }) as WesWebMapTileServiceImageryProvider;
         }
@@ -879,9 +882,9 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             });
         }
         if (option.type === "WMS") {
-            const isTemporal = await isLiveWms(option.layers, option.url);
+            const isTemporal = await isLiveWms((option as csltWMSOption).layers, option.url);
             if (isTemporal) {
-                const wmsDescriptor = await createLiveWmsPeriodString(option.layers);
+                const wmsDescriptor = await createLiveWmsPeriodString((option as csltWMSOption).layers);
                 const dataCallback = (interval: TimeInterval, index: number) => {
                     let time;
                     if (index === 0) {
@@ -909,8 +912,8 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                 return new WebMapServiceImageryProvider({
                     url: option.url,
                     //name: option.name,
-                    layers: option.layers,
-                    parameters: option.parameters,
+                    layers: (option as csltWMSOption).layers,
+                    parameters: (option as csltWMSOption).parameters,
                     tileHeight: 4000,
                     tileWidth: 4000,
                     credit: option.credit,
@@ -923,21 +926,21 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             return new WebMapServiceImageryProvider({
                 url: option.url,
                 //name: option.name,
-                layers: option.layers,
-                parameters: option.parameters,
+                layers: (option as csltWMSOption).layers,
+                parameters: (option as csltWMSOption).parameters,
                 credit: option.credit,
                 enablePickFeatures: false,
                 rectangle: bounds
             });
         }
         if (option.type === "CesiumBuiltin") {
-            switch (option.cesiumBuiltinType) {
+            switch ((option as unknown as csltCesiumBuiltInOption).cesiumBuiltinType) {
                 case "bingMaps":
                     return createWorldImageryAsync({ style: IonWorldImageryStyle.AERIAL_WITH_LABELS });
 
                 case "ionResource":
                     return new IonImageryProvider({
-                        assetId: option.IonResourceAssetId
+                        assetId: (option as unknown as csltCesiumBuiltInOption).IonResourceAssetId
                     } as IonImageryProvider.ConstructorOptions);
 
                 default:
@@ -1098,7 +1101,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                     dataSourceOption.url,
                     viewer,
                     dataSourceOption.uid,
-                    dataSourceOption.bounds,
+                    (dataSourceOption as csltOGCFeatureOption).bounds,
                     dataSourceOption.serviceInfo
                 );
                 break;
@@ -1165,19 +1168,19 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                 }
                 break;
             case "coverage":
-                if (dataSourceOption.sourceLayerIndex == null) {
+                if ((dataSourceOption as csltOGCCoverageOption).sourceLayerIndex == null) {
                     console.warn(t("3dMapAddDatasourceWarning1"));
-                    dataSourceOption.sourceLayerIndex = 0;
+                    (dataSourceOption as csltOGCCoverageOption).sourceLayerIndex = 0;
                 }
                 createdDataSource = new CoverageApiDataSource(
                     dataSourceOption.description,
                     dataSourceOption.name,
                     dataSourceOption.url,
                     viewer,
-                    dataSourceOption.id,
-                    dataSourceOption.sourceLayerIndex,
+                    (dataSourceOption as csltOGCCoverageOption).id,
+                    (dataSourceOption as csltOGCCoverageOption).sourceLayerIndex,
                     dataSourceOption.uid,
-                    dataSourceOption.bounds,
+                    (dataSourceOption as csltOGCCoverageOption).bounds,
                     dataSourceOption.serviceInfo
                 );
                 createdDataSource._name = `${dataSourceOption.name}`;
@@ -1313,7 +1316,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
 };
 
 ////////////////////////////////////////////// Initialize Map //////////////////////////////////////////////
-(Controller as Map3DController).onLoad().then(async (mapState: MapState) => {
+onLoad(false).then(async (mapState: MapState) => {
     //The loading indicator that is removed when the map is loaded
     const loadingOverlay = document.getElementById("loadingOverlay");
     if (loadingOverlay !== null) {

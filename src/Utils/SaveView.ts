@@ -2,7 +2,7 @@ import { Accessor } from "solid-js";
 import FeaturesApiDataSource from "../Datasources/FeaturesApiDataSource";
 import { Cartesian3, Cesium3DTileset, ImageryLayer, Viewer } from "cesium";
 import CelestialBodyDataSource from "../Datasources/CelestialBodyDataSource";
-import { CesiumWindow } from "../types";
+import { getMapState, setMapState } from "./Controller";
 
 function enumKeys<O extends object, K extends keyof O = keyof O>(obj: O): K[] {
     return Object.keys(obj).filter(k => Number.isNaN(+k)) as K[];
@@ -19,8 +19,6 @@ function createLayerStub(enumerable: any, layer: any): { [key: string]: any } {
     }
     return layerStub;
 }
-
-const Controller = (window as CesiumWindow).Map3DController;
 
 export enum FeaturesApiParameters {
     HIGHLIGHT_STATUS = "_isHighlighted",
@@ -50,7 +48,7 @@ export enum primitiveParameters {
 }
 
 export function saveViewParameters(viewer: Viewer, optionsMap: Accessor<any>) {
-    const mapState = Controller.getMapState();
+    const mapState = getMapState();
     const savedLayerParameters: { [key: string]: any }[] = [];
     const optionsList = optionsMap().keys();
     for (const option of optionsList) {
@@ -81,7 +79,7 @@ export function saveViewParameters(viewer: Viewer, optionsMap: Accessor<any>) {
     const cameraPosition = [...position, ...direction, ...up];
     mapState.cameraPosition = cameraPosition;
     mapState.saveLayerParameters = savedLayerParameters;
-    Controller.setMapState(mapState);
+    setMapState(mapState);
 }
 
 export function loadViewParameters() {
@@ -89,7 +87,7 @@ export function loadViewParameters() {
 }
 
 export function applyViewParameters(viewer: Viewer, optionsMap: Accessor<any>) {
-    const mapState = Controller.getMapState();
+    const mapState = getMapState();
     const optionsList = optionsMap().keys();
     const savedLayerParameters: { [key: string]: any }[] = mapState.saveLayerParameters;
     if (savedLayerParameters) {
@@ -108,7 +106,7 @@ export function applyViewParameters(viewer: Viewer, optionsMap: Accessor<any>) {
 }
 
 export function zoomToLoadedView(viewer: Viewer) {
-    const mapState = Controller.getMapState();
+    const mapState = getMapState();
     const cameraPosition = mapState.cameraPosition;
     if (cameraPosition) {
         if (cameraPosition.length === 9) {

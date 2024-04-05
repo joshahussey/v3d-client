@@ -10,7 +10,7 @@ export type WGS84BoundingBox = {
 export type AddRequestObject = (
     addWMSObject | 
     addWMTSObject | 
-    addArcGisWMS | 
+    addArcGisWMSObject | 
     add3DTilesObject | 
     addSensorThingsObject | 
     addCelestialObject | 
@@ -48,7 +48,7 @@ export type addWMTSObject = {
     serviceInfo: ServiceInfo;
 };
 
-export type addArcGisWMS = {
+export type addArcGisWMSObject = {
     uid: string;
     url: string;
     title: string;
@@ -64,6 +64,7 @@ export type add3DTilesObject = {
     title: string;
     description: string;
     serviceInfo: ServiceInfo;
+    show?: boolean
 };
 
 export type addSensorThingsObject = {
