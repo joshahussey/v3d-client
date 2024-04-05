@@ -313,212 +313,6 @@ export function createShapeEntity(geoJson: OGCFeature, id: string, name: string)
 }
 
 /**
- * Gets the feature type and object representing coordinates of that type formatted for use with corresponding cesium shape graphics.
- *
- * @param geoJSON object} geoJson A geoJson object.
- * @returns [string, object]} An array containing the type string and the graphics object. **Will also contain a model at index 1 if type is point.
- * @returns string} A string designating the type of object.
- * @returns Object} An object formatted for insertion into graphics objects.
- */
-export function getFeatureLocationAndType(geoJson: OGCFeature) {
-    //keep
-    //if (typeof geoJson != "object") {
-    //    return false;
-    //}
-
-    const geom = new GeoJsonDecoder(geoJson);
-    const shapes = geom.getAll();
-    let caseType = "default";
-    if ((shapes as GeoJsonGetAllResult)[0].length !== 0) {
-        caseType = "point";
-    } else if ((shapes as GeoJsonGetAllResult)[1].length !== 0) {
-        caseType = "line";
-    } else if ((shapes as GeoJsonGetAllResult)[2].length !== 0) {
-        caseType = "polygon";
-    }
-
-    let lineObj;
-    let polygonObj;
-    let position;
-
-    switch (caseType) {
-        case "point": {
-            const point = buildPoint(shapes as GeoJsonGetAllResult);
-            if (point[2] === 0) {
-                const zKey = findMetaZKey(geoJson);
-                if (zKey !== false) {
-                    point[2] = geoJson.properties![zKey];
-                }
-            }
-            const hReference = heightReferenceCheck(point);
-            position = Cartesian3.fromDegrees(Number(point[0]), Number(point[1]), Number(point[2]));
-            const model = {
-                heightReference: hReference,
-                scale: 1
-            };
-            return ["model", model, position];
-        }
-
-        case "line": {
-            const lineNoHeight = buildLineHasNoHeight(shapes as GeoJsonGetAllResult);
-            if (lineNoHeight === false) {
-                const line = buildLine(shapes as GeoJsonGetAllResult);
-                position = Cartesian3.fromDegreesArrayHeights(line);
-                lineObj = {
-                    positions: position,
-                    width: 3,
-                    material: Color.PURPLE
-                };
-            } else {
-                position = Cartesian3.fromDegreesArray(lineNoHeight);
-                lineObj = {
-                    positions: position,
-                    width: 3,
-                    material: Color.PURPLE,
-                    clampToGround: true
-                };
-            }
-            return ["polyline", lineObj];
-        }
-
-        case "polygon": {
-            const polygonNoHeight = buildPolygonHasNoHeight(shapes as GeoJsonGetAllResult);
-            if (polygonNoHeight === false) {
-                const polygon = buildPolygon(shapes as GeoJsonGetAllResult);
-                const rings = polygon.length;
-                let ringNum = rings;
-                const holeArr = [];
-                let holeObj;
-                let polygonHier;
-
-                while (ringNum) {
-                    if (ringNum > 1) {
-                        position = Cartesian3.fromDegreesArrayHeights(polygon[ringNum - 1]);
-                        holeObj = {
-                            positions: position
-                        };
-                        holeArr.push(holeObj);
-                    } else {
-                        position = Cartesian3.fromDegreesArrayHeights(polygon[ringNum - 1]);
-                        polygonHier = {
-                            positions: position,
-                            holes: holeArr
-                        };
-                    }
-                    ringNum--;
-                }
-                polygonObj = {
-                    hierarchy: polygonHier,
-                    width: 3,
-                    material: Color.ORANGE.withAlpha(0.4),
-                    outline: true,
-                    outlineColor: Color.BLACK,
-                    outlineWidth: 2,
-                    height: 0
-                };
-            } else {
-                const rings = (polygonNoHeight as Array<Array<number>>).length;
-                let ringNum = rings;
-                const holeArr = [];
-                let holeObj;
-                let polygonHier;
-                while (ringNum) {
-                    if (ringNum > 1) {
-                        position = Cartesian3.fromDegreesArray((polygonNoHeight as Array<Array<number>>)[ringNum - 1]);
-                        holeObj = {
-                            positions: position
-                        };
-                        holeArr.push(holeObj);
-                    } else {
-                        position = Cartesian3.fromDegreesArray((polygonNoHeight as Array<Array<number>>)[ringNum - 1]);
-                        polygonHier = {
-                            positions: position,
-                            holes: holeArr
-                        };
-                    }
-                    ringNum--;
-                }
-                polygonObj = {
-                    hierarchy: polygonHier,
-                    width: 3,
-                    material: Color.ORANGE.withAlpha(0.4),
-                    outline: true,
-                    outlineColor: Color.BLACK,
-                    outlineWidth: 2,
-                    height: 0
-                };
-            }
-            return ["polygon", polygonObj];
-        }
-
-        case "default":
-            return false;
-    }
-}
-
-/**
- * Looks for a Z coordinate key in the metadata of a feature.
- *
- * @param geoJSON object} geoJson A geoJson object.
- * @returns {string} zKey The string representing the Key that an appropriate Z coordinate is stored at in the geoJson properties of the feature.
- */
-export function findMetaZKey(geoJson: OGCFeature): string | false {
-    let zKey: string | boolean = false;
-    const zKeyArr = [/z/i, /\w*altitude\w*/i, /\w*elevation\w*/i, /\w*heigh\w*/i];
-    let numKeyAttempts = zKeyArr.length;
-    const propertyKeysArr = Object.keys(geoJson.properties!);
-    while (numKeyAttempts) {
-        const i = numKeyAttempts - 1;
-        let numPropKeys = propertyKeysArr.length;
-        while (numPropKeys) {
-            const j = numPropKeys - 1;
-            const possibleKey = zKeyArr[i].exec(propertyKeysArr[j]);
-            if (possibleKey != null) {
-                const notNum = isNaN(geoJson.properties![possibleKey[0]]);
-                if (!notNum) {
-                    zKey = possibleKey[0];
-                    return zKey;
-                }
-            }
-            numPropKeys--;
-        }
-        numKeyAttempts--;
-    }
-    return zKey;
-}
-
-/**
- * Looks for an orientation key in the metadata of a feature.
- *
- * @param geoJSON object} geoJson A geoJson object.
- * @returns string} orientationKey The string representing the Key that an appropriate orientation value is stored at in the geoJson properties of the feature.
- */
-export function checkForOrientationKey(geoJson: OGCFeature) {
-    let orientationKey: string | boolean = false;
-    const oKeyArr = [/\w*heading\w*/i];
-    let numKeyAttempts = oKeyArr.length;
-    const propertyKeysArr = Object.keys(geoJson.properties!);
-    while (numKeyAttempts) {
-        const i = numKeyAttempts - 1;
-        let numPropKeys = propertyKeysArr.length;
-        while (numPropKeys) {
-            const j = numPropKeys - 1;
-            const possibleKey = oKeyArr[i].exec(propertyKeysArr[j]);
-            if (possibleKey != null) {
-                const notNum = isNaN(geoJson.properties![possibleKey[0]]);
-                if (!notNum) {
-                    orientationKey = possibleKey[0];
-                    return orientationKey;
-                }
-            }
-            numPropKeys--;
-        }
-        numKeyAttempts--;
-    }
-    return orientationKey;
-}
-
-/**
  * Converts a HEX formatted colour to RGBA colour values.
  *
  * @param string} hex A HEX formatted colour.
@@ -582,7 +376,6 @@ function componentToHex(c: number) {
  * @param number} pointIndex  The index of the point in the points array within the coordinates array. Defaults to zero if null.
  * @return array} An array containing the 3 Dimensional point, formatted [x,y,z].
  */
-
 export function buildPoint(geoJsonGetAllResult: GeoJsonGetAllResult, pointIndex?: number) {
     if (pointIndex == undefined) {
         pointIndex = 0;
@@ -895,9 +688,9 @@ export function mainSwitch(
         case "geometrycollection":
             (object as GeometryCollection).geometries.forEach(function (element) {
                 const newCoordinates = mainSwitch(element, coordinateArray);
-                points = coordinateArray![0].concat(newCoordinates[0]);
-                lines = coordinateArray![1].concat(newCoordinates[1]);
-                polygons = coordinateArray![2].concat(newCoordinates[2]);
+                points = coordinateArray[0].concat(newCoordinates[0]);
+                lines = coordinateArray[1].concat(newCoordinates[1]);
+                polygons = coordinateArray[2].concat(newCoordinates[2]);
                 coordinates = [points, lines, polygons];
             });
             break;
@@ -905,9 +698,9 @@ export function mainSwitch(
         case "featurecollection":
             (object as FeatureCollection).features.forEach(function (element) {
                 const newCoordinates = mainSwitch(element, coordinateArray);
-                points = coordinateArray![0].concat(newCoordinates[0]);
-                lines = coordinateArray![1].concat(newCoordinates[1]);
-                polygons = coordinateArray![2].concat(newCoordinates[2]);
+                points = coordinateArray[0].concat(newCoordinates[0]);
+                lines = coordinateArray[1].concat(newCoordinates[1]);
+                polygons = coordinateArray[2].concat(newCoordinates[2]);
                 coordinates = [points, lines, polygons];
             });
             break;

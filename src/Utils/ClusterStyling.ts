@@ -12,7 +12,7 @@ export function styleDefaultClusters(dataSource: DataSource, viewer: Viewer) {
             cluster.billboard.show = true;
             cluster.billboard.id = cluster.label.id;
             cluster.billboard.verticalOrigin = VerticalOrigin.BOTTOM;
-            cluster.billboard.image = createClusterImage(clusteredEntities.length) as any;
+            cluster.billboard.image = createClusterImage(clusteredEntities.length) as unknown as string;
             cluster.billboard.width = 56;
             cluster.billboard.height = 56;
             //cluster.billboard!.disableDepthTestDistance = POSTIVE_INFINITY_PROPERTY;
@@ -31,6 +31,7 @@ export function styleDefaultClusters(dataSource: DataSource, viewer: Viewer) {
 
 export function styleGeoJsonBillboard(dataSource: DataSource, viewer: Viewer) {
     dataSource.entities.collectionChanged.addEventListener(function (_collection, added, _removed) {
+        _removed;
         const camDist = viewer.camera.positionCartographic.height;
         const depthDistCondition = camDist + 6378137;
         added.forEach(function (entity: Entity) {

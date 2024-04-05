@@ -3,13 +3,15 @@ import FeaturesApiDataSource from "../Datasources/FeaturesApiDataSource";
 import { Cartesian3, Cesium3DTileset, ImageryLayer, Viewer } from "cesium";
 import CelestialBodyDataSource from "../Datasources/CelestialBodyDataSource";
 import { getMapState, setMapState } from "./Controller";
+import { Wes3DTileSet, Wes3dMapLayer, WesImageryLayer, WesLayerPropertiesObject } from "../types";
+import WesDataSource from "../Datasources/WesDataSource";
 
 function enumKeys<O extends object, K extends keyof O = keyof O>(obj: O): K[] {
     return Object.keys(obj).filter(k => Number.isNaN(+k)) as K[];
 }
 
-function createLayerStub(enumerable: any, layer: any): { [key: string]: any } {
-    const layerStub: { [key: string]: any } = { uid: layer.uid };
+function createLayerStub(enumerable: object, layer: WesDataSource|WesImageryLayer|Wes3DTileSet): { show?: boolean; alpha?: number; uid: string }  {
+    const layerStub: { show?: boolean; alpha?: number; uid: string }  = { uid: layer.uid };
     for (const parameter of enumKeys(enumerable)) {
         const key = enumerable[parameter];
         const value = layer[key];
@@ -47,9 +49,9 @@ export enum primitiveParameters {
     SHOW_STATUS = "show"
 }
 
-export function saveViewParameters(viewer: Viewer, optionsMap: Accessor<any>) {
+export function saveViewParameters(viewer: Viewer, optionsMap: Accessor<Map<Wes3dMapLayer, WesLayerPropertiesObject>>) {
     const mapState = getMapState();
-    const savedLayerParameters: { [key: string]: any }[] = [];
+    const savedLayerParameters:{ show?: boolean; alpha?: number; uid: string }[]  = [];
     const optionsList = optionsMap().keys();
     for (const option of optionsList) {
         const isFeaturesDatasource = option instanceof FeaturesApiDataSource;
@@ -86,17 +88,17 @@ export function loadViewParameters() {
     window.dispatchEvent(new Event("mapStateChanged"));
 }
 
-export function applyViewParameters(viewer: Viewer, optionsMap: Accessor<any>) {
+export function applyViewParameters(optionsMap: Accessor<Map<Wes3dMapLayer, WesLayerPropertiesObject>>) {
     const mapState = getMapState();
     const optionsList = optionsMap().keys();
-    const savedLayerParameters: { [key: string]: any }[] = mapState.saveLayerParameters;
+    const savedLayerParameters = mapState.saveLayerParameters;
     if (savedLayerParameters) {
-        savedLayerParameters.forEach((layerParameter: any) => {
+        savedLayerParameters.forEach((layerParameter) => {
             for (const option of optionsList) {
                 if (option.uid === layerParameter.uid) {
                     for (const key of Object.keys(layerParameter)) {
                         if (key === "uid") continue;
-                        option[key] = layerParameter[key];
+                        (option[key as keyof Wes3dMapLayer] as string) = layerParameter[key as keyof typeof layerParameter] as string;
                     }
                     break;
                 }

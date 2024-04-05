@@ -400,7 +400,7 @@ export type MapState = {
     primitiveLayers: WesPrimitiveObject[];
     terrainSets: WesTerrainObject[];
     cameraPosition: number[];
-    saveLayerParameters: { show: boolean; alpha?: number; uid: string }[];
+    saveLayerParameters: { show?: boolean; alpha?: number; uid: string }[];
 };
 export type UserStyleDefinition = {
     index: number;
@@ -434,47 +434,6 @@ export type CesiumPolylineDescriptor = {
 export type CesiumLineDescriptor = {
     material: Color;
     width: number;
-};
-
-export type TddRule = {
-    Name?: string;
-    Title?: string;
-    Abstract?: string;
-    Filter?: TddFilter;
-    ElseFilter?: TddFilter;
-    PointSymbolizer?: TddPointSymbolizer;
-    LineSymbolizer?: any;
-    PolygonSymbolizer?: TddPolygonSymbolizer;
-    RasterSymbolizer?: any;
-};
-
-export type TddFilter = {
-    PropertyIsEqualTo?: TddPropertyComparisonFilter;
-    PropertyIsNotEqualTo?: TddPropertyComparisonFilter;
-    PropertyIsLessThan?: TddPropertyComparisonFilter;
-    PropertyIsLessThanOrEqualTo?: TddPropertyComparisonFilter;
-    PropertyIsGreaterThan?: TddPropertyComparisonFilter;
-    PropertyIsGreaterThanOrEqualTo?: TddPropertyComparisonFilter;
-    PropertyIsNull?: TddPropertyExistsFilter;
-    PropertyIsNotNull?: TddPropertyExistsFilter;
-    And?: TddFilter[];
-    Or?: TddFilter[];
-};
-
-export type TddPropertyComparisonFilter = {
-    PropertyName: string;
-    Literal: string | number;
-};
-
-export type TddPropertyExistsFilter = {
-    PropertyName: string;
-};
-
-export type TddPointSymbolizer = {
-    Point?: PointProperty;
-    Model?: ModelProperty;
-    Label?: LabelProperty;
-    Billboard?: BillboardProperty;
 };
 
 export type PointProperty = {
@@ -546,13 +505,13 @@ export type BillboardProperty = {
     Image: string;
     Scale?: number;
     PixelOffset?: {
-        vertical: number;
-        horizontal: number;
+        Vertical: number;
+        Horizontal: number;
     };
     EyeOffset?: {
-        height: number;
-        width: number;
-        depth: number;
+        Height: number;
+        Width: number;
+        Depth: number;
     };
     HorizontalOrigin?: HorizontalOrigin;
     VerticalOrigin?: VerticalOrigin;
@@ -595,6 +554,7 @@ export type FormattedFeatureTypeStyleRule = {
 };
 export interface FilterObject {
     operator: "and" | "or" | null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     comparisons: any;
 }
 export type ScaleDenominator = number;
@@ -655,7 +615,9 @@ export interface GeoJsonGeometry {
 }
 export interface GeoJsonAoi {
     geometry: GeoJsonGeometry;
-    properties?: any;
+    properties?: {
+        wes_3d_buffere_metres: number;
+    };
 }
 export interface ViewRecord {
     id: bigint;

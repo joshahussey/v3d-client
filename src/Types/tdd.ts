@@ -1,6 +1,10 @@
-import { ColorBlendMode, HorizontalOrigin, LabelStyle, ShadowMode, VerticalOrigin } from "cesium";
+import { Cartesian3, HorizontalOrigin, LabelStyle, VerticalOrigin } from "cesium";
 
 export type Styled3dLayerDescriptor = {
+    StyledLayerDescriptor: StyledLayerDescriptor;
+};
+
+export type StyledLayerDescriptor = {
     Name?: string;
     Title?: string;
     Abstract?: string;
@@ -52,9 +56,9 @@ export type Rule = {
 
 export type LineSymbolizer = {
     Width: number; // pixels
-    Material: MaterialProperty;
-    DepthFailMaterial?: MaterialProperty;
-    Shadows?: ShadowMode;
+    Material: MaterialProperty | MaterialColor;
+    DepthFailMaterial?: MaterialProperty | MaterialColor;
+    Shadows?: Shadows;
     ZIndex?: number;
     Label?: Label;
     Billboard?: Billboard;
@@ -75,21 +79,25 @@ export type PointProperty = {
 };
 
 export type ModelProperty = {
-    url: string;
-    scale?: number;
+    Url: string;
+    Scale?: number;
     MinimumPixelSize?: number; // pixels
     MaximumScale?: number;
-    Shadows?: ShadowMode;
+    Shadows?: Shadows;
     SilhouetteColor?: RGBA;
     SilhouetteSize?: number;
     Color?: RGBA;
-    ColorBlendMode?: ColorBlendMode;
+    ColorBlendMode?: ColorBlends;
     ColorBlendAmount?: number; // 0-1
     LightColor?: RGBA;
     Orientation?: {
-        yaw: number; // radians
-        pitch: number; // radians
-        roll: number; // radians
+        Yaw: string | PropertyLookup; // radians
+        Pitch: string | PropertyLookup; // radians
+        Roll: string | PropertyLookup; // radians
+    };
+    DistanceDisplayCondition?: {
+        Near: number;
+        Far: number;
     };
 };
 
@@ -97,13 +105,13 @@ export type PolygonSymbolizer = {
     ExtrudedHeight?: number;
     TextureRotation?: number;
     Fill?: boolean;
-    Material: MaterialProperty;
+    Material: MaterialProperty | MaterialColor;
     Outline?: boolean;
     OutlineColor?: RGBA;
     OutlineWidth?: number; // pixels
     CloseTop?: boolean;
     CloseBottom?: boolean;
-    Shadows?: ShadowMode;
+    Shadows?: Shadows;
     ZIndex?: number;
 };
 
@@ -137,15 +145,15 @@ export type RasterSymbolizer = {
 };
 
 export type Label = {
-    Text: string;
+    Text: string | { PropertyName: string };
     Font?: Font;
     LabelStyle?: LabelStyle;
     scale?: number;
     ShowBackground?: boolean;
-    BackgroundColor?: boolean;
+    BackgroundColor?: RGBA;
     BackgroundPadding?: {
-        vertical: number;
-        horizontal: number;
+        Vertical: number;
+        Horizontal: number;
     };
     PixelOffset?: {
         Vertical: number; // pixels
@@ -161,31 +169,39 @@ export type Label = {
     FillColor?: RGBA;
     OutlineColor?: RGBA;
     OutlineWidth?: number; // pixels
+    DistanceDisplayCondition?: {
+        Near: number;
+        Far: number;
+    };
 };
 export type Billboard = {
-    image: string;
-    scale?: number;
+    Image: string;
+    Scale?: number;
     PixelOffset?: {
-        Vertical?: number; // pixels
-        Horizontal?: number; // pixels
+        Vertical: number;
+        Horizontal: number;
     };
     EyeOffset?: {
-        Height?: number;
-        Width?: number;
-        depth?: number;
+        Height: number;
+        Width: number;
+        Depth: number;
     };
     HorizontalOrigin?: HorizontalOrigin;
     VerticalOrigin?: VerticalOrigin;
     Color?: RGBA;
-    Rotation?: number; // radians
+    Rotation?: number;
     SizeInMeters?: number;
-    width?: number; // pixels
-    height?: number; // pixels
+    Width?: number;
+    Height?: number;
+    DistanceDisplayCondition?: {
+        Near: number;
+        Far: number;
+    };
 };
 
-export type MaterialProperty = {
-    Material: MaterialType;
-};
+export type MaterialProperty = { MaterialProperty: MaterialType; };
+
+export type MaterialColor = { Color: RGBA; };
 
 export type MaterialType =
     | MaterialImage
@@ -215,86 +231,88 @@ export type MaterialType =
 export type RGBA = [number, number, number, number?];
 
 export type Font = {
-    size: string;
-    family: string;
+    Size: string;
+    Family: string;
 };
 
 export type MaterialImage = {
-    image: string;
-    repeat: {
-        x: number;
-        y: number;
-    };
+    MaterialImage: {
+        Image: string;
+        Repeat: {
+            x: number;
+            y: number;
+        };
+    }
 };
 
 export type MaterialDiffuseMap = {
-    image: string;
-    channels: string; // 3 char from 'r', 'g', 'b', & 'a'
-    repeat: {
+    Image: string;
+    Channels: string; // 3 char from 'r', 'g', 'b', & 'a'
+    Repeat: {
         x: number;
         y: number;
     };
 };
 
 export type MaterialAlphaMap = {
-    image: string;
-    channel: string; // 1 char from 'r', 'g', 'b', & 'a'
-    repeat: {
+    Image: string;
+    Channel: string; // 1 char from 'r', 'g', 'b', & 'a'
+    Repeat: {
         x: number;
         y: number;
     };
 };
 
 export type MaterialSpecularMap = {
-    image: string;
-    channel: string; // 1 char from 'r', 'g', 'b', & 'a'
-    repeat: {
+    Image: string;
+    Channel: string; // 1 char from 'r', 'g', 'b', & 'a'
+    Repeat: {
         x: number;
         y: number;
     };
 };
 
 export type MaterialEmissionMap = {
-    image: string;
-    channels: string; // 3 char from 'r', 'g', 'b', & 'a'
-    repeat: {
+    Image: string;
+    Channels: string; // 3 char from 'r', 'g', 'b', & 'a'
+    Repeat: {
         x: number;
         y: number;
     };
 };
 
 export type MaterialBumpMap = {
-    image: string;
-    channel: string; // 1 char from 'r', 'g', 'b', & 'a'
-    repeat: {
+    Image: string;
+    Channel: string; // 1 char from 'r', 'g', 'b', & 'a'
+    Repeat: {
         x: number;
         y: number;
     };
-    strength: number; // 0-1
+    Strength: number; // 0-1
 };
 
 export type MaterialNormalMap = {
-    image: string;
-    channel: string; // 1 char from 'r', 'g', 'b', & 'a'
-    repeat: {
+    Image: string;
+    Channel: string; // 1 char from 'r', 'g', 'b', & 'a'
+    Repeat: {
         x: number;
         y: number;
     };
-    strength: number; // 0-1
+    Strength: number; // 0-1
 };
 
 export type MaterialGrid = {
     Color: RGBA;
-    cellAlpha: number;
-    lineCount: {
+    CellAlpha: number;
+    LineCount: {
         x: number;
         y: number;
     };
-    lineThickness: {
+    LineThickness: {
         x: number; // pixels
         y: number; // pixels
     };
-    lineOffset: {
+    LineOffset: {
         x: number; // 0-1
         y: number; // 0-1
     };
@@ -302,25 +320,25 @@ export type MaterialGrid = {
 
 export type MaterialStripe = {
     Horizontal: boolean;
-    evenColor: RGBA;
-    oddColor: RGBA;
+    EvenColor: RGBA;
+    OddColor: RGBA;
     Offset: number;
     Repeat: number; // whole
 };
 
 export type MaterialCheckerboard = {
-    lightColor: RGBA;
+    LightColor: RGBA;
     DarkColor: RGBA;
-    repeat: {
+    Repeat: {
         x: number;
         y: number;
     };
 };
 
 export type MaterialDot = {
-    lightColor: RGBA;
+    LightColor: RGBA;
     DarkColor: RGBA;
-    repeat: {
+    Repeat: {
         x: number;
         y: number;
     };
@@ -328,27 +346,27 @@ export type MaterialDot = {
 
 export type MaterialWater = {
     BaseWaterColor: RGBA;
-    blendColor: RGBA;
-    specularMap: string; // single channel image
-    normalMap: string; // single channel image
-    frequency: number;
-    animationSpeed: number;
-    amplitude: number;
-    specularIntensity: number;
+    BlendColor: RGBA;
+    SpecularMap: string; // single channel image
+    NormalMap: string; // single channel image
+    Frequency: number;
+    AnimationSpeed: number;
+    Amplitude: number;
+    SpecularIntensity: number;
 };
 
 export type MaterialRimLighting = {
-    color: RGBA;
-    rimColor: RGBA;
+    Color: RGBA;
+    RimColor: RGBA;
     Width: number;
 };
 
 export type MaterialFade = {
-    fadeInColor: RGBA;
-    fadeOutColor: RGBA;
-    maximumDistance: number; // 0-1
-    repeat: boolean;
-    fadeDirection: {
+    FadeInColor: RGBA;
+    FadeOutColor: RGBA;
+    MaximumDistance: number; // 0-1
+    Repeat: boolean;
+    FadeDirection: {
         x: boolean;
         y: boolean;
     };
@@ -364,9 +382,9 @@ export type MaterialPolylineArrow = {
 
 export type MaterialPolylineDash = {
     Color: RGBA;
-    gapColor: RGBA;
-    dashLength: number;
-    dashPattern: string; // 16-bit binary
+    GapColor: RGBA;
+    DashLength: number;
+    DashPattern: string; // 16-bit binary
 };
 
 export type MaterialPolylineGlow = {
@@ -388,22 +406,22 @@ export type MaterialElevationContour = {
 };
 
 export type MaterialElevationRamp = {
-    image: string;
-    minimumHeight: number;
-    maximumHeight: number;
+    Image: string;
+    MinimumHeight: number;
+    MaximumHeight: number;
 };
 
 export type MaterialSlopeRamp = {
-    image: string;
+    Image: string;
 };
 
 export type MaterialAspectRamp = {
-    image: string;
+    Image: string;
 };
 
 export type MaterialElevationBand = {
-    heights: string;
-    colors: string;
+    Heights: string;
+    Colors: string;
 };
 
 export type Filter = And | Or | ValueComparison | PropertyComparison | (ValueComparison | PropertyComparison)[];
@@ -443,3 +461,22 @@ export type PropertyComparison = {
 };
 
 export type ElseFilter = Filter; // Define actual type if needed
+export type PropertyLookup = { PropertyName: string }; // Define actual type if needed
+
+export type Shadows = "ENABLED" | "DISABLED" | "CAST_ONLY" | "RECEIVE_ONLY";
+
+export type ColorBlends = "HIGHLIGHT" | "MIX" | "REPLACE";
+
+export type BLProps = {
+    image?: string;
+    scale?: number;
+    distanceDisplayCondition?: { near: number; far: number };
+    eyeOffset?: Cartesian3;
+    text?: string;
+    font?: { Size: string; Family: string };
+    fillColor?: RGBA;
+    outlineColor?: RGBA;
+    outlineWidth?: number;
+    backgroundColor?: RGBA;
+}
+
