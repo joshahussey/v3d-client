@@ -334,7 +334,7 @@ export default class WesDataSource extends CustomDataSource {
         return;
     }
 
-    updateService(id: any): any {
+    updateService(id: number): number {
         return id;
     }
 
