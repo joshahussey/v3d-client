@@ -148,7 +148,7 @@ export type CesiumWindow = Window &
         timeMap: Accessor<Map<string, [JulianDate, JulianDate]>>;
         Map3DViewer: Viewer;
         Map3DController: Map3DController;
-        optionsMap: Accessor<any>;
+        optionsMap: Accessor<Map<Wes3dMapLayer, WesLayerPropertiesObject>>;
         timeline?: Timeline;
         setCatalogOpen?: (isOpen: boolean) => void;
         fireBroadcastEvent: (event: string, eventId: string, _hasPayload: boolean) => void;

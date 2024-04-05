@@ -6,7 +6,7 @@ import { cesiumBuiltInUID, googlePhotorealisticUID, osmBuildingsUID } from "../C
 import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { translate as t } from "../i18n/Translator";
 import { saveViewParameters } from "../Utils/SaveView";
-import { CesiumWindow } from "../types";
+import { CesiumWindow, Wes3dMapLayer, WesLayerPropertiesObject } from "../types";
 
 /**
  * Represents a component for selecting a terrain layer from available terrain sets.
@@ -57,10 +57,9 @@ export function TerrainSelector(): JSX.Element {
                 tileSet.show = true;
                 refresh = true;
             }
-
             const cesiumWindow = window as CesiumWindow;
             const optionsMap = cesiumWindow.optionsMap();
-            optionsMap.forEach((value: any, key: any) => {
+            optionsMap.forEach((value: Wes3dMapLayer, key: WesLayerPropertiesObject) => {
                 if (key.uid === osmBuildingsUID) {
                     value.show = tileSet.show;
                     optionsMap.set(key, value);
