@@ -107,9 +107,9 @@ const CesiumClient = window as CesiumWindow;
 export default class CoverageApiDataSource extends WesDataSource {
     _id: string;
     _uid: string;
-    _listener?: any;
+    _listener?;
     _index: number;
-    _collectionInformation: any;
+    _collectionInformation?: { defaultStyle: string; };
     _maxResolution: number;
     _parameterKey: string;
     _selectedTime: number;
@@ -310,7 +310,8 @@ export default class CoverageApiDataSource extends WesDataSource {
     /**
      * Updates the service data.
      */
-    updateService() {
+    updateService(id: number) {
+        id;
         if (
             !this._show ||
             !this._values ||

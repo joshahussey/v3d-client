@@ -334,8 +334,8 @@ export default class WesDataSource extends CustomDataSource {
         return;
     }
 
-    updateService(id: number): number {
-        return id;
+    updateService(id: number | null): number | Promise<void> | void {
+        return id as number;
     }
 
     *loadCycleIdGenerator() {
