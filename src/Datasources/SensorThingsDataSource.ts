@@ -1,3 +1,4 @@
+/* eslint-disable */
 import {
     Cartesian3,
     Color,
