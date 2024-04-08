@@ -109,7 +109,7 @@ export default class CoverageApiDataSource extends WesDataSource {
     _id: string;
     _uid: string;
     _listener?;
-    _index: number;
+    _index: string;
     _collectionInformation?: { defaultStyle: string; };
     _maxResolution: number;
     _parameterKey: string;
@@ -177,7 +177,7 @@ export default class CoverageApiDataSource extends WesDataSource {
         url: string,
         viewer: Viewer,
         id: string,
-        index: number,
+        index: string,
         uid: string,
         geometryBounds: ImageryBounds,
         serviceInfo: ServiceInfo

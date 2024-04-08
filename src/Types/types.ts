@@ -299,7 +299,7 @@ export type csltOGCCoverageOption = {
     url: string;
     bounds: ImageryBounds;
     serviceInfo: ServiceInfo;
-    sourceLayerIndex: number;
+    sourceLayerIndex: string;
     id: string;
 };
 

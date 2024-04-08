@@ -310,7 +310,7 @@ export function addOGCCoverage(addOGCCoverageObject: addOGCCoverageObject[]) {
             url: ogcCoverageObject.url,
             bounds: ogcCoverageObject.wgs84BoundingBox,
             serviceInfo: ogcCoverageObject.serviceInfo,
-            sourceLayerIndex: Number(ogcCoverageObject.sourceLayerIndex),
+            sourceLayerIndex: ogcCoverageObject.sourceLayerIndex,
             id: ogcCoverageObject.id
         };
         dataSources = dataSources.filter(d => d.uid !== ogcCoverageObject.uid);

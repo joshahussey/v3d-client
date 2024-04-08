@@ -1168,10 +1168,6 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                 }
                 break;
             case "coverage":
-                if ((dataSourceOption as csltOGCCoverageOption).sourceLayerIndex == null) {
-                    console.warn(t("3dMapAddDatasourceWarning1"));
-                    (dataSourceOption as csltOGCCoverageOption).sourceLayerIndex = 0;
-                }
                 createdDataSource = new CoverageApiDataSource(
                     dataSourceOption.description,
                     dataSourceOption.name,
