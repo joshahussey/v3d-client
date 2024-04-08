@@ -1,8 +1,9 @@
 import { Select, createOptions } from "@thisbeyond/solid-select";
 import { JSX, createSignal } from "solid-js";
 import WesDataSource from "../Datasources/WesDataSource";
-import {UserStyleDefinition} from "../types"
+import {UserStyleDefinition} from "../Types/types"
 import { translate as t } from "../i18n/Translator";
+import FeaturesApiDataSource from "../Datasources/FeaturesApiDataSource";
 
 /**
  * Represents a component for selecting a user-defined style for a map layer.
@@ -25,8 +26,8 @@ export function UserStyleSelector(layer: { datasource: WesDataSource }): JSX.Ele
         if (selectedStyle() !== style) {
             setSelectedStyle(style);
             layer.datasource._userStyle = userStylesArray.indexOf(style);
-            if (layer.datasource.restyle !== undefined) {
-                layer.datasource.restyle();
+            if ((layer.datasource as FeaturesApiDataSource).restyle !== undefined) {
+                (layer.datasource as FeaturesApiDataSource).restyle();
             }
         }
     };

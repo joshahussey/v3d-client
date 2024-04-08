@@ -1,5 +1,5 @@
 import { Cesium3DTileset, GeoJsonDataSource, ImageryLayer, KmlDataSource } from "cesium";
-import { CesiumWindow, Wes3DTileSet, WesImageryLayer } from "../types";
+import { CesiumWindow, Wes3DTileSet, WesImageryLayer } from "../Types/types";
 import WesDataSource from "../Datasources/WesDataSource";
 import CoverageApiDataSource from "../Datasources/CoverageApiDataSource";
 import { UIContextType, useInterfaceContext } from "../Context/UIContext";
@@ -61,12 +61,12 @@ export function DeleteLayerButton(layer: {
                 }
                 if (layer.datasource && layer.datasource instanceof CoverageApiDataSource) {
                     (window as CesiumWindow).Map3DViewer.scene.primitives.remove(layer.datasource._renderedPrimitive);
-                    (window as CesiumWindow).removeEventListener("timeChanged", layer.datasource._listener);
+                    (window as CesiumWindow).removeEventListener("timeChanged", layer.datasource._listener as EventListener);
                     layer.datasource._removed = true;
                     layer.datasource._renderedPrimitive = undefined;
                     if (layer.datasource._hasLegend) {
                         setSourcesWithLegends(
-                            sourcesWithLegends().filter(source => source.uid !== layer.datasource._uid)
+                            sourcesWithLegends().filter(source => source.uid !== (layer.datasource as WesDataSource).uid)
                         );
                     }
                     (window as CesiumWindow).Map3DViewer.dataSources.remove(layer.datasource, true);

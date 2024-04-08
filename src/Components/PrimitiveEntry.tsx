@@ -1,5 +1,5 @@
 import { JSX, Show, createSignal, Accessor } from "solid-js";
-import { Wes3DTileSet } from "../types";
+import { Wes3DTileSet } from "../Types/types";
 import { ShowOnMapCheckbox } from "./ShowOnMapCheckbox";
 import { makeCheckboxStatus } from "./ServiceEntry";
 import { LayerSettingsButton } from "./LayerSettingsButton";
@@ -28,7 +28,7 @@ export function PrimitiveEntry(props: {
                     opened={opened}
                     setOpened={setOpened}
                     primitiveLayer={tileset}
-                    isEnabled={tileset.enabled}/>
+                    isEnabled={tileset.enabled as boolean}/>
                 <Show when={tileset.enabled != undefined && !tileset.enabled}>
                     <button
                         class="cesium-button osm-warning-button"

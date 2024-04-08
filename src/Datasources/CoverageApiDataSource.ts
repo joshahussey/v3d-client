@@ -32,9 +32,10 @@ import {
     ServiceInfo,
     ImageryBounds,
     LegendSource
-} from "../types";
+} from "../Types/types";
 import { SldParse } from "../Utils/Wes3dSldStyler";
 import { translate as t } from "../i18n/Translator"
+import { DatasourceTypes } from "../Constants";
 
 type QueryParameters = {
     [key: string]: string;
@@ -154,6 +155,11 @@ export default class CoverageApiDataSource extends WesDataSource {
     _formattedStyles?: FormattedUserStyles;
     _rasterSymbolizer?: CesiumRasterSymbolizer;
     _geometryBounds: ImageryBounds;
+    show: boolean;
+    maxResolution: number;
+    heightExaggeration: number;
+    alpha: number;
+    geometryBounds: ImageryBounds;
 
     /**
      * Constructor for CoverageApiDataSource class.
@@ -180,22 +186,27 @@ export default class CoverageApiDataSource extends WesDataSource {
         this._id = id;
         this._index = index;
         this._geometryBounds = geometryBounds;
+        this.geometryBounds = this._geometryBounds;
         this._listener = () => {
-            this.updateService();
+            this.updateService(null);
         };
         this._maxResolution = MAX_COVERAGE_RESOLUTION;
+        this.maxResolution = this._maxResolution;
         this._heightExaggeration = HEIGHT_SCALE_FACTOR;
+        this.heightExaggeration = this._heightExaggeration;
         this._parameterKey = id;
         this.initialize(Number.POSITIVE_INFINITY);
         this._selectedTime = 0;
         this._elementSize = 0;
         this._alpha = DEFAULT_ALPHA;
+        this.alpha = this._alpha;
         this._pointsInViewport = [];
         this._promptOpen = false;
         this._uid = uid;
         this._timeIndex = undefined;
         this._timeIndexMap = new Map();
         this._hasLegend = true;
+        this.show = true;
         Object.defineProperties(this, {
             show: {
                 get: function () {
@@ -258,7 +269,7 @@ export default class CoverageApiDataSource extends WesDataSource {
         try {
             this._isLoading = true;
 
-            CesiumClient.addEventListener("timeChanged", this._listener);
+            CesiumClient.addEventListener("timeChanged", this._listener as EventListener);
             const domainSet = await this.getDomainSet(this._url.split("?")[0]);
             if (!domainSet) return;
             this._checkBounds(domainSet);
@@ -310,7 +321,7 @@ export default class CoverageApiDataSource extends WesDataSource {
     /**
      * Updates the service data.
      */
-    updateService(id: number) {
+    updateService(id: number|null) {
         id;
         if (
             !this._show ||
@@ -487,10 +498,11 @@ export default class CoverageApiDataSource extends WesDataSource {
                 maxValue: this._maxValue,
                 id: this._id,
                 uom: this._uom,
-                currentTime: selectedDate,
-                lowerTimeBound: this._lowerTimeBound,
-                upperTimeBound: this._upperTimeBound,
-                symbolizer: symbolizer
+                currentTime: selectedDate as JulianDate,
+                lowerTimeBound: this._lowerTimeBound as JulianDate,
+                upperTimeBound: this._upperTimeBound as JulianDate,
+                symbolizer: symbolizer,
+                type: DatasourceTypes.OgcCoveragesAPI
             };
         } else {
             sourceWithLegend = {
@@ -499,9 +511,10 @@ export default class CoverageApiDataSource extends WesDataSource {
                 maxValue: this._maxValue,
                 id: this._id,
                 uom: this._uom,
-                currentTime: selectedDate,
-                lowerTimeBound: this._lowerTimeBound,
-                upperTimeBound: this._upperTimeBound
+                currentTime: selectedDate as JulianDate,
+                lowerTimeBound: this._lowerTimeBound as JulianDate,
+                upperTimeBound: this._upperTimeBound as JulianDate,
+                type: DatasourceTypes.OgcCoveragesAPI
             };
         }
 
@@ -604,8 +617,8 @@ export default class CoverageApiDataSource extends WesDataSource {
         if (this._rasterSymbolizer) {
             return this._getColorsSld(value);
         }
-        const minColor = this._minValue!;
-        const maxColor = this._maxValue!;
+        const minColor = this._minValue as number;
+        const maxColor = this._maxValue as number;
         value = value > maxColor ? maxColor : value < minColor ? minColor : value;
         let red = 0.0;
         let green = 0.0;
@@ -627,7 +640,10 @@ export default class CoverageApiDataSource extends WesDataSource {
     }
 
     _getColorsSld(value: number): number[] {
-        const colorMap = this._rasterSymbolizer!.colorMap;
+        if (!this._rasterSymbolizer) {
+            return [0, 0, 0, 0];
+        }
+        const colorMap = this._rasterSymbolizer.colorMap;
 
         const minVal = colorMap[0].quantity;
         const maxVal = Number(colorMap[colorMap.length - 1].quantity);
@@ -707,8 +723,8 @@ export default class CoverageApiDataSource extends WesDataSource {
                     centerX + offsetX,
                     centerY + offsetY,
                     undefined,
-                    this._timeIndexMap.get(this._timeIndex!)!
-                )!
+                    this._timeIndexMap.get(this._timeIndex as number) as number
+                ) as number
             ];
         const color = this._getColors(z);
         const cart: Cartesian3 = Cartesian3.fromDegrees(x, y, (1 + z - this._minValue) * this._heightExaggeration);
@@ -1057,7 +1073,7 @@ export default class CoverageApiDataSource extends WesDataSource {
      * @param {string} url - The URL to fetch the coverage domainset from.
      * @returns {Promise} A promise that resolves with the fetched coverage domainset.
      */
-    async getDomainSet(url: string): Promise<any> {
+    async getDomainSet(url: string): Promise<CoverageDomainSet> {
         if (!url.endsWith("/")) url = `${url}/`;
         if (!url.endsWith("/coverage/")) url = `${url}coverage/`;
         const domainSet = await this.fetchJson(`${url}domainset`, {
@@ -1071,7 +1087,7 @@ export default class CoverageApiDataSource extends WesDataSource {
      * @param {string} dataUrl - The URL to fetch the coverage data from.
      * @returns {Promise} A promise that resolves with the fetched coverage data.
      */
-    async getData(dataUrl: string): Promise<any> {
+    async getData(dataUrl: string): Promise<CoverageResponse> {
         if (!dataUrl.endsWith("/")) dataUrl = `${dataUrl}/`;
         if (!dataUrl.endsWith("/coverage/")) dataUrl = `${dataUrl}coverage/`;
         const queryParameters: QueryParameters = {
@@ -1133,7 +1149,9 @@ export default class CoverageApiDataSource extends WesDataSource {
      * This method sets the parameter key to be used for accessing coverage data.
      */
     getParameterKey() {
+        if (this._collectionInformation) {
         this._parameterKey = this._collectionInformation.defaultStyle;
+        }
     }
 
     /**

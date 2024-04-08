@@ -7,7 +7,7 @@ import {
     Viewer,
     Rectangle
 } from "cesium";
-import { ServiceInfo, ImageryBounds } from "../types";
+import { ServiceInfo, ImageryBounds } from "../Types/types";
 import WesDataSource from "./WesDataSource";
 import {translate as t} from "../i18n/Translator"
 

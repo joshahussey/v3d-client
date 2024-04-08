@@ -1,7 +1,7 @@
 import { JSX, For, createSignal, createEffect, Setter } from "solid-js";
 import { UIContextType, useInterfaceContext } from "../Context/UIContext";
 import { translate as t } from "../i18n/Translator";
-import { CesiumWindow, WesImageryLayer } from "../types";
+import { CesiumWindow, WesImageryLayer } from "../Types/types";
 
 /**
  * @param {Object} props - An object containing the parameters

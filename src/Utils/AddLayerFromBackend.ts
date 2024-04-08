@@ -11,7 +11,7 @@ import {
     addSensorThingsObject,
     addWMSObject,
     addWMTSObject
-} from "../3dMapControllerTypes";
+} from "../Types/3dMapControllerTypes";
 import {
     add3DTiles,
     addArcGisWMS,

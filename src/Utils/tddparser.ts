@@ -1,5 +1,5 @@
 import { And, Filter, Or, PropertyComparison, Rule, UserStyle, ValueComparison, ValueOperator } from "../Types/tdd";
-import { OGCFeature } from "../types";
+import { OGCFeature } from "../Types/types";
 
 export function getTddRuleMatches(rawFeature: OGCFeature, userStyle: UserStyle): Rule[] {
     const matchedRules = [];

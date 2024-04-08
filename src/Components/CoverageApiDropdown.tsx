@@ -11,7 +11,7 @@ import { translate as t } from "../i18n/Translator";
  * @returns {JSX.Element} A JSX element containing the controls for adjusting coverage settings.
  */
 export function CoverageApiDropdown(datasource: { datasource: WesDataSource }): JSX.Element {
-    const [settings, setSettings] = createStore(datasource.datasource);
+    const [settings, setSettings] = createStore(datasource.datasource as CoverageApiDataSource);
     const setAlpha = (e: Event) => {
         setSettings({ alpha: Number((e.target as HTMLInputElement).value) });
     };

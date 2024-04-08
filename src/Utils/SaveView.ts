@@ -3,7 +3,7 @@ import FeaturesApiDataSource from "../Datasources/FeaturesApiDataSource";
 import { Cartesian3, Cesium3DTileset, ImageryLayer, Viewer } from "cesium";
 import CelestialBodyDataSource from "../Datasources/CelestialBodyDataSource";
 import { getMapState, setMapState } from "./Controller";
-import { Wes3DTileSet, Wes3dMapLayer, WesImageryLayer, WesLayerPropertiesObject } from "../types";
+import { Wes3DTileSet, Wes3dMapLayer, WesImageryLayer, WesLayerPropertiesObject } from "../Types/types";
 import WesDataSource from "../Datasources/WesDataSource";
 
 function enumKeys<O extends object, K extends keyof O = keyof O>(obj: O): K[] {

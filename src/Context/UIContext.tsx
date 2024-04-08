@@ -1,5 +1,5 @@
 import { Accessor, JSX, Setter, createContext, useContext } from "solid-js";
-import { LegendSource, Wes3DTileSet, WesImageryLayer, WesTerrainObject } from "../types";
+import { LegendSource, Wes3DTileSet, WesImageryLayer, WesTerrainObject } from "../Types/types";
 import WesDataSource from "../Datasources/WesDataSource";
 import { Clock, GeoJsonDataSource, KmlDataSource } from "cesium";
 import { SetStoreFunction } from "solid-js/store";
@@ -138,7 +138,7 @@ export function getContextSignals(
 }
 const InterfaceContext = createContext<UIContextType>();
 
-export function InterfaceProvider(props: { children: number | boolean | Node | JSX.ArrayElement | (string & object) | null | undefined; }) {
+export function InterfaceProvider(props: { children: number | boolean | Node | JSX.ArrayElement | string & object | null | undefined; }): JSX.Element {
     const signals = {
         baseLayers,
         setBaseLayers,

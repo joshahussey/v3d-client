@@ -10,8 +10,8 @@ import {
     addSensorThingsObject,
     addWMSObject,
     addWMTSObject
-} from "../3dMapControllerTypes";
-import { MapState, WesImageryObject } from "../types";
+} from "../Types/3dMapControllerTypes";
+import { MapState, WesImageryObject } from "../Types/types";
 
 /**
  * Adds a WMTS to 3DMap if a layer on top of the imagery if the uid dosn't exist.

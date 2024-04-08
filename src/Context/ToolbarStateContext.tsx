@@ -24,7 +24,7 @@ export type ToolbarContextType = {
     serviceExpandedMap: ServiceStatusEntry[];
     setServiceExpandedMap: SetStoreFunction<ServiceStatusEntry[]>;
 }
-export function ToolbarStateContext(props: { children: number | boolean | Node | JSX.ArrayElement | (string & object) | null | undefined; }) {
+export function ToolbarStateContext(props: { children: number | boolean | Node | JSX.ArrayElement | string & object | null | undefined; }) {
     const [isLayersOpened, setLayersOpened] = createSignal(false);
     const [isSaveOpened, setSaveOpened] = createSignal(false);
     const [isLoadOpened, setLoadOpened] = createSignal(false);

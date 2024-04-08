@@ -35,7 +35,7 @@ import {
     OGCFeature,
     ServiceInfo,
     ImageryBounds
-} from "../types";
+} from "../Types/types";
 import { BBox } from "geojson";
 import { LabelGraphics } from "cesium";
 import { buildLine, buildPoint, buildPolygon } from "../Utils/Utils";
@@ -98,6 +98,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
     _collectionInformation: OgcCollectionInformation;
     _canvasCache: { [key: string]: HTMLCanvasElement | Promise<HTMLCanvasElement> | HTMLImageElement | Promise<HTMLImageElement> };
     _geometryBounds: ImageryBounds;
+    isHighlighted: boolean;
 
     constructor(
         description: string,
@@ -117,6 +118,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
         this._userStyle = 0;
         this._userStylesCount = 0;
         this._isHighlighted = false;
+        this.isHighlighted = this._isHighlighted;
         this._webgl = this._viewer.canvas.getContext("webgl2");
         this.clustering.enabled = false;
         this._newModelClustering = false;

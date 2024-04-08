@@ -1,8 +1,16 @@
 import { UIContextType, useInterfaceContext } from "../Context/UIContext";
-import { Show, createEffect, onMount } from "solid-js";
+import { JSX, Show, createEffect, onMount } from "solid-js";
 import { Clock, JulianDate, Timeline } from "cesium";
 import Moment from "moment";
-import { CesiumWindow } from "../types";
+import { CesiumWindow } from "../Types/types";
+
+//REMOVE WHEN CESIUM IS FIXED
+interface CsltTimeline extends Timeline {
+    prototype: {
+        makeLabel(date: JulianDate): string;
+    }
+    addEventListener(type: string, listener: (e: SetTimeEvent) => void, useCapture?: boolean): void;
+}
 
 type SetTimeEvent = Event & {
     timeSeconds: number;
@@ -12,7 +20,7 @@ type SetTimeEvent = Event & {
 
 const CesiumClient = window as CesiumWindow;
 let timeLineMounted = false;
-export function Slider() {
+export function Slider(): JSX.Element {
     const { displayClock } = useInterfaceContext() as UIContextType;
     let clockDiv: HTMLDivElement | undefined;
     function onTimelineScrubfunction(e: SetTimeEvent) {
@@ -25,12 +33,12 @@ export function Slider() {
     createEffect(() => {
         if (displayClock() && clockDiv) {
             onMount(() => {
-                Timeline.prototype.makeLabel = function (date: JulianDate) {
+                (Timeline as unknown as CsltTimeline).prototype.makeLabel = function (date: JulianDate) {
                     return Moment(JulianDate.toDate(date)).format("DD/MM/YYYY");
                 };
                 if (!CesiumClient.timeline) {
                     CesiumClient.timeline = new Timeline(clockDiv, CesiumClient.Map3DViewer.clock);
-                    CesiumClient.timeline.addEventListener("settime", onTimelineScrubfunction, false);
+                    (CesiumClient.timeline as unknown as CsltTimeline).addEventListener("settime", onTimelineScrubfunction, false);
                     document.querySelector(".cesium-timeline-ruler")?.remove();
                     timeLineMounted = true;
                 }
@@ -40,9 +48,11 @@ export function Slider() {
     createEffect(() => {
         if (displayClock() && clockDiv) {
             if (timeLineMounted) {
-                CesiumClient.timeline.destroy();
+                if (CesiumClient.timeline !== undefined) {
+                    CesiumClient.timeline.destroy();
+                }
                 CesiumClient.timeline = new Timeline(clockDiv, CesiumClient.Map3DViewer.clock);
-                CesiumClient.timeline.addEventListener("settime", onTimelineScrubfunction, false);
+                (CesiumClient.timeline as unknown as CsltTimeline).addEventListener("settime", onTimelineScrubfunction, false);
                 document.querySelector(".cesium-timeline-ruler")?.remove();
             }
         }

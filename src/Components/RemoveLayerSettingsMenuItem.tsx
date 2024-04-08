@@ -1,11 +1,12 @@
 import { Cesium3DTileset, GeoJsonDataSource, ImageryLayer, KmlDataSource } from "cesium";
-import { CesiumWindow, Wes3DTileSet, WesImageryLayer } from "../types";
+import { CesiumWindow } from "../Types/types";
 import WesDataSource from "../Datasources/WesDataSource";
 import CoverageApiDataSource from "../Datasources/CoverageApiDataSource";
 import { UIContextType, useInterfaceContext } from "../Context/UIContext";
 import { JSX, Show } from "solid-js";
 import CelestialBodyDataSource from "../Datasources/CelestialBodyDataSource";
 import { translate as t } from "../i18n/Translator";
+import { Wes3dMapLayer } from "../Types/types";
 
 /**
  * Represents a component for a button to delete a layer from the map.
@@ -14,7 +15,7 @@ import { translate as t } from "../i18n/Translator";
  * @returns {JSX.Element} A JSX element representing the delete layer button.
  */
 export function RemoveLayerSettingsMenuItem(props: {
-    layers: (WesDataSource | WesImageryLayer | Wes3DTileSet)[];
+    layers: Wes3dMapLayer[];
     onDone: () => void;
 }): JSX.Element {
     const { layers, onDone } = props;
@@ -45,7 +46,7 @@ export function RemoveLayerSettingsMenuItem(props: {
             }
             if (layer && layer instanceof CoverageApiDataSource) {
                 (window as CesiumWindow).Map3DViewer.scene.primitives.remove(layer._renderedPrimitive);
-                (window as CesiumWindow).removeEventListener("timeChanged", layer._listener);
+                (window as CesiumWindow).removeEventListener("timeChanged", layer._listener as EventListener);
                 layer._removed = true;
                 layer._renderedPrimitive = undefined;
                 if (layer._hasLegend) {

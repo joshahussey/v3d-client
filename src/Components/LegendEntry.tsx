@@ -2,24 +2,11 @@ import { JulianDate } from "cesium";
 import Moment from "moment";
 import { DatasourceTypes } from "../Constants";
 import { Show } from "solid-js";
-import { CesiumRasterSymbolizer } from "../types";
-export function LegendEntry(description: {
-    source: {
-        type: string;
-        uid: string;
-        minValue: number;
-        maxValue: number;
-        id: string;
-        uom: string;
-        currentTime: JulianDate;
-        lowerTimeBound: JulianDate;
-        upperTimeBound: JulianDate;
-        symbolizer?: CesiumRasterSymbolizer;
-    };
-}) {
-    const minValue = Math.trunc(description.source.minValue);
-    const middleValue = Math.trunc((description.source.maxValue + description.source.minValue) / 2);
-    const maxValue = Math.trunc(description.source.maxValue);
+import { CesiumRasterSymbolizer, LegendSource } from "../Types/types";
+export function LegendEntry(description: {source: LegendSource}) {
+    const minValue = Math.trunc(description.source.minValue as number);
+    const middleValue = Math.trunc((description.source.maxValue as number + (description.source.minValue as number)) / 2);
+    const maxValue = Math.trunc(description.source.maxValue as number);
     const legendDiv = produceColoredLegend(minValue, middleValue, maxValue, description.source.symbolizer);
     return (
         <div class="legend-entry">

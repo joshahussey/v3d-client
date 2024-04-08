@@ -48,7 +48,7 @@ import {
     csltCesiumBuiltInOption,
     csltOGCFeatureOption,
     csltOGCCoverageOption
-} from "./types";
+} from "./Types/types";
 import { getMapState, onLoad, setMapState } from "./Utils/Controller";
 import { createStore } from "solid-js/store";
 import { createLiveWmsPeriodString, isLiveWms } from "./Utils/TimeParser";
@@ -381,7 +381,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                                 (window as CesiumWindow).Map3DViewer.scene.primitives.remove(
                                     dataSource._renderedPrimitive
                                 );
-                                (window as CesiumWindow).removeEventListener("timeChanged", dataSource._listener);
+                                (window as CesiumWindow).removeEventListener("timeChanged", dataSource._listener as EventListener);
                                 dataSource._removed = true;
                                 dataSource._renderedPrimitive = undefined;
                                 if (dataSource._hasLegend) {
@@ -696,7 +696,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         }
         addingLayers = false;
         if (optionsMap != null && viewer != null) {
-            applyViewParameters(viewer, optionsMap);
+            applyViewParameters(optionsMap);
         }
 
         // Null check as this won't exist the first time load is called -- it's set in ExpandedMenu.tsx

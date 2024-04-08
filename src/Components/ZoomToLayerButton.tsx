@@ -1,8 +1,9 @@
-import { Rectangle, Matrix4, Cartesian3, BoundingSphere } from "cesium";
-import { CesiumWindow, WesImageryLayer, Wes3dMapLayer, Wes3DTileSet } from "../types";
+import { Rectangle, Matrix4, Cartesian3, BoundingSphere, EntityCollection } from "cesium";
+import { CesiumWindow, WesImageryLayer, Wes3dMapLayer, Wes3DTileSet } from "../Types/types";
 import CoverageApiDataSource from "../Datasources/CoverageApiDataSource";
 import CelestialBodyDataSource from "../Datasources/CelestialBodyDataSource";
 import { JSX } from "solid-js";
+import WesDataSource from "../Datasources/WesDataSource";
 
 /**
  * @param {Object} layer - Object containing the layer associated with the button.
@@ -55,7 +56,7 @@ export function ZoomToLayerButton(layer: {
                             });
                         }
                     } else if (layer.datasource instanceof CelestialBodyDataSource) {
-                        const entities = layer.datasource._entityCollection._entities.values;
+                        const entities = (layer.datasource._entityCollection as EntityCollection)._entities.values;
                         const boundingSpheres = [];
                         const boundingSphereScratch = new BoundingSphere();
                         for (let i = 0, len = entities.length; i < len; i++) {
@@ -80,7 +81,7 @@ export function ZoomToLayerButton(layer: {
                             duration: 0
                         });
                     } else {
-                        viewer.zoomTo(layer.datasource);
+                        viewer.zoomTo(layer.datasource as WesDataSource);
                     }
                 }
                 if (layer.imageryLayer) {

@@ -1,5 +1,5 @@
 import { useToolbarStateContext, ToolbarContextType } from "../Context/ToolbarStateContext";
-import { CesiumWindow } from "../types";
+import { CesiumWindow } from "../Types/types";
 import ClickOutsideToolbar from "./Directives/ClickOutsideToolbar";
 
 export function CatalogView() {

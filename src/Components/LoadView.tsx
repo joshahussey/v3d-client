@@ -1,6 +1,6 @@
 import { createEffect, createResource, createSignal, For, JSX, Show, Signal, Suspense } from "solid-js";
 import { createStore, reconcile, unwrap } from "solid-js/store";
-import { CesiumWindow, ViewRecord } from "../types";
+import { CesiumWindow, ViewRecord } from "../Types/types";
 import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { applyViewParameters, loadViewParameters } from "../Utils/SaveView";
 import { zoomToLoadedView } from "../Utils/SaveView";
@@ -193,7 +193,7 @@ async function handleLoad(viewId: bigint) {
     loadViewParameters();
     const cesiumWindow = window as CesiumWindow;
     const viewer = cesiumWindow.Map3DViewer;
-    applyViewParameters(viewer, cesiumWindow.optionsMap);
+    applyViewParameters(cesiumWindow.optionsMap);
     zoomToLoadedView(viewer);
 }
 

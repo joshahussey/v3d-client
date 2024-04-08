@@ -1,6 +1,6 @@
 import { JSX, Show, createSignal, Accessor } from "solid-js";
 import { createStore } from "solid-js/store";
-import { WesImageryLayer } from "../types";
+import { WesImageryLayer } from "../Types/types";
 import { ShowOnMapCheckbox } from "./ShowOnMapCheckbox";
 import { makeCheckboxStatus } from "./ServiceEntry";
 import { LayerSettingsButton } from "./LayerSettingsButton";

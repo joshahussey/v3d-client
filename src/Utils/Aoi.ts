@@ -1,4 +1,4 @@
-import { CesiumWindow, WesDatasources } from "../types";
+import { CesiumWindow, WesDatasources } from "../Types/types";
 import AoiDataSource from "../Datasources/AoiDataSource";
 import { standAloneLayersServiceLabel, standAloneLayersServiceUID, standAloneLayersServiceUrl } from "../Constants";
 import { translate as t } from "../i18n/Translator";

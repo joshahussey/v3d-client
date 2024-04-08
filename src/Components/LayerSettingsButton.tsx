@@ -1,6 +1,6 @@
 import { JSX, createSignal, createEffect, Accessor } from "solid-js";
 import { LayerSettingsMenu } from "./LayerSettingsMenu";
-import { Wes3DTileSet, WesImageryLayer } from "../types";
+import { Wes3DTileSet, WesImageryLayer } from "../Types/types";
 import WesDataSource from "../Datasources/WesDataSource";
 
 /**

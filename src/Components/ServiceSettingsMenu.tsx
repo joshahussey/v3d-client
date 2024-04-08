@@ -1,6 +1,5 @@
 import { JSX } from "solid-js";
-import { WesImageryLayer, Wes3DTileSet } from "../types";
-import WesDataSource from "../Datasources/WesDataSource";
+import { Wes3dMapLayer } from "../Types/types";
 import { RemoveLayerSettingsMenuItem } from "./RemoveLayerSettingsMenuItem";
 
 /**
@@ -8,7 +7,7 @@ import { RemoveLayerSettingsMenuItem } from "./RemoveLayerSettingsMenuItem";
  * @returns {JSX.Element} A JSX element representing the menu.
  */
 export function ServiceSettingsMenu(props: {
-    layers: (WesDataSource | WesImageryLayer | Wes3DTileSet)[];
+    layers: Wes3dMapLayer[];
     ref: HTMLUListElement | undefined;
     onFocusOutEvent: () => void;
     setServiceSettingsMenuShown: (value: boolean) => void;

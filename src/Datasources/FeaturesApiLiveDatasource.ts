@@ -1,7 +1,7 @@
 import { EntityCollection, JulianDate, Viewer } from "cesium";
 import WesDataSource from "./WesDataSource";
 import { requestFeatures } from "../Utils/Requests";
-import { CesiumWindow, FeaturesCollectionTemporal, LegendSource, ServiceInfo } from "../types";
+import { CesiumWindow, FeaturesCollectionTemporal, LegendSource, ServiceInfo } from "../Types/types";
 import { DatasourceTypes } from "../Constants";
 import { iso8601PeriodToObject } from "../Utils/TimeParser";
 const CesiumClient = window as CesiumWindow;

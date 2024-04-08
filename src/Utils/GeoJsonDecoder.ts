@@ -24,7 +24,7 @@
  */
 
 import { Event as CesiumEvent } from "cesium";
-import { OGCFeature } from "../types";
+import { OGCFeature } from "../Types/types";
 import { mainSwitch } from "./Utils";
 
 export default class GeoJsonDecorder {

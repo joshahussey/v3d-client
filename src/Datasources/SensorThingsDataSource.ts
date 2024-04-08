@@ -16,7 +16,7 @@ import {
 } from "cesium";
 import WesDataSource from "./WesDataSource";
 import GeoJsonDecoder from "../Utils/GeoJsonDecoder";
-import { OGCFeature, ServiceInfo } from "../types";
+import { OGCFeature, ServiceInfo } from "../Types/types";
 import {
     showThings,
     showFeaturesOfInterest,

@@ -1,5 +1,5 @@
 import { createSignal } from "solid-js";
-import { CesiumWindow, ViewRecord } from "../types";
+import { CesiumWindow, ViewRecord } from "../Types/types";
 import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { MAX_CHARS_100, MAX_CHARS_1024, VIEWS_SERVLET_URL } from "../Constants";
 import { saveViewParameters } from "../Utils/SaveView";

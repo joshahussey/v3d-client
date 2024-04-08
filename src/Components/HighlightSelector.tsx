@@ -28,7 +28,7 @@ export function HighlightSelector(layer: { datasource: FeaturesApiDataSource }):
     const initialValue = isHighlighted() == true ? { name: t("highlightSelectorOn"), value: true } : { name: t("highlightSelectorOff"), value: false };
     const selectHighlighting = (highlighted: highLightOption) => {
         if (highlighted == null) return;
-        setIsHighlighted(highlighted);
+        setIsHighlighted(highlighted.value);
         layer.datasource.isHighlighted = highlighted.value;
     };
     return (

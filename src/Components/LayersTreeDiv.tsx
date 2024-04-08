@@ -1,7 +1,7 @@
 import { BasemapSelector } from "./BasemapSelector";
 import { TerrainSelector } from "./TerrainSelector";
 import { JSX, Show } from "solid-js";
-import { ServiceInfo, Wes3DTileSet, WesImageryLayer } from "../types";
+import { ServiceInfo, Wes3DTileSet, WesImageryLayer } from "../Types/types";
 import WesDataSource from "../Datasources/WesDataSource";
 import { LayersListDiv } from "./LayersListDiv";
 import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";

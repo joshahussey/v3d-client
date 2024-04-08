@@ -28,19 +28,19 @@ import {
     KmlDataSource
 } from "cesium";
 import GeoJSON from "geojson";
-import WesDataSource from "./Datasources/WesDataSource";
-import FeaturesApiDataSource from "./Datasources/FeaturesApiDataSource";
-import CoverageApiDataSource from "./Datasources/CoverageApiDataSource";
+import WesDataSource from "../Datasources/WesDataSource";
+import FeaturesApiDataSource from "../Datasources/FeaturesApiDataSource";
+import CoverageApiDataSource from "../Datasources/CoverageApiDataSource";
 import { Accessor, Setter } from "solid-js";
-import CelestialBodyDataSource from "./Datasources/CelestialBodyDataSource";
-import { indexedPoint, indexedLine, indexedPolygon } from "./Utils/Utils";
+import CelestialBodyDataSource from "../Datasources/CelestialBodyDataSource";
+import { indexedPoint, indexedLine, indexedPolygon } from "../Utils/Utils";
 import {
     CesiumPointSymbolizerObject,
     CesiumLineSymbolizerObject,
     CesiumPolygonSymbolizerObject,
     CesiumTextSymbolizerObject,
     CesiumRasterSymbolizerObject
-} from "./Utils/Wes3dSldStyler";
+} from "../Utils/Wes3dSldStyler";
 export interface WesDatasources extends DataSourceCollection {
     _dataSources: WesDataSource[];
 }
@@ -93,9 +93,7 @@ export type CoverageDomainAxes = {
 export type CoverageReferencing = CoverageReferenceObject[];
 
 export type CoverageUnit = {
-    unit: {
         symbol: string;
-    };
 };
 
 export type CoverageProperty = {
@@ -219,6 +217,7 @@ export type csltArcGISWMSOption = {
     serviceInfo: ServiceInfo;
     bounds: ImageryBounds;
     credit: string;
+    show: boolean;
 };
 export type csltCesiumBuiltInOption = {
     uid: string;
@@ -228,6 +227,7 @@ export type csltCesiumBuiltInOption = {
     type: string;
     baseMapLayer: boolean;
     IonResourceAssetId: number;
+    show: boolean;
 }
 
 export type WesPrimitiveObject = cslt3DTilesOption;
@@ -616,7 +616,7 @@ export interface GeoJsonGeometry {
 export interface GeoJsonAoi {
     geometry: GeoJsonGeometry;
     properties?: {
-        wes_3d_buffere_metres: number;
+        wes_3d_buffer_metres: number;
     };
 }
 export interface ViewRecord {

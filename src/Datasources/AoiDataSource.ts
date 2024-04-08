@@ -14,7 +14,7 @@ import {
 } from "cesium";
 import WesDataSource from "./WesDataSource";
 import { AOI_COLOR, AOI_DATASOURCE_ID, AOI_DRAW_PIXEL_WIDTH, BUFFER_COLOR } from "../Constants";
-import { CesiumWindow, GeoJsonAoi, ServiceInfo } from "../types";
+import { CesiumWindow, GeoJsonAoi, ServiceInfo } from "../Types/types";
 import { translate as t } from "../i18n/Translator";
 
 type AoiDrawables = {
@@ -40,7 +40,7 @@ export default class AoiDataSource extends WesDataSource {
     async loadService() {
         if (!this._aoiObject) return;
 
-        const buffer: number = this._aoiObject.properties?.wes_3d_buffer_metres;
+        const buffer: number = this._aoiObject.properties?.wes_3d_buffer_metres as number;
         const entities = this.entities;
 
         entities.suspendEvents();

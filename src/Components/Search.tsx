@@ -1,5 +1,5 @@
 import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
-import { CesiumWindow } from "../types";
+import { CesiumWindow } from "../Types/types";
 import { JSX, createEffect } from "solid-js";
 import { Geocoder } from "cesium";
 import { USE_CESIUM_GEOCODER } from "../Constants";

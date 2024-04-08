@@ -1,7 +1,7 @@
 import { For, JSX, createSignal, createEffect } from "solid-js";
 import { UIContextType, useInterfaceContext } from "../Context/UIContext";
 import { ServiceEntry } from "./ServiceEntry";
-import { ServiceInfo, WesImageryLayer, Wes3DTileSet } from "../types";
+import { ServiceInfo, WesImageryLayer, Wes3DTileSet } from "../Types/types";
 import { ServiceEntryInput } from "./LayersDiv";
 import WesDataSource from "../Datasources/WesDataSource";
 import { useToolbarStateContext, ServiceStatusEntry, ToolbarContextType } from "../Context/ToolbarStateContext";
