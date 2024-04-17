@@ -26,7 +26,7 @@ pipeline {
             steps {
                 echo "Building on ${NODE_NAME}..."
                 sh 'npm install'
-                sh 'npm run full-build-release'
+                sh 'npm run build-client-release'
                 }
             }
         stage('Containerize') {
@@ -47,9 +47,7 @@ pipeline {
             steps {
                 echo 'Cleaning up...'
                 catchError {
-                    sh 'docker rm -vf $(docker ps -qa --filter "ancestor=standalone3d-frontend")'
-                    sh 'docker rm -vf $(docker ps -qa --filter "ancestor=standalone3d-backend")'
-                    sh 'docker rm -vf $(docker ps -qa --filter "ancestor=standalone3d-server")'
+                    sh 'docker rmi $(docker images -q standalone*) -f'
                 }
             }
         }
