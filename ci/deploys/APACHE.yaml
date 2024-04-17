@@ -1,0 +1,23 @@
+name: standalone3d
+
+services:
+  backend:
+    environment:
+      - BACKEND_PORT
+    image: docker.compusult.com:5000/standalone3d-backend:$IMAGE_TAG
+    ports:
+      - "$BACKEND_PORT:$BACKEND_PORT"
+    volumes:
+      - ./logs/:/cslt/backend/logs
+      - web_dir:/cslt/web
+  frontend:
+    image: docker.compusult.com:5000/standalone3d-frontend:$IMAGE_TAG
+    volumes:
+      - web_dir:/cslt/web
+volumes: 
+  web_dir:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./web
