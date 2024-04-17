@@ -48,6 +48,7 @@ pipeline {
                 echo 'Cleaning up...'
                 catchError {
                     sh 'docker rmi $(docker images -q standalone*) -f'
+                    sh 'docker system prune --volumes -f'
                 }
             }
         }
