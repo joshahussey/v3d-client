@@ -3,6 +3,7 @@ import {
     addArcGisWMSObject,
     addCelestialObject,
     addGeoJSONObject,
+    addGpkgObject,
     addKmlObject,
     addOGCCoverageObject,
     addOGCFeatureObject,
@@ -10,13 +11,15 @@ import {
     AddRequestObject,
     addSensorThingsObject,
     addWMSObject,
-    addWMTSObject
+    addWMTSObject,
+    zoomDim
 } from "../Types/3dMapControllerTypes";
 import {
     add3DTiles,
     addArcGisWMS,
     addCelestial,
     addGeoJSON,
+    addGpkg,
     addKml,
     addOGCCoverage,
     addOGCFeature,
@@ -193,6 +196,29 @@ export async function addLayerFromBackend(parsedMessage: { type: string; args: [
                 });
             }
             add3DTiles(receivedMessageObjects as add3DTilesObject[]);
+            raiseMapStateChangedEvent();
+            break;
+        case "GPKG":
+            for (const arg of args as [addGpkgObject]) {
+                const matrixDimensions: zoomDim[] = [];
+                arg.zoomDims.forEach((z: zoomDim) => {
+                    matrixDimensions.push(z);
+                });
+                receivedMessageObjects.push({
+                    uid: arg.uid,
+                    name: arg.name,
+                    description: arg.description,
+                    type: arg.type,
+                    gpkgType: arg.gpkgType,
+                    table: arg.table,
+                    tileWidth: arg.tileWidth,
+                    tileHeight: arg.tileHeight,
+                    rect: arg.rect,
+                    serviceInfo: arg.serviceInfo,
+                    zoomDims: matrixDimensions
+                });
+            }
+            addGpkg(receivedMessageObjects as addGpkgObject[]);
             raiseMapStateChangedEvent();
             break;
         default:

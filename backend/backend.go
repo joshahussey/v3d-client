@@ -61,6 +61,22 @@ func HandleConnect(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func HandleGpkgRequest(w http.ResponseWriter, r *http.Request) {
+	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID"), uuid: uuid.New().String()}
+	err := HandleGpkg(ctx)
+	if err != nil {
+		e(ctx, err)
+	}
+}
+
+func HandleGpkgTileRequest(w http.ResponseWriter, r *http.Request) {
+	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID"), uuid: uuid.New().String()}
+	err := HandleGpkgTile(ctx)
+	if err != nil {
+		e(ctx, err)
+	}
+}
+
 func HandleShapeRequest(w http.ResponseWriter, r *http.Request) {
 	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID"), uuid: uuid.New().String()}
 	err := HandleShape(ctx)
@@ -211,8 +227,10 @@ func main() {
 	initDb()
 	http.HandleFunc("/map", HandleConnect)
 	http.HandleFunc("/add", HandleAdd)
-	http.HandleFunc("/shape", HandleShapeRequest)
+	http.HandleFunc("/gpkg", HandleGpkgRequest)
 	http.HandleFunc("/kml", HandleKmlRequest)
+	http.HandleFunc("/shape", HandleShapeRequest)
+	http.HandleFunc("/tilegpkg/", HandleGpkgTileRequest)
 	go requestQueue.Work()
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }

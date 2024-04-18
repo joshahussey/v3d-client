@@ -9,7 +9,7 @@ import {
 } from "cesium";
 import { ServiceInfo, ImageryBounds } from "../Types/types";
 import WesDataSource from "./WesDataSource";
-import {translate as t} from "../i18n/Translator"
+import { translate as t } from "../i18n/Translator";
 
 export default class OgcMapsDatasource extends WesDataSource {
     provider?: ImageryProvider;
@@ -37,14 +37,19 @@ export default class OgcMapsDatasource extends WesDataSource {
     }
     async getProvider(): Promise<ImageryProvider> {
         if (this.provider) {
-            return this.provider
+            return this.provider;
         } else {
-            throw t("OgcMapCouldNotGetProviderError")
+            throw t("OgcMapCouldNotGetProviderError");
         }
     }
 
     setProvider() {
-        const extents = Rectangle.fromDegrees(this._bounds.minX, this._bounds.minY, this._bounds.maxX, this._bounds.maxY);
+        const extents = Rectangle.fromDegrees(
+            this._bounds.minX,
+            this._bounds.minY,
+            this._bounds.maxX,
+            this._bounds.maxY
+        );
         const resource = new Resource({
             url: this._url,
             queryParameters: {
@@ -56,14 +61,14 @@ export default class OgcMapsDatasource extends WesDataSource {
             }
         });
         const provider = new UrlTemplateImageryProvider({
-                url: resource,
-                minimumLevel: 1,
-                maximumLevel: 20,
-                tilingScheme: new GeographicTilingScheme({ ellipsoid: Ellipsoid.WGS84 }),
-                tileWidth: 1500,
-                tileHeight: 1500,
-                rectangle: extents
-            });
+            url: resource,
+            minimumLevel: 1,
+            maximumLevel: 20,
+            tilingScheme: new GeographicTilingScheme({ ellipsoid: Ellipsoid.WGS84 }),
+            tileWidth: 1500,
+            tileHeight: 1500,
+            rectangle: extents
+        });
         if (provider != undefined) {
             this.provider = provider;
         }

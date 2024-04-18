@@ -878,7 +878,7 @@ export default class SensorThingsDataSource extends WesDataSource {
 
         const jsonReturn = this.fetchJson(url, { f: "json" });
         if (jsonReturn != undefined) {
-            return new Promise((resolve) => {
+            return new Promise(resolve => {
                 jsonReturn
                     .then(function (data) {
                         const dataObj: CheckDataTypeInfoObj = {
@@ -903,7 +903,7 @@ export default class SensorThingsDataSource extends WesDataSource {
 
         const jsonReturn = this.fetchJson(url, { f: "json" });
         if (jsonReturn != undefined) {
-            return new Promise((resolve) => {
+            return new Promise(resolve => {
                 jsonReturn
                     .then(function (data) {
                         const results = [] as CheckDataTypeInfoObjResult[];

@@ -48,6 +48,38 @@
 		}
 	}
 
+	route /gpkg* {
+		handle {
+                header {
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Credentials true
+        Access-Control-Allow-Methods *
+        Access-Control-Allow-Headers *
+        defer
+    }
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT} {
+                header_down -Access-Control-Allow-Origin
+                }
+                respond @options 204
+		}
+	}
+
+	route /tilegpkg* {
+		handle {
+                header {
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Credentials true
+        Access-Control-Allow-Methods *
+        Access-Control-Allow-Headers *
+        defer
+    }
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT} {
+                header_down -Access-Control-Allow-Origin
+                }
+                respond @options 204
+		}
+	}
+
 	route /shape* {
 		handle {
                 header {

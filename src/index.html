@@ -1,21 +1,24 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <base href = "."></base>
-    <meta charset="UTF-8" />
-    <title>3D Map Client</title>
-    <link rel="stylesheet" href="./loading.css" />
-  </head>
-  <body style="margin: 0px">
-    <div id="loadingOverlay">
-      <img class="loadingImage" src="./loading.gif"></img>
-    </div>
-    <div id="geoCaBorder" 
-      class="geoCaBorder" 
-      style="z-index: 1; position:relative; width: 100vw; height: 5rem">
-    </div>
-    <div id="cesiumContainer" style="width: 100%; height: calc(100vh - 5rem)">
-      <div id="WesUserInterface"></div>
-    </div>
-  </body>
+
+<head>
+  <base href=".">
+  </base>
+  <meta charset="UTF-8" />
+  <title>3D Map Client</title>
+  <link rel="stylesheet" href="./loading.css" />
+  <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+</head>
+
+<body style="margin: 0px">
+  <div id="loadingOverlay">
+    <img class="loadingImage" src="./loading.gif"></img>
+  </div>
+  <div id="geoCaBorder" class="geoCaBorder" style="z-index: 1; position:relative; width: 100vw; height: 5rem">
+  </div>
+  <div id="cesiumContainer" style="width: 100%; height: calc(100vh - 5rem)">
+    <div id="WesUserInterface"></div>
+  </div>
+</body>
+
 </html>

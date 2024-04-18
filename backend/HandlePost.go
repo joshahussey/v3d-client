@@ -56,6 +56,12 @@ func HandlePost(ctx ReqContext) error {
 			return PoE("HandleShapeUrl", err)
 		}
 		return nil
+	case "gpkg":
+		err = HandleGpkgUrl(ctx, jsonBody.Args)
+		if err != nil {
+			return PoE("HandleGpkgUrl", err)
+		}
+		return nil
 	default:
 		msg, err := json.Marshal(jsonBody)
 		if err != nil {

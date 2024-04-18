@@ -67,6 +67,7 @@ func createDb(dbPath string) {
 	if err != nil {
 		logE("LOCAL", err, "openDb")
 	}
+	defer db.Close()
 
 	dbMutex.Lock()
 	_, err = db.Exec("create table services (file_hash text primary key, last_access timestamp default current_timestamp);")
@@ -104,6 +105,7 @@ func runCleaner() error {
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 	cleanupThreshold := time.Now().Add(-cleanupThreshold)
 	logD("LOCAL", "Removing services last accessed before " + cleanupThreshold.String(), "runCleanerCalculateThreshold")
 
@@ -111,11 +113,12 @@ func runCleaner() error {
 	rows, err := db.Query("delete from services where last_access < ? returning file_hash", cleanupThreshold)
 	dbMutex.Unlock()
 
+	defer rows.Close()
+
 	if err != nil {
 		logE("LOCAL", err, "runCleanerExecQuery")
 	}
 
-	defer rows.Close()
 
 	// empty struct requires 0 bytes of memory
 	hashes := make(map[string]struct{})

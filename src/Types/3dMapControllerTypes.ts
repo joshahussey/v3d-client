@@ -7,19 +7,19 @@ export type WGS84BoundingBox = {
     maxY: number;
 };
 
-export type AddRequestObject = (
-    addWMSObject | 
-    addWMTSObject | 
-    addArcGisWMSObject | 
-    add3DTilesObject | 
-    addSensorThingsObject | 
-    addCelestialObject | 
-    addGeoJSONObject | 
-    addKmlObject | 
-    addOGCMapObject | 
-    addOGCFeatureObject |
-    addOGCCoverageObject
-)
+export type AddRequestObject =
+    | addWMSObject
+    | addWMTSObject
+    | addArcGisWMSObject
+    | add3DTilesObject
+    | addSensorThingsObject
+    | addCelestialObject
+    | addGeoJSONObject
+    | addKmlObject
+    | addOGCMapObject
+    | addOGCFeatureObject
+    | addOGCCoverageObject
+    | addGpkgObject;
 
 export type addWMSObject = {
     uid: string;
@@ -64,7 +64,7 @@ export type add3DTilesObject = {
     title: string;
     description: string;
     serviceInfo: ServiceInfo;
-    show?: boolean
+    show?: boolean;
 };
 
 export type addSensorThingsObject = {
@@ -126,4 +126,24 @@ export type addOGCCoverageObject = {
     id: string;
     wgs84BoundingBox: WGS84BoundingBox;
     serviceInfo: ServiceInfo;
+};
+
+export type addGpkgObject = {
+    uid: string;
+    name: string;
+    description: string;
+    type: string;
+    gpkgType: string;
+    table: string;
+    serviceInfo: ServiceInfo;
+    tileWidth: number;
+    tileHeight: number;
+    rect: WGS84BoundingBox;
+    zoomDims: zoomDim[];
+};
+
+export type zoomDim = {
+    level: number;
+    width: number;
+    height: number;
 };

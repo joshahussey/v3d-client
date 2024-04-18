@@ -25,7 +25,8 @@ import {
     LabelStyle,
     Material,
     Timeline,
-    KmlDataSource
+    KmlDataSource,
+    UrlTemplateImageryProvider
 } from "cesium";
 import GeoJSON from "geojson";
 import WesDataSource from "../Datasources/WesDataSource";
@@ -41,6 +42,7 @@ import {
     CesiumTextSymbolizerObject,
     CesiumRasterSymbolizerObject
 } from "../Utils/Wes3dSldStyler";
+import { WGS84BoundingBox, zoomDim } from "./3dMapControllerTypes";
 export interface WesDatasources extends DataSourceCollection {
     _dataSources: WesDataSource[];
 }
@@ -93,7 +95,7 @@ export type CoverageDomainAxes = {
 export type CoverageReferencing = CoverageReferenceObject[];
 
 export type CoverageUnit = {
-        symbol: string;
+    symbol: string;
 };
 
 export type CoverageProperty = {
@@ -165,7 +167,7 @@ export type WesTerrainObject = {
     type: "Terrain";
 };
 
-export type WesImageryObject = csltWMSOption | csltWMTSOption | csltArcGISWMSOption | csltOGCMapOption;
+export type WesImageryObject = csltWMSOption | csltWMTSOption | csltArcGISWMSOption | csltOGCMapOption | csltGpkgOption;
 export type csltWMTSOption = {
     uid: string;
     type: string;
@@ -228,7 +230,20 @@ export type csltCesiumBuiltInOption = {
     baseMapLayer: boolean;
     IonResourceAssetId: number;
     show: boolean;
-}
+};
+export type csltGpkgOption = {
+    uid: string;
+    name: string;
+    description: string;
+    type: string;
+    gpkgType: string;
+    gpkgTableName: string;
+    serviceInfo: ServiceInfo;
+    tileWidth: number;
+    tileHeight: number;
+    bounds: WGS84BoundingBox;
+    matrixDimensions: zoomDim[];
+};
 
 export type WesPrimitiveObject = cslt3DTilesOption;
 export type cslt3DTilesOption = {
@@ -368,6 +383,9 @@ export interface WesWebMapTileServiceImageryProvider extends WebMapTileServiceIm
 export interface WesArcGisMapServerImageryProvider extends ArcGisMapServerImageryProvider {
     name?: string;
 }
+export interface WesUrlTemplateImageryProvider extends UrlTemplateImageryProvider {
+    name?: string;
+}
 export interface Wes3DTileSet extends Cesium3DTileset {
     _url: string;
     name: string;
@@ -380,7 +398,8 @@ export type WesImageryProvider =
     | WesWebMapServiceImageryProvider
     | WesWebMapTileServiceImageryProvider
     | WesArcGisMapServerImageryProvider
-    | IonImageryProvider;
+    | IonImageryProvider
+    | WesUrlTemplateImageryProvider;
 
 export type Wes3dMapLayer =
     | WesImageryLayer

@@ -32,6 +32,18 @@
 		}
 	}
 
+	route /gpkg* {
+		handle {
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
+		}
+	}
+
+	route /tilegpkg* {
+		handle {
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
+		}
+	}
+
 	route /kml* {
 		handle {
 			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}

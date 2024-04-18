@@ -1,8 +1,10 @@
 import {
+    WGS84BoundingBox,
     add3DTilesObject,
     addArcGisWMSObject,
     addCelestialObject,
     addGeoJSONObject,
+    addGpkgObject,
     addKmlObject,
     addOGCCoverageObject,
     addOGCFeatureObject,
@@ -11,7 +13,7 @@ import {
     addWMSObject,
     addWMTSObject
 } from "../Types/3dMapControllerTypes";
-import { MapState, WesImageryObject } from "../Types/types";
+import { ImageryBounds, MapState, WesImageryObject, csltGpkgOption } from "../Types/types";
 
 /**
  * Adds a WMTS to 3DMap if a layer on top of the imagery if the uid dosn't exist.
@@ -53,7 +55,7 @@ export function addWMTS(addWMTSObject: addWMTSObject[]) {
  * Adds an OGC Maps Layer to 3DMap if a layer on top of the imagery if the uid dosn't exist.
  * If the uid exists then the existing layer is first removed.
  *
- * @param {addOGCMapObject[]} addOgcMapObject 
+ * @param {addOGCMapObject[]} addOgcMapObject
  */
 export function addOgcMap(addOgcMapObject: addOGCMapObject[]) {
     const mapState = getMapState();
@@ -129,7 +131,8 @@ export function addArcGisWMS(addArcGISWMSObject: addArcGisWMSObject[]) {
             url: arcGisWmsObject.url,
             serviceInfo: arcGisWmsObject.serviceInfo,
             bounds: arcGisWmsObject.wgs84BoundingBox,
-            credit: arcGisWmsObject.credit ? arcGisWmsObject.credit : ""
+            credit: arcGisWmsObject.credit ? arcGisWmsObject.credit : "",
+            show: true
         };
         imageLayers = imageLayers.filter(l => l.uid !== arcGisWmsObject.uid);
         imageLayers.push(option);
@@ -317,6 +320,30 @@ export function addOGCCoverage(addOGCCoverageObject: addOGCCoverageObject[]) {
         dataSources.push(option);
     }
     mapState.dataSources = dataSources;
+    setMapState(mapState);
+}
+
+export function addGpkg(addGpkgObject: addGpkgObject[]) {
+    const mapState = getMapState();
+    let imageLayers = mapState.imageLayers;
+    for (const gpkgObject of addGpkgObject) {
+        const option: csltGpkgOption = {
+            uid: gpkgObject.uid,
+            name: gpkgObject.name,
+            description: gpkgObject.description,
+            type: "GPKG",
+            gpkgType: gpkgObject.gpkgType,
+            gpkgTableName: gpkgObject.table,
+            serviceInfo: gpkgObject.serviceInfo,
+            tileWidth: gpkgObject.tileWidth,
+            tileHeight: gpkgObject.tileHeight,
+            bounds: gpkgObject.rect as WGS84BoundingBox,
+            matrixDimensions: gpkgObject.zoomDims
+        };
+        imageLayers = imageLayers.filter(i => i.uid !== gpkgObject.uid);
+        imageLayers.push(option);
+    }
+    mapState.imageLayers = imageLayers;
     setMapState(mapState);
 }
 

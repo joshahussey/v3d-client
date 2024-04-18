@@ -47,7 +47,10 @@ import {
     csltWMSOption,
     csltCesiumBuiltInOption,
     csltOGCFeatureOption,
-    csltOGCCoverageOption
+    csltOGCCoverageOption,
+    csltGpkgOption,
+    csltArcGISWMSOption,
+    csltOGCMapOption
 } from "./Types/types";
 import { getMapState, onLoad, setMapState } from "./Utils/Controller";
 import { createStore } from "solid-js/store";
@@ -92,6 +95,7 @@ import {
     Sun,
     TimeInterval,
     TimeIntervalCollection,
+    UrlTemplateImageryProvider,
     Viewer,
     WebMapServiceImageryProvider,
     WebMapTileServiceImageryProvider
@@ -99,6 +103,7 @@ import {
 import { zoomTo } from "./Utils/ZoomTo";
 import { styleDefaultClusters, styleGeoJsonBillboard } from "./Utils/ClusterStyling";
 import { addLayerFromBackend } from "./Utils/AddLayerFromBackend";
+import GpkgTilingScheme from "./Utils/GpkgTilingScheme";
 
 type WesPrimitiveCollection = PrimitiveCollection & {
     _primitives: Wes3DTileSet[];
@@ -381,7 +386,10 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                                 (window as CesiumWindow).Map3DViewer.scene.primitives.remove(
                                     dataSource._renderedPrimitive
                                 );
-                                (window as CesiumWindow).removeEventListener("timeChanged", dataSource._listener as EventListener);
+                                (window as CesiumWindow).removeEventListener(
+                                    "timeChanged",
+                                    dataSource._listener as EventListener
+                                );
                                 dataSource._removed = true;
                                 dataSource._renderedPrimitive = undefined;
                                 if (dataSource._hasLegend) {
@@ -857,16 +865,17 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             );
         }
         if (option.type === "WMTS") {
-            const resource = new Resource({ url: option.url });
+            const wmtsOption = option as csltWMTSOption;
+            const resource = new Resource({ url: wmtsOption.url });
             return new WebMapTileServiceImageryProvider({
                 url: resource,
-                //name: option.name,
-                layer: (option as csltWMTSOption).layer,
-                style: (option as csltWMTSOption).style,
-                format: (option as csltWMTSOption).format,
-                tileMatrixSetID: (option as csltWMTSOption).tileMatrixSetID,
-                maximumLevel: (option as csltWMTSOption).maximumLevel,
-                credit: option.credit
+                //name: wmtsOption.name,
+                layer: wmtsOption.layer,
+                style: wmtsOption.style,
+                format: wmtsOption.format,
+                tileMatrixSetID: wmtsOption.tileMatrixSetID,
+                maximumLevel: wmtsOption.maximumLevel,
+                credit: wmtsOption.credit
             }) as WesWebMapTileServiceImageryProvider;
         }
         if (option.type === "ArcGis") {
@@ -875,16 +884,18 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             //    //name: option.name,
             //    credit: option.credit,
             //});
-            return await ArcGisMapServerImageryProvider.fromUrl(option.url, {
+            const arcgisOption = option as csltArcGISWMSOption;
+            return await ArcGisMapServerImageryProvider.fromUrl(arcgisOption.url, {
                 ellipsoid: Ellipsoid.WGS84,
-                credit: option.credit,
+                credit: arcgisOption.credit,
                 rectangle: bounds
             });
         }
         if (option.type === "WMS") {
-            const isTemporal = await isLiveWms((option as csltWMSOption).layers, option.url);
+            const wmsOption = option as csltWMSOption;
+            const isTemporal = await isLiveWms(wmsOption.layers, wmsOption.url);
             if (isTemporal) {
-                const wmsDescriptor = await createLiveWmsPeriodString((option as csltWMSOption).layers);
+                const wmsDescriptor = await createLiveWmsPeriodString(wmsOption.layers);
                 const dataCallback = (interval: TimeInterval, index: number) => {
                     let time;
                     if (index === 0) {
@@ -904,19 +915,19 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                     dataCallback: dataCallback
                 });
                 const tempMap = timeMap();
-                tempMap.set(option.uid, [
+                tempMap.set(wmsOption.uid, [
                     JulianDate.fromDate(wmsDescriptor.start),
                     JulianDate.fromDate(wmsDescriptor.end)
                 ]);
                 setTimeMap(tempMap);
                 return new WebMapServiceImageryProvider({
-                    url: option.url,
-                    //name: option.name,
-                    layers: (option as csltWMSOption).layers,
-                    parameters: (option as csltWMSOption).parameters,
+                    url: wmsOption.url,
+                    //name: wmsOption.name,
+                    layers: wmsOption.layers,
+                    parameters: wmsOption.parameters,
                     tileHeight: 4000,
                     tileWidth: 4000,
-                    credit: option.credit,
+                    credit: wmsOption.credit,
                     clock: viewer.clock,
                     times: times,
                     enablePickFeatures: false,
@@ -924,11 +935,11 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                 });
             }
             return new WebMapServiceImageryProvider({
-                url: option.url,
-                //name: option.name,
-                layers: (option as csltWMSOption).layers,
-                parameters: (option as csltWMSOption).parameters,
-                credit: option.credit,
+                url: wmsOption.url,
+                //name: wmsOption.name,
+                layers: wmsOption.layers,
+                parameters: wmsOption.parameters,
+                credit: wmsOption.credit,
                 enablePickFeatures: false,
                 rectangle: bounds
             });
@@ -947,7 +958,42 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                     throw t("3dMapGetImageryProviderError1");
             }
         }
-        throw t("3dMapGetImageryProviderError1");
+        if (option.type === "GPKG" && (option as csltGpkgOption).gpkgType === "tiles") {
+            const gpkgOption = option as csltGpkgOption;
+            bounds = gpkgOption.bounds
+                ? Rectangle.fromDegrees(
+                      gpkgOption.bounds.minX,
+                      gpkgOption.bounds.minY,
+                      gpkgOption.bounds.maxX,
+                      gpkgOption.bounds.maxY
+                  )
+                : Rectangle.fromDegrees(-180, -90, 180, 90);
+
+            const minLevel = gpkgOption.matrixDimensions.reduce((prev, current) => {
+                return prev.level < current.level ? prev : current;
+            }).level;
+
+            const maxLevel = gpkgOption.matrixDimensions.reduce((prev, current) => {
+                return prev.level > current.level ? prev : current;
+            }).level;
+
+            const tilingScheme = new GpkgTilingScheme(gpkgOption.matrixDimensions);
+            return new UrlTemplateImageryProvider({
+                minimumLevel: minLevel,
+                maximumLevel: maxLevel,
+                url:
+                    window.location.origin +
+                    "/tilegpkg/" +
+                    gpkgOption.serviceInfo.serviceId +
+                    "/" +
+                    gpkgOption.gpkgTableName +
+                    "/{z}/{x}/{y}",
+                rectangle: bounds,
+                tilingScheme: tilingScheme
+            });
+        }
+
+        throw t("3dMapGetImageryProviderError2");
     }
 
     /**
@@ -999,7 +1045,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
     /**
      * Method for adding imagery layers to the map.
      *
-     * @param *} imageryOption Json object stored in the session for a imagery layer.
+     * @param {*} imageryOption Json object stored in the session for a imagery layer.
      */
     async function addAdditionalLayerOption(imageryOption: WesImageryObject) {
         const baseLayerArray = baseLayers();
@@ -1013,7 +1059,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             const createdDatasource = new OgcMapsDatasource(
                 imageryOption.description,
                 imageryOption.name,
-                imageryOption.url,
+                (imageryOption as csltOGCMapOption).url,
                 viewer,
                 imageryOption.uid,
                 imageryOption.bounds,
