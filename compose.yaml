@@ -5,17 +5,6 @@ services:
     build:
       context: ./server
       dockerfile: Dockerfile
-      args:
-        BACKEND_PORT_ARG: $BACKEND_PORT
-        CERTS_DIR_ARG: $CERTS_DIR
-        TLS_CERT_LOC_ARG: $TLS_CERT_LOC
-        TLS_KEY_LOC_ARG: $TLS_KEY_LOC
-        DOMAIN_NAME_ARG: $DOMAIN_NAME
-        ROOT_DIR_3D_ARG: $ROOT_DIR_3D
-        HTTP_PORT_ARG: $HTTP_PORT
-        HTTPS_PORT_ARG: $HTTPS_PORT
-        ADMIN_PORT_ARG: $ADMIN_PORT
-        CADDYFILE: $CADDYFILE
     ports:
       - "$HTTP_PORT:$HTTP_PORT"
       - "$HTTPS_PORT:$HTTPS_PORT"
@@ -27,12 +16,6 @@ services:
     build:
       context: .
       dockerfile: frontend-Dockerfile
-      args:
-        DOMAIN_NAME_ARG: localhost
-        ROOT_DIR_ARG: .
-        HTTP_PORT_ARG: $HTTP_PORT
-        HTTPS_PORT_ARG: $HTTPS_PORT
-        ADMIN_PORT_ARG: $ADMIN_PORT
     volumes:
       - /opt/standalone/web:/cslt/web
   backend:
@@ -41,8 +24,6 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-      args:
-        BACKEND_PORT_ARG: $BACKEND_PORT
     volumes:
       - ./logs/:/cslt/backend/logs
       - /opt/standalone/web:/cslt/web

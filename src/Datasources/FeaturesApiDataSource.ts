@@ -11,7 +11,6 @@ import {
     PolygonHierarchy,
     PropertyBag,
     Transforms,
-    VerticalOrigin,
     Viewer,
     Property,
     PositionProperty,
@@ -43,36 +42,14 @@ import FastFeatureClusters from "../Utils/FastClustering";
 import { getTddRuleMatches } from "../Utils/tddparser";
 import { translate as t } from "../i18n/Translator";
 import { BLProps, Billboard, Label, MaterialColor, MaterialImage, MaterialProperty, PointSymbolizer, PolygonSymbolizer, PropertyLookup, RGBA, Rule, Styled3dLayerDescriptor, UserStyle } from "../Types/tdd";
+import { CLUSTER_HEIGHT, CLUSTER_HEIGHT_CONSTANT, CLUSTER_WIDTH, HEIGHT_REFERENCE_CLAMP_TO_GROUND, HEIGHT_REFERENCE_RELATIVE_TO_GROUND, ONE_PROPERTY, TWO_PROPERTY, ORANGE_PROPERTY, TRUE_PROPERTY, VERTICAL_ORIGIN_BOTTOM, ZERO_PROPERTY, BLUE_PROPERTY } from "../Constants";
+import { styleDefaultClusters, styleGeoJsonBillboard } from "../Utils/ClusterStyling";
 
 //DELETE WHEN CESIUM FIXES THIS BUG
 interface resource_fixed extends Resource {
     createIfNeeded: (url: string) => Resource;
 }
-//Boolean Properties//
-const TRUE_PROPERTY = new ConstantProperty(true);
-// const FALSE_PROPERTY = new ConstantProperty(false);
 
-//Config Properties//
-// const CLUSTER_MINIMUM_DISTANCE = 300;
-const CLUSTER_WIDTH = new ConstantProperty(35);
-const CLUSTER_HEIGHT = new ConstantProperty(35);
-const CLUSTER_HEIGHT_CONSTANT = 150000;
-// const EYE_OFFSET = new Cartesian3(0, -30, 400);
-// const EYE_OFFSET_METAR = new Cartesian3(0, 0, 400);
-
-//Number Properties//
-const ZERO_PROPERTY = new ConstantProperty(0);
-const ONE_PROPERTY = new ConstantProperty(1);
-// const POSTIVE_INFINITY_PROPERTY = new ConstantProperty(Number.POSITIVE_INFINITY);
-
-//Color Properties//
-const ORANGE_PROPERTY = new ConstantProperty(Color.ORANGE);
-// const BLUE_PROPERTY = new ConstantProperty(Color.BLUE);
-
-//Cesium Enum Properties//
-const VERTICAL_ORIGIN_BOTTOM = new ConstantProperty(VerticalOrigin.BOTTOM);
-const HEIGHT_REFERENCE_CLAMP_TO_GROUND = new ConstantProperty(HeightReference.CLAMP_TO_GROUND);
-const HEIGHT_REFERENCE_RELATIVE_TO_GROUND = new ConstantProperty(HeightReference.RELATIVE_TO_GROUND);
 type OgcCollectionInformation = {
     title: string;
     clusterColor: string;
@@ -99,6 +76,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
     _canvasCache: { [key: string]: HTMLCanvasElement | Promise<HTMLCanvasElement> | HTMLImageElement | Promise<HTMLImageElement> };
     _geometryBounds: ImageryBounds;
     isHighlighted: boolean;
+    depthDistCond: Property;
 
     constructor(
         description: string,
@@ -144,6 +122,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
             }
         ];
         this._canvasCache = {};
+        this.depthDistCond = new ConstantProperty(this._viewer.camera.positionCartographic.height + 6178137);
         this.initialize(10000);
 
         Object.defineProperties(this, {
@@ -218,7 +197,12 @@ export default class FeaturesApiDataSource extends WesDataSource {
     async fetchStyles() {
         const links = await this.fetchJson(this._url, { f: "json" });
         let url = "";
-        if (links.styles == null) return null;
+        if (links.styles == null) {
+            this.clustering.enabled = true;
+            styleDefaultClusters(this, this._viewer);
+            styleGeoJsonBillboard(this, this._viewer);
+            return null;
+        }
         for (const style of links.styles) {
             style.links.forEach(function (link: { [key: string]: string }) {
                 if (link.type === "application/json") {
@@ -236,6 +220,11 @@ export default class FeaturesApiDataSource extends WesDataSource {
             this._userStylesArray.push({ index: index, name: styleName as string, dataSource: this });
         });
         this._userStylesCount = this._userStylesArray.length;
+        if (this._userStylesCount == 0) {
+            this.clustering.enabled = true;
+            styleDefaultClusters(this, this._viewer);
+            styleGeoJsonBillboard(this, this._viewer);
+        }
         this._tdd = tdd;
     }
 
@@ -495,6 +484,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
     }
 
     renderLoop(ogcFeaturesArray: Array<OGCFeature>) {
+        this.setDistCond();
         ogcFeaturesArray.forEach(async ogcFeature => {
             const location = this.getLocation(ogcFeature);
             const matchedStyles: Rule[][] = [];
@@ -504,6 +494,9 @@ export default class FeaturesApiDataSource extends WesDataSource {
                 });
             }
             const feature = this.createFeature(ogcFeature, location as Cartesian3);
+            if(feature.polygon){
+                this.createPolygonOutline(feature);
+            }
             this.styleFeature(feature, ogcFeature, location as Cartesian3, matchedStyles);
             this._renderedFeatureIdSet.add(feature.id);
             this._entityCollection.add(feature);
@@ -511,6 +504,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
     }
 
     async updateLoop(ogcFeaturesArray: OGCFeature[]) {
+        this.setDistCond();
         this._renderedClusterSet.forEach(cluster => {
             this._entityCollection.remove(cluster);
         });
@@ -608,6 +602,15 @@ export default class FeaturesApiDataSource extends WesDataSource {
             }
         }
         return this.createPointEntity(location as Cartesian3, feature.id);
+    }
+
+    createPolygonOutline(feature: Entity){
+        const outlineEntities = new EntityCollection();
+        console.log(feature.polygon?.hierarchy);
+        const lines = (feature.polygon?.hierarchy as unknown as PolygonHierarchy).positions;
+        for (const line in lines){
+            console.log(line);
+        }
     }
 
     getLocation(feature: OGCFeature) {
@@ -945,10 +948,33 @@ export default class FeaturesApiDataSource extends WesDataSource {
         return;
     }
 
+    setDistCond(){
+        this.depthDistCond = new ConstantProperty(this._viewer.camera.positionCartographic.height + 6178137);
+    }
+
+
     fallbackStyles(feature: Entity, location: Cartesian3) {
-        feature;
+        if (feature.position) {
+            feature.billboard = new BillboardGraphics();
+            feature.billboard.show = TRUE_PROPERTY;
+            feature.billboard.disableDepthTestDistance = new ConstantProperty(this.depthDistCond);
+            feature.billboard.image = new ConstantProperty("./Icons/PinRed.png");
+            feature.billboard.height = new ConstantProperty(28);
+            feature.billboard.width = new ConstantProperty(19);
+        }
+        if (feature.polyline) {
+            feature.polyline.material = new ColorMaterialProperty(Color.RED) ;
+            feature.polyline.width = TWO_PROPERTY;
+            feature.polyline.show = TRUE_PROPERTY;
+        }
+        if (feature.polygon) {
+            feature.polygon.material = new ColorMaterialProperty(Color.fromAlpha(Color.RED, 0.5));
+            feature.polygon.outline = TRUE_PROPERTY;
+            feature.polygon.outlineColor = BLUE_PROPERTY;
+            feature.polygon.outlineWidth = TWO_PROPERTY;
+
+        }
         location;
-        //TODO: fallback styles not implemented yet
     }
 
     addFeatureInfo(feature: Entity, rawFeature: OGCFeature, location: Cartesian3 | null = null) {
@@ -1146,26 +1172,26 @@ export default class FeaturesApiDataSource extends WesDataSource {
             let pitch = parseInt(pointSymbolizer.Model.Orientation.Pitch as string);
             let roll = parseInt(pointSymbolizer.Model.Orientation.Roll as string);
             if (feature.properties != null) {
-            if (isNaN(yaw)) {
-                if (feature.properties != null) {
-                    yaw =
+                if (isNaN(yaw)) {
+                    if (feature.properties != null) {
+                        yaw =
+                            feature.properties[
+                                (pointSymbolizer.Model.Orientation.Yaw as PropertyLookup).PropertyName
+                            ].getValue();
+                    }
+                }
+                if (isNaN(pitch)) {
+                    pitch =
                         feature.properties[
-                            (pointSymbolizer.Model.Orientation.Yaw as PropertyLookup).PropertyName
+                            (pointSymbolizer.Model.Orientation.Pitch as PropertyLookup).PropertyName
                         ].getValue();
                 }
-            }
-            if (isNaN(pitch)) {
-                pitch =
-                    feature.properties[
-                        (pointSymbolizer.Model.Orientation.Pitch as PropertyLookup).PropertyName
-                    ].getValue();
-            }
-            if (isNaN(roll)) {
-                roll =
-                    feature.properties[
-                        (pointSymbolizer.Model.Orientation.Roll as PropertyLookup).PropertyName
-                    ].getValue();
-            }
+                if (isNaN(roll)) {
+                    roll =
+                        feature.properties[
+                            (pointSymbolizer.Model.Orientation.Roll as PropertyLookup).PropertyName
+                        ].getValue();
+                }
             }
             const hpr = new HeadingPitchRoll(
                 CesiumMath.toRadians(yaw),

@@ -2,12 +2,6 @@
 
 FROM node:20-alpine
 
-ARG DOMAIN_NAME_ARG=localhost
-ARG ROOT_DIR_ARG=.
-ARG HTTP_PORT_ARG=2015
-ARG HTTPS_PORT_ARG=443
-ARG ADMIN_PORT_ARG=2019
-
 WORKDIR /cslt
 
 RUN [ "mkdir", "-p", "config", "src", "static" ]
@@ -19,13 +13,8 @@ COPY config/ /cslt/config/
 COPY src/ /cslt/src/
 COPY static/ /cslt/static/
 
-ENV DOMAIN_NAME $DOMAIN_NAME_ARG
-ENV ROOT_DIR $ROOT_DIR_ARG
-ENV CSLT_3D_HTTPS_PORT $HTTPS_PORT_ARG
-ENV CSLT_3D_HTTP_PORT $HTTP_PORT_ARG
-
 RUN [ "npm", "install" ]
-RUN [ "npm", "run", "docker-frontend" ]
+RUN [ "npm", "run", "build-client" ]
 
 RUN [ "rm", "-rf", "config" ]
 RUN [ "rm", "-rf", "node_modules" ]

@@ -34,7 +34,7 @@ int shape2json(char *inputFile, char *outputFile) {
 
   //Check if .prj file exists
   OGRSpatialReferenceH backupSRS;
-  backupSRS = (OGRSpatialReferenceH)GDALGetProjectionRef(hDS);
+  backupSRS = GDALGetSpatialRef(hDS);
   if (backupSRS == NULL) {
     logI("Failed to get file spatial reference. Checking Prj", "OGR:");
     char prjFile[256];
@@ -91,12 +91,16 @@ int shape2json(char *inputFile, char *outputFile) {
 
     // Get the input layer's spatial reference
     OGRSpatialReferenceH hSrcSRS = OGR_L_GetSpatialRef(hLayer);
+    logI("Tried source spatial reference.", "OGR:");
     if (hSrcSRS == NULL) {
+      logI("No layer SRS, tyring backup SRS.", "OGR:");
       if (backupSRS != NULL) {
+        logI("Using backup SRS.", "OGR:");
         hSrcSRS = backupSRS;
       } else {
         logE("Failed to get source spatial reference. Assuming EPSG:4326.",
              "OGR:");
+        hSrcSRS = OSRNewSpatialReference(NULL);
         OSRImportFromEPSG(hSrcSRS, 4326);
       }
     }
@@ -105,7 +109,9 @@ int shape2json(char *inputFile, char *outputFile) {
     bool reproject = true;
     const char *pszAuthName = OSRGetAuthorityName(hSrcSRS, NULL);
     const char *pszAuthCode = OSRGetAuthorityCode(hSrcSRS, NULL);
+    logI("Got source SRS authority.", "OGR:");
     if (pszAuthName != NULL && pszAuthCode != NULL) {
+        logI("Both SRS AuthName and AuthCode Non-null. Checking if ESPG:4326.", "OGR:");
       if (strcmp(pszAuthName, "EPSG") == 0 &&
           strcmp(pszAuthCode, "4326") == 0) {
         logI("Source SRS is already EPSG:4326. Will not transform geometries",
@@ -126,8 +132,10 @@ int shape2json(char *inputFile, char *outputFile) {
     // Copy features from input layer to output layer without
     // transformation
     OGR_L_ResetReading(hLayer);
+    logI("Reset reading.", "OGR:");
     OGRFeatureH hFeature;
     if (!reproject) {
+        logI("No reprojection needed.", "OGR:");
       while ((hFeature = OGR_L_GetNextFeature(hLayer)) != NULL) {
         if (OGR_L_CreateFeature(hDstLayer, hFeature) != OGRERR_NONE) {
           logE("Failed to create feature in output layer.", "OGR:");
@@ -139,6 +147,8 @@ int shape2json(char *inputFile, char *outputFile) {
       }
     } else {
       // Set the spatial reference for output layer to EPSG:4326
+      logI("Reprojecting geometries.", "OGR:");
+
       OGRSpatialReferenceH hDstSRS = OSRNewSpatialReference(NULL);
       if (OSRSetFromUserInput(hDstSRS, "EPSG:4326") != OGRERR_NONE) {
         logE("Failed to set spatial reference for output layer. Skipping this "
@@ -150,6 +160,19 @@ int shape2json(char *inputFile, char *outputFile) {
       logI("Set spatial reference for output layer.", "OGR:");
       OSRSetAxisMappingStrategy(hDstSRS, OAMS_TRADITIONAL_GIS_ORDER);
       // Create coordinate transformation
+      if (hSrcSRS == NULL) {
+        logE("Failed to get source spatial reference. Skipping this layer.",
+             "OGR:");
+        OSRDestroySpatialReference(hDstSRS);
+        continue; // Skip this layer
+      }
+      if (hDstSRS == NULL) {
+        logE("Failed to get destination spatial reference. Skipping this "
+             "layer.",
+             "OGR:");
+        OSRDestroySpatialReference(hDstSRS);
+        continue; // Skip this layer
+      }
       OGRCoordinateTransformationH hTransform =
           OCTNewCoordinateTransformation(hSrcSRS, hDstSRS);
       if (hTransform == NULL) {

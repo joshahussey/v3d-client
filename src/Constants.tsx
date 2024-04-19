@@ -1,4 +1,4 @@
-import { Cesium3DTileStyle, Color } from "cesium";
+import { Cesium3DTileStyle, Color, ConstantProperty, HeightReference, VerticalOrigin } from "cesium";
 import { translate as t } from "./i18n/Translator";
 
 export const BLUE_TILE_STYLE = new Cesium3DTileStyle({
@@ -73,3 +73,32 @@ export const celestrakUID = "2c1ae7bd-0244-41e2-8c79-ef788d34fa87";
 export const cesiumBuiltInUID = "36ed260c-9688-44ba-af13-4fe2da562d3e";
 export const googlePhotorealisticUID = "db1b1516-2ce3-44e6-9ef3-da6882c7a46c";
 export const wgsEllipsoidUID = "0f9f94c0-93ab-4aa1-957d-74fac18ad526";
+
+//Boolean Properties//
+export const TRUE_PROPERTY = new ConstantProperty(true);
+// const FALSE_PROPERTY = new ConstantProperty(false);
+
+//Config Properties//
+// const CLUSTER_MINIMUM_DISTANCE = 300;
+export const CLUSTER_WIDTH = new ConstantProperty(35);
+export const CLUSTER_HEIGHT = new ConstantProperty(35);
+export const CLUSTER_HEIGHT_CONSTANT = 150000;
+// export const EYE_OFFSET = new Cartesian3(0, -30, 400);
+// export const EYE_OFFSET_METAR = new Cartesian3(0, 0, 400);
+
+//Number Properties//
+export const ZERO_PROPERTY = new ConstantProperty(0);
+export const ONE_PROPERTY = new ConstantProperty(1);
+export const TWO_PROPERTY = new ConstantProperty(2);
+// export const POSTIVE_INFINITY_PROPERTY = new ConstantProperty(Number.POSITIVE_INFINITY);
+
+//Color Properties//
+export const ORANGE_PROPERTY = new ConstantProperty(Color.ORANGE);
+export const BLUE_PROPERTY = new ConstantProperty(Color.BLUE);
+// export const BLUE_PROPERTY = new ConstantProperty(Color.BLUE);
+
+//Cesium Enum Properties//
+export const VERTICAL_ORIGIN_BOTTOM = new ConstantProperty(VerticalOrigin.BOTTOM);
+export const HEIGHT_REFERENCE_CLAMP_TO_GROUND = new ConstantProperty(HeightReference.CLAMP_TO_GROUND);
+export const HEIGHT_REFERENCE_RELATIVE_TO_GROUND = new ConstantProperty(HeightReference.RELATIVE_TO_GROUND);
+

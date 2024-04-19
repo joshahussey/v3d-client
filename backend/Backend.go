@@ -86,6 +86,15 @@ func HandleShapeRequest(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func HandleFeaturesRequest(w http.ResponseWriter, r *http.Request) {
+	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID"), uuid: uuid.New().String()}
+	err := HandleFeatures(ctx)
+	if err != nil {
+		e(ctx, err)
+		return
+	}
+}
+
 func HandleKmlRequest(w http.ResponseWriter, r *http.Request) {
 	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID"), uuid: uuid.New().String()}
 	err := HandleKml(ctx)
@@ -231,6 +240,7 @@ func main() {
 	http.HandleFunc("/kml", HandleKmlRequest)
 	http.HandleFunc("/shape", HandleShapeRequest)
 	http.HandleFunc("/tilegpkg/", HandleGpkgTileRequest)
+	http.HandleFunc("/ogcfeatures/", HandleFeaturesRequest)
 	go requestQueue.Work()
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }

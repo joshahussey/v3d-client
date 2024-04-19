@@ -6,6 +6,7 @@
         @options {
         method OPTIONS
     }
+    @proxy path /map* /add* /shape* /kml* /ogcfeatures* /ogcfeatures/* /gpkg* /tilegpkg* /
 	log {
 		format console
 		output file {$ROOT_DIR_3D}/logs/cslt3d_https.log
@@ -17,8 +18,7 @@
 		root /srv/
 	}
 
-	route /map* {
-		handle {
+    handle @proxy {
                 header {
         Access-Control-Allow-Origin *
         Access-Control-Allow-Credentials true
@@ -31,84 +31,4 @@
                 }
                 respond @options 204
 		}
-	}
-	route /add* {
-		handle {
-                header {
-        Access-Control-Allow-Origin *
-        Access-Control-Allow-Credentials true
-        Access-Control-Allow-Methods *
-        Access-Control-Allow-Headers *
-        defer
-    }
-			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT} {
-                header_down -Access-Control-Allow-Origin
-                }
-                respond @options 204
-		}
-	}
-
-	route /gpkg* {
-		handle {
-                header {
-        Access-Control-Allow-Origin *
-        Access-Control-Allow-Credentials true
-        Access-Control-Allow-Methods *
-        Access-Control-Allow-Headers *
-        defer
-    }
-			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT} {
-                header_down -Access-Control-Allow-Origin
-                }
-                respond @options 204
-		}
-	}
-
-	route /tilegpkg* {
-		handle {
-                header {
-        Access-Control-Allow-Origin *
-        Access-Control-Allow-Credentials true
-        Access-Control-Allow-Methods *
-        Access-Control-Allow-Headers *
-        defer
-    }
-			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT} {
-                header_down -Access-Control-Allow-Origin
-                }
-                respond @options 204
-		}
-	}
-
-	route /shape* {
-		handle {
-                header {
-        Access-Control-Allow-Origin *
-        Access-Control-Allow-Credentials true
-        Access-Control-Allow-Methods *
-        Access-Control-Allow-Headers *
-        defer
-    }
-			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT} {
-                header_down -Access-Control-Allow-Origin
-                }
-                respond @options 204
-		}
-	}
-
-	route /kml* {
-		handle {
-                header {
-        Access-Control-Allow-Origin *
-        Access-Control-Allow-Credentials true
-        Access-Control-Allow-Methods *
-        Access-Control-Allow-Headers *
-        defer
-    }
-			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT} {
-                header_down -Access-Control-Allow-Origin
-                }
-                respond @options 204
-		}
-	}
 }

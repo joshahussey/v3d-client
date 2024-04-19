@@ -79,7 +79,7 @@ func createDb(dbPath string) {
 
 }
 
-func addService(hash string) error {
+func addServiceToCleanupList(hash string) error {
 	db, err := sql.Open("sqlite3", dbPath + "?_busy_timeout=1000")
 	if err != nil {
 		return err

@@ -1,12 +1,10 @@
 package main
 
 import (
-	"crypto/sha256"
 	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"os"
 	"path"
@@ -99,59 +97,16 @@ func HandleGpkg(ctx ReqContext) error {
 	} else {
 		requestQueue.Enqueue(ctx.sessionID, message)
 	}
-
-	file, filePath, err := handleUpload(ctx, gpkg)
+    
+	//file, filePath, err := handleUpload(ctx, gpkg)
+    filename, hash, err := UploadHashMoveDelete(ctx, gpkg)
 	if err != nil {
 		return ge("HandleGpkgUpload", err)
 	}
 
-	defer file.Close()
-	uploadDir := path.Dir(*filePath)
-	defer os.RemoveAll(uploadDir)
 
-	gpkgHostedDir := "/cslt/services/gpkg"
-	err = os.MkdirAll(gpkgHostedDir, 0777)
-	if err != nil {
-		return ge("HandleGpkgMkdir", err)
-	}
-	fileBytes, err := os.ReadFile(*filePath)
-	if err != nil {
-		return ge("HandleGpkgReadFile", err)
-	}
-	hasher := sha256.New()
-	_, err = hasher.Write(fileBytes)
-	if err != nil {
-		return ge("HandleGpkgHasher", err)
-	}
+	gpkgFinalPath := GpkgDbPath(hash, filename);
 
-	hash := fmt.Sprintf("%x", hasher.Sum(nil))
-	gpkgFinalPath := gpkgHostedDir + "/" + hash
-
-	fileExists := true
-	_, err = os.Stat(gpkgFinalPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			fileExists = false
-		} else {
-			return ge("HandleGpkgStatFile", err)
-		}
-	}
-
-	if fileExists {
-		logD(ctx.sessionID, fmt.Sprintf("Gpkg %s already exists. Deleting uploaded file.", hash), "HandleGpkgFileExists")
-		err = os.Remove(*filePath)
-		if err != nil {
-			return ge("HandleGpkgDeleteFile", err)
-		}
-	} else {
-		logD(ctx.sessionID, fmt.Sprintf("Gpkg %s does not exist. Moving uploaded file.", hash), "HandleGpkgFileDne")
-
-		err = moveFile(*filePath, gpkgFinalPath)
-
-		if err != nil {
-			return ge("HandleGpkgMoveFile", err)
-		}
-	}
 
 	// For now, only tiles are supported
 	layers, err := GetLayers(gpkgFinalPath, "tiles", ctx.sessionID)
@@ -162,9 +117,9 @@ func HandleGpkg(ctx ReqContext) error {
 	}
 
 	var serviceInfo ServiceInfo
-	serviceInfo.ServiceId = hash
-	serviceInfo.ServiceTitle = filepath.Base(file.Name())
-	serviceInfo.ServiceUrl = "gpkg/" + hash
+	serviceInfo.ServiceId = hash+"/"+filename
+	serviceInfo.ServiceTitle = filepath.Base(filename)
+	serviceInfo.ServiceUrl = "gpkg/" + hash + "/" + filename
 
 	var gpkgArgsArr []GpkgArgs
 	for _, layer := range layers {
@@ -215,36 +170,6 @@ func HandleGpkg(ctx ReqContext) error {
 	return nil
 }
 
-// You might expect there'd be a stdlib func that does this already...
-// See https://stackoverflow.com/a/50741908
-func moveFile(src string, dest string) error {
-	inFile, err := os.Open(src)
-	if err != nil {
-		return fmt.Errorf("Unable to open src file: %v", err)
-	}
-	defer inFile.Close()
-
-	outFile, err := os.Create(dest)
-	if err != nil {
-		return fmt.Errorf("Unable to open dest file: %v", err)
-	}
-	defer outFile.Close()
-
-	_, err = io.Copy(outFile, inFile)
-	if err != nil {
-		return fmt.Errorf("Unable to copy file: %v", err)
-	}
-
-	inFile.Close()
-
-	err = os.Remove(src)
-	if err != nil {
-		return fmt.Errorf("Couldn't remove source file: %v", err)
-	}
-
-	return nil
-}
-
 func HandleGpkgTile(req ReqContext) error {
 	url := req.r.URL.Path;
 	url = strings.TrimPrefix(url, "/")
@@ -253,21 +178,22 @@ func HandleGpkgTile(req ReqContext) error {
 
 	/*
 	0 - "tilegpkg"
-	1 - geopackage id
-	2 - tablename
-	3 - zoom level
-	4 - x
-	5 - y
+	1 - geopackage hash (hash) 
+    2 - geopackage id (filename) 
+	3 - tablename
+	4 - zoom level
+	5 - x
+	6 - y
 	*/
-	if len(segments) != 6 {
+	if len(segments) != 7 {
 		req.w.WriteHeader(http.StatusNotFound)
 		return nil
 	}
 
-	const pathPrefix = "/cslt/services/gpkg/"
+	const pathPrefix = GpkgDir + "/"
 
 	// Note path.Join resolves //, /./, and /../ segments in the returned path
-	reqPath := path.Join(pathPrefix, segments[1])
+	reqPath := path.Join(pathPrefix, segments[1]+"/"+segments[2])
 
 	// Prevent path traversal
 	if ! strings.HasPrefix(reqPath, pathPrefix) {
@@ -292,7 +218,7 @@ func HandleGpkgTile(req ReqContext) error {
 
 	var tile []byte
 
-	row := db.QueryRow("select tile_data from " + segments[2] + " where zoom_level=? and tile_column=? and tile_row=? limit 1", segments[3], segments[4], segments[5])
+	row := db.QueryRow("select tile_data from " + segments[3] + " where zoom_level=? and tile_column=? and tile_row=? limit 1", segments[4], segments[5], segments[6])
 	err = row.Scan(&tile)
 	if err != nil {
 		return err
