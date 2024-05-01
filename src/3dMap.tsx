@@ -202,6 +202,13 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         zoomOutTooltip: t("3dMapZoomOut")
     };
     new CesiumNavigation(viewer, navOptions);
+    //Hide the zoom to home button in the nav controls.
+    try {
+        const navControlHomeButton = document.getElementById("navigationDiv")?.children[1].children[1];
+        (navControlHomeButton as HTMLElement).style.display = "none";
+    } catch {
+        console.warn("No navigator home button found.");
+    }
     viewer.selectedEntityChanged.addEventListener(showEntityProperties);
     const dataSourceLayers = viewer.dataSources;
     const imageryLayers = viewer.imageryLayers;

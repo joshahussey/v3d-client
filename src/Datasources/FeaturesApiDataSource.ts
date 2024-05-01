@@ -957,7 +957,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
         if (feature.position) {
             feature.billboard = new BillboardGraphics();
             feature.billboard.show = TRUE_PROPERTY;
-            feature.billboard.disableDepthTestDistance = new ConstantProperty(this.depthDistCond);
+            feature.billboard.disableDepthTestDistance = this.depthDistCond;
             feature.billboard.image = new ConstantProperty("./Icons/PinRed.png");
             feature.billboard.height = new ConstantProperty(28);
             feature.billboard.width = new ConstantProperty(19);
