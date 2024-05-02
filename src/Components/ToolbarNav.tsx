@@ -20,6 +20,10 @@ export function ToolbarNav(): JSX.Element {
         setBasemapTerrainOpened,
         isSearchOpened,
         setSearchOpened,
+        isSaveOpened,
+        setSaveOpened,
+        isLoadOpened,
+        setLoadOpened
     } = useToolbarStateContext() as ToolbarContextType;
     const layerOrderIcon = (
         <svg
@@ -66,53 +70,112 @@ export function ToolbarNav(): JSX.Element {
             preserveAspectRatio="xMidYMid meet"
             viewBox="0 0 24 24"
             fill={isLayersOpened() && isSearchOpened() ? "#212121" : "#939393"}
-            class="toolbar-button-image">
+            class="toolbar-button-image"
+        >
             <g id="search">
                 <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
             </g>
         </svg>
     );
+
+    const saveViewIcon = (
+        <svg viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" class="toolbar-button-image">
+            <defs />
+            <g
+                id="Icon-Set"
+                transform="translate(-464.000000, -1087.000000)"
+                fill={isLayersOpened() && isSaveOpened() ? "#212121" : "#939393"}
+            >
+                <path
+                    d="M480,1117 C472.268,1117 466,1110.73 466,1103 C466,1095.27 472.268,1089 480,1089 C487.732,1089 494,1095.27 494,1103 C494,1110.73 487.732,1117 480,1117 L480,1117 Z M480,1087 C471.163,1087 464,1094.16 464,1103 C464,1111.84 471.163,1119 480,1119 C488.837,1119 496,1111.84 496,1103 C496,1094.16 488.837,1087 480,1087 L480,1087 Z M486,1102 L481,1102 L481,1097 C481,1096.45 480.553,1096 480,1096 C479.447,1096 479,1096.45 479,1097 L479,1102 L474,1102 C473.447,1102 473,1102.45 473,1103 C473,1103.55 473.447,1104 474,1104 L479,1104 L479,1109 C479,1109.55 479.447,1110 480,1110 C480.553,1110 481,1109.55 481,1109 L481,1104 L486,1104 C486.553,1104 487,1103.55 487,1103 C487,1102.45 486.553,1102 486,1102 L486,1102 Z"
+                    id="plus-circle"
+                />
+            </g>
+        </svg>
+    );
+
+    const loadViewIcon = (
+        <svg viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" class="toolbar-button-image">
+            <defs />
+            <g
+                id="Icon-Set"
+                transform="translate(-261.000000, -99.000000)"
+                fill={isLayersOpened() && isLoadOpened() ? "#212121" : "#939393"}
+            >
+                <path
+                    d="M281,127 C281,128.104 280.104,129 279,129 L265,129 C263.896,129 263,128.104 263,127 L263,105 C263,103.896 263.896,103 265,103 L279,103 C280.104,103 281,103.896 281,105 L281,127 L281,127 Z M279,101 L279,99 L277,99 L277,101 L273,101 L273,99 L271,99 L271,101 L267,101 L267,99 L265,99 L265,101 C262.791,101 261,102.791 261,105 L261,127 C261,129.209 262.791,131 265,131 L279,131 C281.209,131 283,129.209 283,127 L283,105 C283,102.791 281.209,101 279,101 L279,101 Z M278,109 L266,109 C265.448,109 265,109.448 265,110 C265,110.553 265.448,111 266,111 L278,111 C278.552,111 279,110.553 279,110 C279,109.448 278.552,109 278,109 L278,109 Z M278,121 L266,121 C265.448,121 265,121.447 265,122 C265,122.553 265.448,123 266,123 L278,123 C278.552,123 279,122.553 279,122 C279,121.447 278.552,121 278,121 L278,121 Z M278,115 L266,115 C265.448,115 265,115.448 265,116 C265,116.553 265.448,117 266,117 L278,117 C278.552,117 279,116.553 279,116 C279,115.448 278.552,115 278,115 L278,115 Z"
+                    id="notebook"
+                />
+            </g>
+        </svg>
+    );
+
     createEffect(() => {
         if (isSearchOpened()) {
             setLayersOpened(true);
             setLayersTreeOpened(false);
             setLayersOrderOpened(false);
             setBasemapTerrainOpened(false);
+            setLoadOpened(false);
+            setSaveOpened(false);
         }
-    }
-    );
+    });
     createEffect(() => {
         if (isLayersOrderOpened()) {
             setLayersOpened(true);
             setLayersTreeOpened(false);
             setSearchOpened(false);
             setBasemapTerrainOpened(false);
+            setLoadOpened(false);
+            setSaveOpened(false);
         }
-    }
-    );
+    });
     createEffect(() => {
         if (isBasemapTerrainOpened()) {
             setLayersOpened(true);
             setLayersTreeOpened(true);
             setSearchOpened(false);
             setLayersOrderOpened(false);
+            setLoadOpened(false);
+            setSaveOpened(false);
         }
-    }
-    );
+    });
     createEffect(() => {
         if (isLayersTreeOpened()) {
             setLayersOpened(true);
             setSearchOpened(false);
             setLayersOrderOpened(false);
+            setLoadOpened(false);
+            setSaveOpened(false);
         }
-    }
-    );
+    });
     createEffect(() => {
-        if (!isLayersTreeOpened() && !isLayersOrderOpened() && !isSearchOpened()){
+        if (isLoadOpened()) {
+            setLayersOpened(true);
+            setLayersTreeOpened(false);
+            setLayersOrderOpened(false);
+            setSaveOpened(false);
+        }
+    });
+    createEffect(() => {
+        if (isSaveOpened()) {
+            setLayersOpened(true);
+            setLayersTreeOpened(false);
+            setLayersOrderOpened(false);
+            setLoadOpened(false);
+        }
+    });
+    createEffect(() => {
+        if (
+            !isLayersTreeOpened() &&
+            !isLayersOrderOpened() &&
+            !isSearchOpened() &&
+            !isLoadOpened() &&
+            !isSaveOpened()
+        ) {
             setLayersOpened(false);
         }
-    }
-    );
+    });
 
     return (
         <div class="cslt-toolbar-expanded">
@@ -120,7 +183,7 @@ export function ToolbarNav(): JSX.Element {
                 <span
                     class="toolbarLayersLabel"
                     onClick={() => {
-                        if(!isLayersOpened() && !isLayersTreeOpened() && !isLayersOrderOpened() && !isSearchOpened()){
+                        if (!isLayersOpened() && !isLayersTreeOpened() && !isLayersOrderOpened() && !isSearchOpened()) {
                             setLayersTreeOpened(true);
                             setLayersOpened(true);
                         } else {
@@ -131,26 +194,48 @@ export function ToolbarNav(): JSX.Element {
                     {t("toolbarNavLayers")}
                 </span>
                 <MapModeRockerButton />
-                <ToolbarButton id="SearchButton"
+                <ToolbarButton
+                    id="SearchButton"
                     icon={searchOpenedIcon}
-                    onClick={() => { setSearchOpened(!isSearchOpened()); }}
-                    text={t("searchButtonText")} />
+                    onClick={() => {
+                        setSearchOpened(!isSearchOpened());
+                    }}
+                    text={t("searchButtonText")}
+                />
                 <ToolbarButton
                     id="LayerOrderButton"
                     icon={layerOrderIcon}
-                    onClick={() => { setLayersOrderOpened(!isLayersOrderOpened()); }}
+                    onClick={() => {
+                        setLayersOrderOpened(!isLayersOrderOpened());
+                    }}
                     text={t("layerOrderButtonText")}
                 />
                 <ToolbarButton
                     id="BasemapTerrainButton"
                     icon={basemapTerrainOpenedIcon}
-                    onClick={() => { setBasemapTerrainOpened(!isBasemapTerrainOpened()); }}
+                    onClick={() => {
+                        setBasemapTerrainOpened(!isBasemapTerrainOpened());
+                    }}
                     text={t("basemapTerrainButtonText")}
+                />
+                <ToolbarButton
+                    id="SaveViewButton"
+                    icon={saveViewIcon}
+                    onClick={() => setSaveOpened(!isSaveOpened())}
+                    text={t("saveViewButtonText")}
+                />
+                <ToolbarButton
+                    id="LoadViewButton"
+                    icon={loadViewIcon}
+                    onClick={() => setLoadOpened(!isLoadOpened())}
+                    text={t("loadViewButtonText")}
                 />
                 <ToolbarButton
                     id="LayersButton"
                     icon={layersOpened}
-                    onClick={() => { setLayersTreeOpened(!isLayersTreeOpened()); }}
+                    onClick={() => {
+                        setLayersTreeOpened(!isLayersTreeOpened());
+                    }}
                     text={t("layersButtonText")}
                 />
             </div>

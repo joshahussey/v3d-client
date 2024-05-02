@@ -47,7 +47,9 @@ export function LoadView(): JSX.Element {
             for (const viewEntry of viewListRef.children) {
                 const result = fuzzySearch(
                     filterValue(),
-                    (viewEntry.children[0] as HTMLElement).innerText + "" + (viewEntry.children[1] as HTMLElement).innerText
+                    (viewEntry.children[0] as HTMLElement).innerText +
+                        "" +
+                        (viewEntry.children[1] as HTMLElement).innerText
                 );
                 if (result.score > 0 || filterValue() == "") {
                     // If fuzzySearch result > 0 or filterValue is empty, show the entry.
@@ -79,11 +81,9 @@ export function LoadView(): JSX.Element {
         <>
             <Show when={!isEditOpened()}>
                 <div class="load-view">
-                    <div class="load-view-header-div">
-                        <span class="load-view-header-label"> Load View </span>
-                    </div>
                     <div class="load-view-container grid">
                         <Suspense fallback={<p>Loading...</p>}>
+                            <div class="load-view-header-label">Load View</div>
                             <input
                                 type="text"
                                 class="load-view-filter"
@@ -91,7 +91,7 @@ export function LoadView(): JSX.Element {
                                 placeholder="Filter Views"
                             />
                             <nav class="load-view-layer-list-scroll">
-                                <ul class="load-view-list cslt-list" ref={(viewListRef as HTMLUListElement)}>
+                                <ul class="load-view-list cslt-list" ref={viewListRef as HTMLUListElement}>
                                     <For each={resource()}>
                                         {view => (
                                             <li
@@ -174,18 +174,13 @@ function editView(viewRecord: ViewRecord | undefined): JSX.Element {
 }
 
 async function handleLoad(viewId: bigint) {
-    const args = {
-        type: "loadView",
-        viewId
-    };
-    const url = window.location.origin + "/wes/CesiumViews";
+    const url = window.location.origin + "/view/" + viewId + "?sessionID=" + sessionStorage.getItem("sessionID");
     const response = await fetch(url, {
-        method: "POST",
+        method: "GET",
         mode: "cors",
         cache: "no-cache",
         headers: { "Content-Type": "application/json" },
-        redirect: "follow",
-        body: JSON.stringify(args)
+        redirect: "follow"
     });
     const responseText = await response.text();
 
@@ -201,18 +196,13 @@ async function handleDelete(
     viewId: bigint,
     refetch: (info?: unknown) => ViewRecord[] | Promise<ViewRecord[] | undefined> | null | undefined
 ): Promise<boolean> {
-    const args = {
-        type: "deleteView",
-        viewId
-    };
-    const url = window.location.origin + "/wes/CesiumViews";
+    const url = window.location.origin + "/view/" + viewId + "?sessionID=" + sessionStorage.getItem("sessionID");
     const response = await fetch(url, {
-        method: "POST",
+        method: "DELETE",
         mode: "cors",
         cache: "no-cache",
         headers: { "Content-Type": "application/json" },
-        redirect: "follow",
-        body: JSON.stringify(args)
+        redirect: "follow"
     });
     const code = response.status;
 
@@ -226,18 +216,14 @@ async function handleDelete(
 }
 
 async function fetchViews(): Promise<ViewRecord[]> {
-    const args = {
-        type: "listViews"
-    };
-    const url = window.location.origin + "/wes/CesiumViews";
+    const url = window.location.origin + "/views?sessionID=" + sessionStorage.getItem("sessionID");
     return (
         await fetch(url, {
-            method: "POST",
+            method: "GET",
             mode: "cors",
             cache: "no-cache",
             headers: { "Content-Type": "application/json" },
-            redirect: "follow",
-            body: JSON.stringify(args)
+            redirect: "follow"
         })
     ).json();
 }

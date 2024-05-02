@@ -170,11 +170,14 @@ func HandleGpkg(ctx ReqContext) error {
 	return nil
 }
 
-func HandleGpkgTile(req ReqContext) error {
-	url := req.r.URL.Path;
+func GetUrlSegments(url string) []string {
 	url = strings.TrimPrefix(url, "/")
 	url = strings.TrimSuffix(url, "/")
-	segments := strings.Split(url, "/")
+	return strings.Split(url, "/")
+}
+
+func HandleGpkgTile(req ReqContext) error {
+	segments := GetUrlSegments(req.r.URL.Path)
 
 	/*
 	0 - "tilegpkg"

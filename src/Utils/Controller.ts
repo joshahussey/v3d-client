@@ -13,7 +13,7 @@ import {
     addWMSObject,
     addWMTSObject
 } from "../Types/3dMapControllerTypes";
-import { ImageryBounds, MapState, WesImageryObject, csltGpkgOption } from "../Types/types";
+import { MapState, WesImageryObject, csltGpkgOption } from "../Types/types";
 
 /**
  * Adds a WMTS to 3DMap if a layer on top of the imagery if the uid dosn't exist.

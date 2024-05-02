@@ -13,28 +13,28 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-const dbPath = "/cslt/db/cslt.sqlite"
-const dbPathWithOptions = dbPath + "?_busy_timeout=1000"
-var dbMutex sync.Mutex
-var cleanupScheduler = gocron.NewScheduler(time.UTC)
-const cleanupThreshold = time.Minute * 60 * 60 * 7 * 2
+const svcDbPath = "/cslt/db/cslt.sqlite"
+const svcDbPathWithOptions = svcDbPath + "?_busy_timeout=1000"
+var svcDbMutex sync.Mutex
+var svcDbCleanupScheduler = gocron.NewScheduler(time.UTC)
+const svcCleanupThreshold = time.Minute * 60 * 60 * 7 * 2
 
-func initDb() {
+func initSvcDb() {
 	err := os.Mkdir("/cslt/db", 0777)
 	if err != nil {
 		if os.IsExist(err) {
-			logI("LOCAL", "Not creating DB dir as it already exists.", "createDbDir")
+			logI("LOCAL", "Not creating DB dir as it already exists.", "createSvcDbDir")
 		} else {
-			logE("LOCAL", err, "createDbDir")
+			logE("LOCAL", err, "createSvcDbDir")
 		}
 	}
-	logD("LOCAL", "Checking existence of SQLITE database.", "createDbCheckFile")
-	_, err = os.Stat(dbPath)
+	logD("LOCAL", "Checking existence of SQLITE database.", "createSvcDbCheckFile")
+	_, err = os.Stat(svcDbPath)
 	if err != nil {
-		logD("LOCAL", "Encountered error checking for SQLITE database", "createDbCheckFileErr")
+		logD("LOCAL", "Encountered error checking for SQLITE database", "createSvcDbCheckFileErr")
 		if os.IsNotExist(err) {
-			logD("LOCAL", "Error is that database file does not exist.", "createDbCheckFileErrNotExists")
-			createDb(dbPath)
+			logD("LOCAL", "Error is that database file does not exist.", "createSvcDbCheckFileErrNotExists")
+			createSvcDb(svcDbPath)
 		} else {
 			logE("LOCAL", err, "initDbCheckFile")
 			log.Panic("File system error. Cannot stat DB path!")
@@ -42,11 +42,11 @@ func initDb() {
 	}
 
 	logD("LOCAL", "Scheduling cache cleaning thread.", "schedCacheCleanThread")
-	job, err := cleanupScheduler.Every(1).Day().Do(runCleaner)
+	job, err := svcDbCleanupScheduler.Every(1).Day().Do(runCleaner)
 	if err != nil {
 		logE("LOCAL", err, "scheduleCleaner")
 	}
-	cleanupScheduler.StartAsync()
+	svcDbCleanupScheduler.StartAsync()
 
 	if job.IsRunning() {
 		logD("LOCAL", "Job is running", "someStep")
@@ -57,37 +57,37 @@ func initDb() {
 
 }
 
-func createDb(dbPath string) {
+func createSvcDb(dbPath string) {
 	_, err := os.Create(dbPath)
 	if err != nil {
-		logE("LOCAL", err, "createDbFile")
+		logE("LOCAL", err, "createSvcDbFile")
 	}
 
-	db, err := sql.Open("sqlite3", dbPathWithOptions)
+	db, err := sql.Open("sqlite3", svcDbPathWithOptions)
 	if err != nil {
 		logE("LOCAL", err, "openDb")
 	}
 	defer db.Close()
 
-	dbMutex.Lock()
+	svcDbMutex.Lock()
 	_, err = db.Exec("create table services (file_hash text primary key, last_access timestamp default current_timestamp);")
-	dbMutex.Unlock()
+	svcDbMutex.Unlock()
 
 	if err != nil {
-		logE("LOCAL", err, "createDbSchema")
+		logE("LOCAL", err, "createSvcDbSchema")
 	}
 
 }
 
 func addServiceToCleanupList(hash string) error {
-	db, err := sql.Open("sqlite3", dbPath + "?_busy_timeout=1000")
+	db, err := sql.Open("sqlite3", svcDbPath + "?_busy_timeout=1000")
 	if err != nil {
 		return err
 	}
 
-	dbMutex.Lock()
+	svcDbMutex.Lock()
 	_, err = db.Exec("insert into services (file_hash) values (?)", hash)
-	dbMutex.Unlock()
+	svcDbMutex.Unlock()
 	if err != nil {
 		return err
 	}
@@ -101,17 +101,17 @@ var dirsToClean = [...]string{ "/cslt/web/services" }
 func runCleaner() error {
 	logI("LOCAL", "Running cache cleaner thread", "runCleanerStart")
 
-	db, err := sql.Open("sqlite3", dbPathWithOptions)
+	db, err := sql.Open("sqlite3", svcDbPathWithOptions)
 	if err != nil {
 		return err
 	}
 	defer db.Close()
-	cleanupThreshold := time.Now().Add(-cleanupThreshold)
+	cleanupThreshold := time.Now().Add(-svcCleanupThreshold)
 	logD("LOCAL", "Removing services last accessed before " + cleanupThreshold.String(), "runCleanerCalculateThreshold")
 
-	dbMutex.Lock()
+	svcDbMutex.Lock()
 	rows, err := db.Query("delete from services where last_access < ? returning file_hash", cleanupThreshold)
-	dbMutex.Unlock()
+	svcDbMutex.Unlock()
 
 	defer rows.Close()
 

@@ -1,87 +1,87 @@
 // The full save panel
 .save-view {
-    background: var(--white);
-    border-radius: 8px;
+  background: var(--white);
+  border-radius: 8px;
 }
 
 // The div containing the header
 .save-view-label-div {
-    background-color: var(--dark-blue);
-    border-top-right-radius: 8px;
-    border-top-left-radius: 8px;
+  background-color: var(--white);
+  border-top-right-radius: 8px;
+  border-top-left-radius: 8px;
 }
 
 // The header label
 .save-view-label {
-    color: var(--white);
-    font-weight: 700;
-    display: inline-block;
-    padding: 0.8rem 0.8rem 0.8rem 0.8rem;
-    border-top-right-radius: 8px;
-    border-top-left-radius: 8px;
+  color: var(--dark-gray);
+  font-weight: 700;
+  display: inline-block;
+  padding: 0.8rem 0.8rem 0.8rem 0.5rem;
+  border-top-right-radius: 8px;
+  border-top-left-radius: 8px;
 }
 
 // Form containing the Title/Description fields and bottom buttons
 .save-view-form {
-    gap: 0.2rem;
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    grid-template-rows: repeat(7, 1fr);
-    padding: 0.4rem;
+  gap: 0.2rem;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(7, 1fr);
+  padding: 0.4rem;
 }
 
 // Title label
 .save-view-form-title-label {
-    padding-top: 5px;
-    text-align: left;
-    grid-row: 1;
-    grid-column: 1;
-    color: var(--dark-blue);
-    font-weight: 700;
+  padding-top: 5px;
+  text-align: left;
+  grid-row: 1;
+  grid-column: 1;
+  color: var(--dark-gray);
+  font-weight: 700;
 }
 
 // Title text area
 .save-view-form-title {
-    padding: 4px;
-    resize: none;
-    grid-row: 2;
-    grid-column: 1/8;
-    border-color: var(--gray);
+  padding: 4px;
+  resize: none;
+  grid-row: 2;
+  grid-column: 1/8;
+  border-color: var(--gray);
 }
 
 // Description label
 .save-view-form-description-label {
-    padding-top: 5px;
-    text-align: left;
-    grid-row: 3;
-    grid-column: 1;
-    color: var(--dark-blue);
-    font-weight: 700;
+  padding-top: 5px;
+  text-align: left;
+  grid-row: 3;
+  grid-column: 1;
+  color: var(--dark-gray);
+  font-weight: 700;
 }
 
 // Description text area
 .save-view-form-description {
-    padding: 4px;
-    resize: none;
-    grid-row: 4/7;
-    grid-column: 1/8;
-    border-color: var(--gray);
+  padding: 4px;
+  resize: none;
+  grid-row: 4/7;
+  grid-column: 1/8;
+  border-color: var(--gray);
 }
 
 // Bottom Save button
 .save-view-form-save-button {
-    grid-row: 7;
-    grid-column: 6;
-    color: var(--white);
-    background-color: var(--dark-blue);
-    border-radius: 4px;
+  grid-row: 7;
+  grid-column: 6;
+  color: var(--white);
+  background-color: var(--dark-gray);
+  border-radius: 4px;
 }
 
 // Bottom cancel button
 .save-view-form-cancel-button {
-    grid-row: 7;
-    grid-column: 7;
-    color: var(--white);
-    background-color: var(--dark-blue);
-    border-radius: 4px;
+  grid-row: 7;
+  grid-column: 7;
+  color: var(--white);
+  background-color: var(--dark-gray);
+  border-radius: 4px;
 }

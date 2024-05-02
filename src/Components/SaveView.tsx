@@ -2,7 +2,7 @@ import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarSt
 import { saveViewParameters } from "../Utils/SaveView";
 import { CesiumWindow } from "../Types/types";
 import { createSignal } from "solid-js";
-import { MAX_CHARS_100, MAX_CHARS_1024, VIEWS_SERVLET_URL } from "../Constants";
+import { MAX_CHARS_100, MAX_CHARS_1024 } from "../Constants";
 import { JSX } from "solid-js";
 import { translate as t } from "../i18n/Translator";
 import { getMapState } from "../Utils/Controller";
@@ -83,16 +83,16 @@ async function submitSave(title: string, description: string): Promise<boolean> 
 
     const cesiumWindow = window as CesiumWindow;
     saveViewParameters(cesiumWindow.Map3DViewer, cesiumWindow.optionsMap);
-    const mapState = getMapState();
+    const mapState = JSON.stringify(getMapState());
 
     const args = {
-        type: "createView",
         title,
         description,
         mapState
     };
 
-    const response = await fetch(VIEWS_SERVLET_URL, {
+    const url = window.location.origin + "/view/?sessionID=" + sessionStorage.getItem("sessionID");
+    const response = await fetch(url, {
         method: "POST",
         mode: "cors",
         cache: "no-cache",

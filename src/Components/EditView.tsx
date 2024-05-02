@@ -1,7 +1,7 @@
 import { createSignal } from "solid-js";
 import { CesiumWindow, ViewRecord } from "../Types/types";
 import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
-import { MAX_CHARS_100, MAX_CHARS_1024, VIEWS_SERVLET_URL } from "../Constants";
+import { MAX_CHARS_100, MAX_CHARS_1024 } from "../Constants";
 import { saveViewParameters } from "../Utils/SaveView";
 import { getMapState } from "../Utils/Controller";
 
@@ -77,18 +77,18 @@ async function edit(id: bigint, title: string, description: string): Promise<boo
 
     const cesiumWindow = window as CesiumWindow;
     saveViewParameters(cesiumWindow.Map3DViewer, cesiumWindow.optionsMap);
-    const mapState = getMapState();
+    const mapState = JSON.stringify(getMapState());
 
     const args = {
-        type: "editView",
         viewId: id,
         title,
         description,
         mapState
     };
 
-    const response = await fetch(VIEWS_SERVLET_URL, {
-        method: "POST",
+    const url = window.location.origin + "/view/" + id + "?sessionID=" + sessionStorage.getItem("sessionID");
+    const response = await fetch(url, {
+        method: "PUT",
         mode: "cors",
         cache: "no-cache",
         headers: { "Content-Type": "application/json" },

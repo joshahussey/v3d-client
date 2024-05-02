@@ -5,6 +5,8 @@ import { LayersOrderDiv } from "./LayersOrderDiv";
 import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { LayersTreeDiv } from "./LayersTreeDiv";
 import { SearchMinimal } from "./SearchMinimal";
+import { LoadView } from "./LoadView";
+import { SaveView } from "./SaveView";
 
 export type ServiceEntryInput = {
     service: ServiceInfo;
@@ -25,6 +27,8 @@ export function LayersDiv(): JSX.Element {
         setLayersOrderOpened,
         isSearchOpened,
         isLayersTreeOpened,
+        isLoadOpened,
+        isSaveOpened
     } = useToolbarStateContext() as ToolbarContextType;
 
     return (
@@ -37,6 +41,12 @@ export function LayersDiv(): JSX.Element {
             </Show>
             <Show when={isSearchOpened()}>
                 <SearchMinimal />
+            </Show>
+            <Show when={isSaveOpened()}>
+                <SaveView />
+            </Show>
+            <Show when={isLoadOpened()}>
+                <LoadView />
             </Show>
         </div>
     );

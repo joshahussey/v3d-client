@@ -104,6 +104,50 @@ func HandleKmlRequest(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func HandleGetViewsRequest(w http.ResponseWriter, r *http.Request) {
+	ctx := ReqContext{w: w, r:r, sessionID: r.URL.Query().Get("sessionID"), uuid: uuid.New().String()}
+	err := HandleGetViews(ctx)
+	if err != nil {
+		e(ctx, err)
+		return
+	}
+}
+
+func HandleViewRequest(w http.ResponseWriter, r *http.Request) {
+	ctx := ReqContext{w: w, r:r, sessionID: r.URL.Query().Get("sessionID"), uuid: uuid.New().String()}
+	log.Println("Received view request " + ctx.r.URL.Path)
+
+	switch r.Method {
+		case "":
+			fallthrough // see doc for Request.Method
+		case "GET":
+			log.Println("View request is GET.")
+			err := HandleGetView(ctx)
+			if err != nil {
+				e(ctx, err)
+				return
+			}
+		case "POST":
+			err := HandlePostView(ctx)
+			if err != nil {
+				e(ctx, err)
+				return
+			}
+		case "DELETE":
+			err := HandleDeleteView(ctx)
+			if err != nil {
+				e(ctx, err)
+				return
+			}
+		case "PUT":
+			err := HandlePutView(ctx)
+			if err != nil {
+				e(ctx, err)
+				return
+			}
+	}
+}
+
 func HandleAdd(w http.ResponseWriter, r *http.Request) {
 	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID"), uuid: uuid.New().String()}
 	if _, upgrade := r.Header["Upgrade"]; upgrade {
@@ -233,7 +277,7 @@ func main() {
 	defer f.Close()
 	port := os.Getenv("BACKEND_PORT")
 	log.Printf("Port: %s", port)
-	initDb()
+	initSvcDb()
 	http.HandleFunc("/map", HandleConnect)
 	http.HandleFunc("/add", HandleAdd)
 	http.HandleFunc("/gpkg", HandleGpkgRequest)
@@ -241,6 +285,8 @@ func main() {
 	http.HandleFunc("/shape", HandleShapeRequest)
 	http.HandleFunc("/tilegpkg/", HandleGpkgTileRequest)
 	http.HandleFunc("/ogcfeatures/", HandleFeaturesRequest)
+	http.HandleFunc("/views", HandleGetViewsRequest)
+	http.HandleFunc("/view/", HandleViewRequest)
 	go requestQueue.Work()
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }

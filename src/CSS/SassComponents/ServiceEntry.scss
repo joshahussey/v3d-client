@@ -1,57 +1,61 @@
 .service-div {
-    display: flex;
-    grid-column: 1/14;
-    grid-row: 1;
-    align-items: center;
-    background: var(--white);
+  display: flex;
+  grid-column: 1/14;
+  grid-row: 1;
+  align-items: center;
+  background: var(--white);
 }
+
 .service-div:hover {
-    background-color: var(--light-gray)
+  background-color: var(--light-gray)
 }
 
 .service-layers-div {
-    display: inline;
-    grid-column: 1/14;
-    grid-row: 3;
-    align-items: center;
-    background: var(--white);
+  display: inline;
+  grid-column: 1/14;
+  grid-row: 3;
+  align-items: center;
+  background: var(--white);
 }
 
 .service-layers-list {
-    width: 100%;
+  width: 100%;
 }
-.service-layers-list > li {
-    display: grid;
-    grid-template-columns: repeat(13, 2rem);
-    align-items: center;
-    width: -webkit-fill-available;
-    background: var(--white);
+
+.service-layers-list>li {
+  display: grid;
+  grid-template-columns: repeat(13, 2rem);
+  align-items: center;
+  width: -webkit-fill-available;
+  background: var(--white);
 }
-.service-layers-list > li:hover {
-    background-color: var(--light-gray)
+
+.service-layers-list>li:hover {
+  background-color: var(--light-gray)
 }
 
 .service-grid-break {
-    border-top: 1px solid var(--gray);
-    padding-bottom: 0.1rem;
-    grid-column: 2/13;
-    grid-row: 2/3;
+  border-top: 1px solid var(--gray);
+  padding-bottom: 0.1rem;
+  grid-column: 2/13;
+  grid-row: 2/3;
 }
 
 .service-dropdown-button {
-    height: 1.25rem;
-    width: 1.25rem;
-    min-width: 1.25rem;
-    min-height: 1.25rem;
-    padding: 0;
-    color: var(--dark-gray);
-    background-color: var(--clear);
-    border: none;
-    fill: var(--dark-gray);
+  height: 1.25rem;
+  width: 1.25rem;
+  min-width: 1.25rem;
+  min-height: 1.25rem;
+  padding: 0;
+  color: var(--dark-gray);
+  background-color: var(--clear);
+  border: none;
+  fill: var(--dark-gray);
 }
+
 .service-dropdown-button:hover {
-    fill: var(--dark-gray);
-    color: var(--dark-gray);
-    box-shadow: none;
-    border: none;
+  fill: var(--dark-gray);
+  color: var(--dark-gray);
+  box-shadow: none;
+  border: none;
 }

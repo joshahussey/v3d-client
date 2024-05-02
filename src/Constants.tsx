@@ -24,7 +24,6 @@ export enum DatasourceTypes {
     Celestial = "Celestial"
 }
 
-export const VIEWS_SERVLET_URL = window.location.origin + "/wes/CesiumViews";
 export const MAX_CHARS_100 = 100;
 export const MAX_CHARS_1024 = 1024;
 
@@ -101,4 +100,3 @@ export const BLUE_PROPERTY = new ConstantProperty(Color.BLUE);
 export const VERTICAL_ORIGIN_BOTTOM = new ConstantProperty(VerticalOrigin.BOTTOM);
 export const HEIGHT_REFERENCE_CLAMP_TO_GROUND = new ConstantProperty(HeightReference.CLAMP_TO_GROUND);
 export const HEIGHT_REFERENCE_RELATIVE_TO_GROUND = new ConstantProperty(HeightReference.RELATIVE_TO_GROUND);
-

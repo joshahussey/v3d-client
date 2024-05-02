@@ -10,8 +10,11 @@ function enumKeys<O extends object, K extends keyof O = keyof O>(obj: O): K[] {
     return Object.keys(obj).filter(k => Number.isNaN(+k)) as K[];
 }
 
-function createLayerStub(enumerable: object, layer: WesDataSource|WesImageryLayer|Wes3DTileSet): { show?: boolean; alpha?: number; uid: string }  {
-    const layerStub: { show?: boolean; alpha?: number; uid: string }  = { uid: layer.uid };
+function createLayerStub(
+    enumerable: object,
+    layer: WesDataSource | WesImageryLayer | Wes3DTileSet
+): { show?: boolean; alpha?: number; uid: string } {
+    const layerStub: { show?: boolean; alpha?: number; uid: string } = { uid: layer.uid };
     for (const parameter of enumKeys(enumerable)) {
         const key = enumerable[parameter];
         const value = layer[key];
@@ -51,7 +54,7 @@ export enum primitiveParameters {
 
 export function saveViewParameters(viewer: Viewer, optionsMap: Accessor<Map<Wes3dMapLayer, WesLayerPropertiesObject>>) {
     const mapState = getMapState();
-    const savedLayerParameters:{ show?: boolean; alpha?: number; uid: string }[]  = [];
+    const savedLayerParameters: { show?: boolean; alpha?: number; uid: string }[] = [];
     const optionsList = optionsMap().keys();
     for (const option of optionsList) {
         const isFeaturesDatasource = option instanceof FeaturesApiDataSource;
@@ -93,12 +96,14 @@ export function applyViewParameters(optionsMap: Accessor<Map<Wes3dMapLayer, WesL
     const optionsList = optionsMap().keys();
     const savedLayerParameters = mapState.saveLayerParameters;
     if (savedLayerParameters) {
-        savedLayerParameters.forEach((layerParameter) => {
+        savedLayerParameters.forEach(layerParameter => {
             for (const option of optionsList) {
                 if (option.uid === layerParameter.uid) {
                     for (const key of Object.keys(layerParameter)) {
                         if (key === "uid") continue;
-                        (option[key as keyof Wes3dMapLayer] as string) = layerParameter[key as keyof typeof layerParameter] as string;
+                        (option[key as keyof Wes3dMapLayer] as string) = layerParameter[
+                            key as keyof typeof layerParameter
+                        ] as string;
                     }
                     break;
                 }

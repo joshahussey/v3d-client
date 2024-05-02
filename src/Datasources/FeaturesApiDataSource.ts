@@ -24,25 +24,46 @@ import {
     DistanceDisplayCondition,
     defined,
     Resource,
-    SceneMode,
+    SceneMode
 } from "cesium";
 import GeoJsonDecoder from "../Utils/GeoJsonDecoder";
 import WesDataSource from "./WesDataSource";
-import {
-    GeoJsonGetAllResult,
-    JsonCluster,
-    OGCFeature,
-    ServiceInfo,
-    ImageryBounds
-} from "../Types/types";
+import { GeoJsonGetAllResult, JsonCluster, OGCFeature, ServiceInfo, ImageryBounds } from "../Types/types";
 import { BBox } from "geojson";
 import { LabelGraphics } from "cesium";
 import { buildLine, buildPoint, buildPolygon } from "../Utils/Utils";
 import FastFeatureClusters from "../Utils/FastClustering";
 import { getTddRuleMatches } from "../Utils/tddparser";
 import { translate as t } from "../i18n/Translator";
-import { BLProps, Billboard, Label, MaterialColor, MaterialImage, MaterialProperty, PointSymbolizer, PolygonSymbolizer, PropertyLookup, RGBA, Rule, Styled3dLayerDescriptor, UserStyle } from "../Types/tdd";
-import { CLUSTER_HEIGHT, CLUSTER_HEIGHT_CONSTANT, CLUSTER_WIDTH, HEIGHT_REFERENCE_CLAMP_TO_GROUND, HEIGHT_REFERENCE_RELATIVE_TO_GROUND, ONE_PROPERTY, TWO_PROPERTY, ORANGE_PROPERTY, TRUE_PROPERTY, VERTICAL_ORIGIN_BOTTOM, ZERO_PROPERTY, BLUE_PROPERTY } from "../Constants";
+import {
+    BLProps,
+    Billboard,
+    Label,
+    MaterialColor,
+    MaterialImage,
+    MaterialProperty,
+    PointSymbolizer,
+    PolygonSymbolizer,
+    PropertyLookup,
+    RGBA,
+    Rule,
+    Styled3dLayerDescriptor,
+    UserStyle
+} from "../Types/tdd";
+import {
+    CLUSTER_HEIGHT,
+    CLUSTER_HEIGHT_CONSTANT,
+    CLUSTER_WIDTH,
+    HEIGHT_REFERENCE_CLAMP_TO_GROUND,
+    HEIGHT_REFERENCE_RELATIVE_TO_GROUND,
+    ONE_PROPERTY,
+    TWO_PROPERTY,
+    ORANGE_PROPERTY,
+    TRUE_PROPERTY,
+    VERTICAL_ORIGIN_BOTTOM,
+    ZERO_PROPERTY,
+    BLUE_PROPERTY
+} from "../Constants";
 import { styleDefaultClusters, styleGeoJsonBillboard } from "../Utils/ClusterStyling";
 
 //DELETE WHEN CESIUM FIXES THIS BUG
@@ -73,7 +94,9 @@ export default class FeaturesApiDataSource extends WesDataSource {
     _renderedClusterSet: Set<Entity>;
     _fastFeatureClusters: FastFeatureClusters | undefined;
     _collectionInformation: OgcCollectionInformation;
-    _canvasCache: { [key: string]: HTMLCanvasElement | Promise<HTMLCanvasElement> | HTMLImageElement | Promise<HTMLImageElement> };
+    _canvasCache: {
+        [key: string]: HTMLCanvasElement | Promise<HTMLCanvasElement> | HTMLImageElement | Promise<HTMLImageElement>;
+    };
     _geometryBounds: ImageryBounds;
     isHighlighted: boolean;
     depthDistCond: Property;
@@ -216,7 +239,9 @@ export default class FeaturesApiDataSource extends WesDataSource {
         let count = 0;
         tdd.StyledLayerDescriptor.NamedLayer.UserStyle.forEach((UserStyle: UserStyle, index: number) => {
             count++;
-            const styleName = UserStyle.Name ? UserStyle.Name : `${tdd.StyledLayerDescriptor.NamedLayer.Name} Style ${count}`;
+            const styleName = UserStyle.Name
+                ? UserStyle.Name
+                : `${tdd.StyledLayerDescriptor.NamedLayer.Name} Style ${count}`;
             this._userStylesArray.push({ index: index, name: styleName as string, dataSource: this });
         });
         this._userStylesCount = this._userStylesArray.length;
@@ -494,7 +519,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
                 });
             }
             const feature = this.createFeature(ogcFeature, location as Cartesian3);
-            if(feature.polygon){
+            if (feature.polygon) {
                 this.createPolygonOutline(feature);
             }
             this.styleFeature(feature, ogcFeature, location as Cartesian3, matchedStyles);
@@ -604,11 +629,10 @@ export default class FeaturesApiDataSource extends WesDataSource {
         return this.createPointEntity(location as Cartesian3, feature.id);
     }
 
-    createPolygonOutline(feature: Entity){
-        const outlineEntities = new EntityCollection();
+    createPolygonOutline(feature: Entity) {
         console.log(feature.polygon?.hierarchy);
         const lines = (feature.polygon?.hierarchy as unknown as PolygonHierarchy).positions;
-        for (const line in lines){
+        for (const line in lines) {
             console.log(line);
         }
     }
@@ -714,7 +738,11 @@ export default class FeaturesApiDataSource extends WesDataSource {
                     if (modelMatches[i]?.PointSymbolizer != null) {
                         this.addModelGraphics(model, modelMatches[i].PointSymbolizer as PointSymbolizer);
                         if (modelMatches[i].PointSymbolizer?.Model?.Orientation != null) {
-                            this.updateModelOrientation(feature, modelMatches[i].PointSymbolizer as PointSymbolizer, location);
+                            this.updateModelOrientation(
+                                feature,
+                                modelMatches[i].PointSymbolizer as PointSymbolizer,
+                                location
+                            );
                         }
                     }
                 }
@@ -727,7 +755,10 @@ export default class FeaturesApiDataSource extends WesDataSource {
                 for (let i = 0; i < billboardMatches.length; i++) {
                     if (billboardMatches[i].PointSymbolizer != null) {
                         if (billboardMatches[i].PointSymbolizer?.Billboard != null) {
-                            this.getBillboardProperties(props, billboardMatches[i].PointSymbolizer?.Billboard as Billboard);
+                            this.getBillboardProperties(
+                                props,
+                                billboardMatches[i].PointSymbolizer?.Billboard as Billboard
+                            );
                         }
                     }
                 }
@@ -798,7 +829,9 @@ export default class FeaturesApiDataSource extends WesDataSource {
         if (!ctx) {
             return canvas;
         }
-        ctx.font = `${(props["font"] as { [key: string]: string })["size"]}px ${(props["font"] as { [key: string]: string })["family"]}`;
+        ctx.font = `${(props["font"] as { [key: string]: string })["size"]}px ${
+            (props["font"] as { [key: string]: string })["family"]
+        }`;
         ctx.strokeStyle = Color.fromBytes(
             (props["fillColor"] as RGBA)[0],
             (props["fillColor"] as RGBA)[1],
@@ -811,7 +844,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
             (props["outlineColor"] as RGBA)[2],
             (props["outlineColor"] as RGBA)[3]
         ).toCssColorString();
-        ctx.lineWidth = props["outlineWidth"] as number / 3;
+        ctx.lineWidth = (props["outlineWidth"] as number) / 3;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(props["text"] as string, canvas.width / 2, canvas.height / 2);
@@ -843,13 +876,18 @@ export default class FeaturesApiDataSource extends WesDataSource {
             (props as { [key: string]: string | number })["scale"] = billboard.Scale;
         }
         if (billboard.DistanceDisplayCondition != null) {
-            (props as { [key: string]: { near: number, far: number } })["distanceDisplayCondition"] = new DistanceDisplayCondition(
-                billboard.DistanceDisplayCondition.Near,
-                billboard.DistanceDisplayCondition.Far
-            );
+            (props as { [key: string]: { near: number; far: number } })["distanceDisplayCondition"] =
+                new DistanceDisplayCondition(
+                    billboard.DistanceDisplayCondition.Near,
+                    billboard.DistanceDisplayCondition.Far
+                );
         }
         if (billboard.EyeOffset != null) {
-            props["eyeOffset"] = new Cartesian3(billboard.EyeOffset.Height, billboard.EyeOffset.Width, billboard.EyeOffset.Height);
+            props["eyeOffset"] = new Cartesian3(
+                billboard.EyeOffset.Height,
+                billboard.EyeOffset.Width,
+                billboard.EyeOffset.Height
+            );
         }
     }
 
@@ -857,7 +895,8 @@ export default class FeaturesApiDataSource extends WesDataSource {
         if (label.Text != null) {
             if (Object.prototype.hasOwnProperty.call(label.Text, "PropertyName")) {
                 if (feature.properties != null) {
-                    props["text"] = feature.properties[(label.Text as { PropertyName: string }).PropertyName].getValue();
+                    props["text"] =
+                        feature.properties[(label.Text as { PropertyName: string }).PropertyName].getValue();
                 }
             } else {
                 props["text"] = label.Text as string;
@@ -941,17 +980,19 @@ export default class FeaturesApiDataSource extends WesDataSource {
             this.fallbackStyles(feature, location);
             return;
         }
-        const modelMatches = matchedRules.filter((rule: { PointSymbolizer: { Model: { Orientation: null; }; }; }) => rule.PointSymbolizer?.Model?.Orientation != null);
+        const modelMatches = matchedRules.filter(
+            (rule: { PointSymbolizer: { Model: { Orientation: null } } }) =>
+                rule.PointSymbolizer?.Model?.Orientation != null
+        );
         if (modelMatches.length > 0) {
             this.updateModelOrientation(feature, modelMatches[0].PointSymbolizer, location);
         }
         return;
     }
 
-    setDistCond(){
+    setDistCond() {
         this.depthDistCond = new ConstantProperty(this._viewer.camera.positionCartographic.height + 6178137);
     }
-
 
     fallbackStyles(feature: Entity, location: Cartesian3) {
         if (feature.position) {
@@ -963,7 +1004,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
             feature.billboard.width = new ConstantProperty(19);
         }
         if (feature.polyline) {
-            feature.polyline.material = new ColorMaterialProperty(Color.RED) ;
+            feature.polyline.material = new ColorMaterialProperty(Color.RED);
             feature.polyline.width = TWO_PROPERTY;
             feature.polyline.show = TRUE_PROPERTY;
         }
@@ -972,7 +1013,6 @@ export default class FeaturesApiDataSource extends WesDataSource {
             feature.polygon.outline = TRUE_PROPERTY;
             feature.polygon.outlineColor = BLUE_PROPERTY;
             feature.polygon.outlineWidth = TWO_PROPERTY;
-
         }
         location;
     }
@@ -988,7 +1028,10 @@ export default class FeaturesApiDataSource extends WesDataSource {
             feature.properties.addProperty("json", rawFeature);
             let matchedRules: Rule[] = [];
             if (this._tdd?.StyledLayerDescriptor?.NamedLayer?.UserStyle != null) {
-                matchedRules = getTddRuleMatches(rawFeature, this._tdd.StyledLayerDescriptor.NamedLayer.UserStyle[this._userStyle]);
+                matchedRules = getTddRuleMatches(
+                    rawFeature,
+                    this._tdd.StyledLayerDescriptor.NamedLayer.UserStyle[this._userStyle]
+                );
             }
             if (matchedRules.length) {
                 feature.properties.addProperty("matchingRules", matchedRules);
@@ -1233,13 +1276,18 @@ export default class FeaturesApiDataSource extends WesDataSource {
         } else if (
             polygonSymbolizer.Material &&
             (polygonSymbolizer.Material as MaterialProperty).MaterialProperty &&
-            (((polygonSymbolizer.Material as MaterialProperty).MaterialProperty) as MaterialImage).MaterialImage
+            ((polygonSymbolizer.Material as MaterialProperty).MaterialProperty as MaterialImage).MaterialImage
         ) {
             material = new ImageMaterialProperty({
-                image: ((polygonSymbolizer.Material as MaterialProperty).MaterialProperty as MaterialImage).MaterialImage.Image,
+                image: ((polygonSymbolizer.Material as MaterialProperty).MaterialProperty as MaterialImage)
+                    .MaterialImage.Image,
                 repeat: new Cartesian2(
-                    ((polygonSymbolizer.Material as MaterialProperty).MaterialProperty as MaterialImage).MaterialImage.Repeat.x,
-                    ((polygonSymbolizer.Material as MaterialProperty).MaterialProperty as MaterialImage).MaterialImage.Repeat.y
+                    (
+                        (polygonSymbolizer.Material as MaterialProperty).MaterialProperty as MaterialImage
+                    ).MaterialImage.Repeat.x,
+                    (
+                        (polygonSymbolizer.Material as MaterialProperty).MaterialProperty as MaterialImage
+                    ).MaterialImage.Repeat.y
                 )
             });
         }

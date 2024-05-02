@@ -4,10 +4,6 @@
 }
 
 {$DOMAIN_NAME} {$DOMAIN_NAME}:{$CSLT_3D_HTTPS_PORT} {
-        @options {
-        method OPTIONS
-    }
-    @proxy path /map* /add* /shape* /kml* /ogcfeatures* /ogcfeatures/* /gpkg* /tilegpkg* /
 	log {
 		format console
 		output file {$ROOT_DIR_3D}/logs/cslt3d_https.log
@@ -19,17 +15,69 @@
 		root /srv/
 	}
 
-    handle @proxy {
-                header {
-        Access-Control-Allow-Origin *
-        Access-Control-Allow-Credentials true
-        Access-Control-Allow-Methods *
-        Access-Control-Allow-Headers *
-        defer
-    }
-			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT} {
-                header_down -Access-Control-Allow-Origin
-                }
-                respond @options 204
+	route /map* {
+		handle {
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
 		}
+	}
+
+	route /add* {
+		handle {
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
+		}
+	}
+
+	route /shape* {
+		handle {
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
+		}
+	}
+
+	route /gpkg* {
+		handle {
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
+		}
+	}
+
+	route /tilegpkg* {
+		handle {
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
+		}
+	}
+
+	route /kml* {
+		handle {
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
+		}
+	}
+
+	route /ogcfeatures* {
+		handle {
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
+		}
+	}
+
+	route /ogcfeatures/* {
+		handle {
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
+		}
+	}
+
+	route /views* {
+		handle {
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
+		}
+	}
+
+	route /view/* {
+		handle {
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
+		}
+	}
+
+	route /view* {
+		handle {
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
+		}
+	}
 }
