@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -73,8 +72,9 @@ func getViewsDb(sessionId string) (string, error) {
 }
 
 const contentTypeHeaderKey = "Content-Type"
-const appJsonContentType = "application/json"
-const sqliteContentType = "application/x-sqlite3"
+const acceptHeaderKey = "Accept"
+const appJsonMimeType = "application/json"
+const sqliteMimeType = "application/x-sqlite3"
 
 func HandleGetViews(ctx ReqContext) error {
 	dbFile, err := getViewsDb(ctx.sessionID)
@@ -82,11 +82,11 @@ func HandleGetViews(ctx ReqContext) error {
 		return err
 	}
 
-	contentType := ctx.r.Header.Get(contentTypeHeaderKey)
+	contentType := ctx.r.Header.Get(acceptHeaderKey)
 	switch contentType {
 	case "":
 		fallthrough // Default to JSON
-	case appJsonContentType:
+	case appJsonMimeType:
 		logD(ctx.sessionID, "Handling JSON get views request.", "HandleGetViewsJson")
 		db, err := sql.Open("sqlite3", dbFile+"?_busy_timeout=1000")
 		if err != nil {
@@ -118,14 +118,13 @@ func HandleGetViews(ctx ReqContext) error {
 			return err
 		}
 
-		ctx.w.Header().Set(contentTypeHeaderKey, appJsonContentType)
+		ctx.w.Header().Set(contentTypeHeaderKey, appJsonMimeType)
 		_, err = ctx.w.Write(viewsJson)
 		if err != nil {
 			return err
 		}
-	case sqliteContentType:
+	case sqliteMimeType:
 		logD(ctx.sessionID, "Handling SQLite get views request.", "HandleGetViewsSqlite")
-		strings.Split(dbFile, "")
 
 		reader, err := os.Open(dbFile)
 		if err != nil {
@@ -133,7 +132,7 @@ func HandleGetViews(ctx ReqContext) error {
 		}
 		defer reader.Close()
 
-		ctx.w.Header().Set(contentTypeHeaderKey, sqliteContentType)
+		ctx.w.Header().Set(contentTypeHeaderKey, sqliteMimeType)
 		_, err = io.Copy(ctx.w, reader)
 		if err != nil {
 			return err
@@ -179,7 +178,7 @@ func HandleGetView(ctx ReqContext) error {
 	}
 	logD(ctx.sessionID, "Retrieved view content", "HandleGetViewFinish")
 
-	ctx.w.Header().Set(contentTypeHeaderKey, appJsonContentType)
+	ctx.w.Header().Set(contentTypeHeaderKey, appJsonMimeType)
 	_, err = ctx.w.Write([]byte(view))
 	if err != nil {
 		return err
