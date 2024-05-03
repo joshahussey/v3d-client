@@ -724,7 +724,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
             this.updateFeatureStyle(feature, rawFeature, location);
             return;
         }
-        this.addFeatureInfo(feature, rawFeature, location);
+        this.addFeatureInfo(feature, rawFeature, location, matchedStyles);
         if (!this._userStylesCount || !matchedRules.length) {
             this.fallbackStyles(feature, location);
             return;
@@ -736,7 +736,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
                 const model = new ModelGraphics();
                 for (let i = 0; i < modelMatches.length; i++) {
                     if (modelMatches[i]?.PointSymbolizer != null) {
-                        this.addModelGraphics(model, modelMatches[i].PointSymbolizer as PointSymbolizer);
+                        this.addModelGraphics(model, modelMatches[i].PointSymbolizer as PointSymbolizer, feature);
                         if (modelMatches[i].PointSymbolizer?.Model?.Orientation != null) {
                             this.updateModelOrientation(
                                 feature,
@@ -813,7 +813,6 @@ export default class FeaturesApiDataSource extends WesDataSource {
             this.addPolygonGraphics(feature, polygonMatches[0].PolygonSymbolizer as PolygonSymbolizer);
         }
         feature.properties?.addProperty("hasBeenStyled", true);
-        feature.properties?.addProperty("matchedStyles", matchedStyles);
     }
 
     buildLabelBillboardCanvas(props: BLProps) {
@@ -975,7 +974,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
     updateFeatureStyle(feature: Entity, rawFeature: OGCFeature, location: Cartesian3) {
         const matchedStyles = feature.properties?.matchedStyles?.getValue();
         const matchedRules = matchedStyles ? matchedStyles[this._userStyle] : undefined;
-        this.addFeatureInfo(feature, rawFeature, location);
+        this.addFeatureInfo(feature, rawFeature, location, matchedStyles);
         if (!this._userStylesCount || !matchedRules) {
             this.fallbackStyles(feature, location);
             return;
@@ -1017,7 +1016,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
         location;
     }
 
-    addFeatureInfo(feature: Entity, rawFeature: OGCFeature, location: Cartesian3 | null = null) {
+    addFeatureInfo(feature: Entity, rawFeature: OGCFeature, location: Cartesian3 | null = null, matchedStyles: Rule[][]) {
         if (rawFeature.properties) {
             feature.properties = new PropertyBag();
             for (const key in rawFeature.properties) {
@@ -1026,15 +1025,8 @@ export default class FeaturesApiDataSource extends WesDataSource {
                 }
             }
             feature.properties.addProperty("json", rawFeature);
-            let matchedRules: Rule[] = [];
-            if (this._tdd?.StyledLayerDescriptor?.NamedLayer?.UserStyle != null) {
-                matchedRules = getTddRuleMatches(
-                    rawFeature,
-                    this._tdd.StyledLayerDescriptor.NamedLayer.UserStyle[this._userStyle]
-                );
-            }
-            if (matchedRules.length) {
-                feature.properties.addProperty("matchingRules", matchedRules);
+            if (matchedStyles.length && !feature.properties.hasProperty("matchedStyles")) {
+                feature.properties.addProperty("matchedStyles", matchedStyles);
             }
             if (location) {
                 feature.properties.addProperty("cartesian3Location", location);
@@ -1108,7 +1100,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
         label.disableDepthTestDistance = new ConstantProperty(80000000);
     }
 
-    addModelGraphics(model: ModelGraphics, pointSymbolizer: PointSymbolizer) {
+    addModelGraphics(model: ModelGraphics, pointSymbolizer: PointSymbolizer, feature: Entity) {
         if (pointSymbolizer.Model == null) {
             return;
         }
@@ -1184,8 +1176,18 @@ export default class FeaturesApiDataSource extends WesDataSource {
             model.lightColor = new ConstantProperty(lightColor);
         }
         if (pointSymbolizer.Model.Scale != null) {
-            const scale = pointSymbolizer.Model.Scale;
-            model.scale = new ConstantProperty(scale);
+            const styleScale = pointSymbolizer.Model.Scale;
+            let scale;
+            if (typeof styleScale === 'object' && Object.prototype.hasOwnProperty.call(styleScale, "PropertyName")) {
+                if (feature.properties != null) {
+                    scale = parseInt(feature.properties[(styleScale as { PropertyName: string }).PropertyName].getValue());
+                }
+            } else if (typeof styleScale === 'number') {
+                scale = styleScale;
+            }
+            if (scale != undefined) {
+                model.scale = new ConstantProperty(scale);
+            }
         }
         if (pointSymbolizer.Model.MaximumScale != null) {
             const maximumScale = pointSymbolizer.Model.MaximumScale;
