@@ -23,10 +23,10 @@ type GpkgArgs struct {
 	ServiceInfo ServiceInfo `json:"serviceInfo"`
 	GpkgType    string      `json:"gpkgType"`
 	Table       string      `json:"table"`
-	TileWidth int `json:"tileWidth"`
-	TileHeight int `json:"tileHeight"`
-	Rect Rect `json:"rect"`
-	ZoomDims []ZoomDim `json:"zoomDims"`
+	TileWidth   int         `json:"tileWidth"`
+	TileHeight  int         `json:"tileHeight"`
+	Rect        Rect        `json:"rect"`
+	ZoomDims    []ZoomDim   `json:"zoomDims"`
 }
 
 type Rect struct {
@@ -37,24 +37,24 @@ type Rect struct {
 }
 
 type ZoomDim struct {
-	Level int `json:"level"`
-	Width int `json:"width"`
+	Level  int `json:"level"`
+	Width  int `json:"width"`
 	Height int `json:"height"`
 }
 
 type GpkgLayer struct {
-	name string
+	name        string
 	description string
-	minX float64
-	minY float64
-	maxX float64
-	maxY float64
-	tileWidth int
-	tileHeight int
-	table string
-	layerType string
-	matrixDims []ZoomDim
-	}
+	minX        float64
+	minY        float64
+	maxX        float64
+	maxY        float64
+	tileWidth   int
+	tileHeight  int
+	table       string
+	layerType   string
+	matrixDims  []ZoomDim
+}
 
 type GpkgMessage struct {
 	Kind string     `json:"type"`
@@ -97,16 +97,14 @@ func HandleGpkg(ctx ReqContext) error {
 	} else {
 		requestQueue.Enqueue(ctx.sessionID, message)
 	}
-    
+
 	//file, filePath, err := handleUpload(ctx, gpkg)
-    filename, hash, err := UploadHashMoveDelete(ctx, gpkg)
+	filename, hash, err := UploadHashMoveDelete(ctx, gpkg)
 	if err != nil {
 		return ge("HandleGpkgUpload", err)
 	}
 
-
-	gpkgFinalPath := GpkgDbPath(hash, filename);
-
+	gpkgFinalPath := GpkgDbPath(hash, filename)
 
 	// For now, only tiles are supported
 	layers, err := GetLayers(gpkgFinalPath, "tiles", ctx.sessionID)
@@ -117,7 +115,7 @@ func HandleGpkg(ctx ReqContext) error {
 	}
 
 	var serviceInfo ServiceInfo
-	serviceInfo.ServiceId = hash+"/"+filename
+	serviceInfo.ServiceId = hash + "/" + filename
 	serviceInfo.ServiceTitle = filepath.Base(filename)
 	serviceInfo.ServiceUrl = "gpkg/" + hash + "/" + filename
 
@@ -167,6 +165,15 @@ func HandleGpkg(ctx ReqContext) error {
 		requestQueue.Enqueue(ctx.sessionID, jsonMessage)
 	}
 
+	responseBody := ResponseMessage{}
+	responseBody.ClientOpened = clientFound
+	responseMessage, err := json.Marshal(responseBody)
+	if err != nil {
+		return ge("HandleGpkgWriteMessage", err)
+	} else {
+		ctx.w.Write(responseMessage)
+	}
+
 	return nil
 }
 
@@ -180,13 +187,13 @@ func HandleGpkgTile(req ReqContext) error {
 	segments := GetUrlSegments(req.r.URL.Path)
 
 	/*
-	0 - "tilegpkg"
-	1 - geopackage hash (hash) 
-    2 - geopackage id (filename) 
-	3 - tablename
-	4 - zoom level
-	5 - x
-	6 - y
+			0 - "tilegpkg"
+			1 - geopackage hash (hash)
+		    2 - geopackage id (filename)
+			3 - tablename
+			4 - zoom level
+			5 - x
+			6 - y
 	*/
 	if len(segments) != 7 {
 		req.w.WriteHeader(http.StatusNotFound)
@@ -199,7 +206,7 @@ func HandleGpkgTile(req ReqContext) error {
 	reqPath := path.Join(pathPrefix, segments[1]+"/"+segments[2])
 
 	// Prevent path traversal
-	if ! strings.HasPrefix(reqPath, pathPrefix) {
+	if !strings.HasPrefix(reqPath, pathPrefix) {
 		req.w.WriteHeader(http.StatusNotFound)
 		return nil
 	}
@@ -213,7 +220,7 @@ func HandleGpkgTile(req ReqContext) error {
 		return err
 	}
 
-	db, err := sql.Open("sqlite3", reqPath + "?_busy_timeout="+timeout)
+	db, err := sql.Open("sqlite3", reqPath+"?_busy_timeout="+timeout)
 	if err != nil {
 		return err
 	}
@@ -221,7 +228,7 @@ func HandleGpkgTile(req ReqContext) error {
 
 	var tile []byte
 
-	row := db.QueryRow("select tile_data from " + segments[3] + " where zoom_level=? and tile_column=? and tile_row=? limit 1", segments[4], segments[5], segments[6])
+	row := db.QueryRow("select tile_data from "+segments[3]+" where zoom_level=? and tile_column=? and tile_row=? limit 1", segments[4], segments[5], segments[6])
 	err = row.Scan(&tile)
 	if err != nil {
 		return err
@@ -287,18 +294,18 @@ func GetLayers(gpkg string, layerType string, sessionId string) ([]GpkgLayer, er
 				return nil
 			}
 
-			layer.matrixDims = make([]ZoomDim, (maxZoom - minZoom) + 1)
+			layer.matrixDims = make([]ZoomDim, (maxZoom-minZoom)+1)
 			i := -1
 			for zoom := minZoom; zoom <= maxZoom; zoom++ {
-					i++
-					dimensionRows := db.QueryRow("select matrix_width, matrix_height from gpkg_tile_matrix where table_name=? and zoom_level=? limit 1", layer.table, zoom)
-					var zoomDim ZoomDim
-					zoomDim.Level = zoom
-					err = dimensionRows.Scan(&zoomDim.Width, &zoomDim.Height)
-					if err != nil {
-						return err
-					}
-					layer.matrixDims[i] = zoomDim;
+				i++
+				dimensionRows := db.QueryRow("select matrix_width, matrix_height from gpkg_tile_matrix where table_name=? and zoom_level=? limit 1", layer.table, zoom)
+				var zoomDim ZoomDim
+				zoomDim.Level = zoom
+				err = dimensionRows.Scan(&zoomDim.Width, &zoomDim.Height)
+				if err != nil {
+					return err
+				}
+				layer.matrixDims[i] = zoomDim
 			}
 
 			layers = append(layers, layer)

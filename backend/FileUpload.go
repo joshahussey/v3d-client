@@ -74,20 +74,20 @@ func DownloadHashMoveDelete(ctx ReqContext, url string, serviceType ServiceType)
 	if err != nil {
 		return "", "", UPE("Get", err)
 	}
-    respBytes, err := io.ReadAll(resp.Body)
-    if err != nil {
-        return "", "", UPE("ReadAll", err)
-    }
-    hasher := sha256.New()
-    _, err = hasher.Write(respBytes)
-    if err != nil {
-        return "", "", UPE("Hasher", err)
-    }
-    hash := fmt.Sprintf("%x", hasher.Sum(nil))
-    filename, err := DownloadedFileName(resp);
-    if err != nil {
-        return "", "", UPE("DownloadedFileName", err)
-    }
+	respBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", "", UPE("ReadAll", err)
+	}
+	hasher := sha256.New()
+	_, err = hasher.Write(respBytes)
+	if err != nil {
+		return "", "", UPE("Hasher", err)
+	}
+	hash := fmt.Sprintf("%x", hasher.Sum(nil))
+	filename, err := DownloadedFileName(resp)
+	if err != nil {
+		return "", "", UPE("DownloadedFileName", err)
+	}
 	_, err = os.Stat(DownloadDirPath(hash, serviceType))
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -96,24 +96,24 @@ func DownloadHashMoveDelete(ctx ReqContext, url string, serviceType ServiceType)
 				return "", "", UPE("MkdirAll", err)
 			}
 			if http.DetectContentType(respBytes) == "application/zip" {
-                reader := bytes.NewReader(respBytes)
+				reader := bytes.NewReader(respBytes)
 				zipReader, err := zip.NewReader(reader, int64(len(respBytes)))
 				if err != nil {
 					return "", "", UPE("NewReader", err)
 				}
 				err = unzipFromMemory(zipReader, DownloadDirPath(hash, serviceType))
-                if err != nil {
-                    return "", "", UPE("unzipFromMemory", err)
-                }
+				if err != nil {
+					return "", "", UPE("unzipFromMemory", err)
+				}
 			} else {
 				download, err := os.Create(DownloadDirPath(hash, serviceType) + "/" + filename)
 				if err != nil {
 					return "", "", UPE("Create", err)
 				}
 				_, err = download.Write(respBytes)
-                if err != nil {
-                    return "", "", UPE("Write", err)
-                }
+				if err != nil {
+					return "", "", UPE("Write", err)
+				}
 			}
 		}
 	} else {
@@ -121,14 +121,13 @@ func DownloadHashMoveDelete(ctx ReqContext, url string, serviceType ServiceType)
 	}
 	return filename, hash, nil
 
-    
 }
 
 func UploadHashMoveDelete(ctx ReqContext, serviceType ServiceType) (string, string, error) {
 	err := ctx.r.ParseMultipartForm(32 << 20)
 	if err != nil {
 		return "", "", UPE("ParseMultipartForm", err)
-	} 
+	}
 	file, handler, err := ctx.r.FormFile("file")
 	if err != nil {
 		return "", "", UPE("FormFile", err)
@@ -160,18 +159,18 @@ func UploadHashMoveDelete(ctx ReqContext, serviceType ServiceType) (string, stri
 					return "", "", UPE("NewReader", err)
 				}
 				err = unzipFromMemory(zipReader, DownloadDirPath(hash, serviceType))
-                if err != nil {
-                    return "", "", UPE("unzipFromMemory", err)
-                }
+				if err != nil {
+					return "", "", UPE("unzipFromMemory", err)
+				}
 			} else {
 				download, err := os.Create(DownloadDirPath(hash, serviceType) + "/" + handler.Filename)
 				if err != nil {
 					return "", "", UPE("Create", err)
 				}
 				_, err = download.Write(fileBytes)
-                if err != nil {
-                    return "", "", UPE("Write", err)
-                }
+				if err != nil {
+					return "", "", UPE("Write", err)
+				}
 			}
 		}
 	} else {
@@ -209,7 +208,7 @@ func DownloadedFileName(resp *http.Response) (string, error) {
 		} else {
 			return "", err
 		}
-	}	
-    logI("LOCAL", "No Content-Disposition header found. Using random UUID as Filename", "DownloadedFileName")
-    return uuid.New().String(), nil
+	}
+	logI("LOCAL", "No Content-Disposition header found. Using random UUID as Filename", "DownloadedFileName")
+	return uuid.New().String(), nil
 }

@@ -15,8 +15,10 @@ import (
 
 const svcDbPath = "/cslt/db/cslt.sqlite"
 const svcDbPathWithOptions = svcDbPath + "?_busy_timeout=1000"
+
 var svcDbMutex sync.Mutex
 var svcDbCleanupScheduler = gocron.NewScheduler(time.UTC)
+
 const svcCleanupThreshold = time.Minute * 60 * 60 * 7 * 2
 
 func initSvcDb() {
@@ -52,7 +54,7 @@ func initSvcDb() {
 		logD("LOCAL", "Job is running", "someStep")
 	} else {
 		logD("LOCAL", "Job is not running.", "someStep")
-}
+	}
 	fmt.Println(job.NextRun())
 
 }
@@ -80,7 +82,7 @@ func createSvcDb(dbPath string) {
 }
 
 func addServiceToCleanupList(hash string) error {
-	db, err := sql.Open("sqlite3", svcDbPath + "?_busy_timeout=1000")
+	db, err := sql.Open("sqlite3", svcDbPath+"?_busy_timeout=1000")
 	if err != nil {
 		return err
 	}
@@ -96,7 +98,7 @@ func addServiceToCleanupList(hash string) error {
 }
 
 var shaRegex = regexp.MustCompile("[0-9a-f]{64}")
-var dirsToClean = [...]string{ "/cslt/web/services" }
+var dirsToClean = [...]string{"/cslt/web/services"}
 
 func runCleaner() error {
 	logI("LOCAL", "Running cache cleaner thread", "runCleanerStart")
@@ -107,7 +109,7 @@ func runCleaner() error {
 	}
 	defer db.Close()
 	cleanupThreshold := time.Now().Add(-svcCleanupThreshold)
-	logD("LOCAL", "Removing services last accessed before " + cleanupThreshold.String(), "runCleanerCalculateThreshold")
+	logD("LOCAL", "Removing services last accessed before "+cleanupThreshold.String(), "runCleanerCalculateThreshold")
 
 	svcDbMutex.Lock()
 	rows, err := db.Query("delete from services where last_access < ? returning file_hash", cleanupThreshold)
@@ -118,7 +120,6 @@ func runCleaner() error {
 	if err != nil {
 		logE("LOCAL", err, "runCleanerExecQuery")
 	}
-
 
 	// empty struct requires 0 bytes of memory
 	hashes := make(map[string]struct{})
@@ -132,10 +133,10 @@ func runCleaner() error {
 
 		// Sanity check that this string is even a hash
 		if shaRegex.MatchString(hash) {
-			logD("LOCAL", "Adding hash: " + hash, "runCleanerAddRowHash")
+			logD("LOCAL", "Adding hash: "+hash, "runCleanerAddRowHash")
 			hashes[hash] = struct{}{}
 		} else {
-			logI("LOCAL", "Rejecting non-hash string: " + hash, "runCleanerCheckHash")
+			logI("LOCAL", "Rejecting non-hash string: "+hash, "runCleanerCheckHash")
 		}
 	}
 
@@ -153,7 +154,7 @@ func runCleaner() error {
 		}
 
 		for _, dirToAdd := range dirs {
-			topLevelDirs = append(topLevelDirs, dir + "/" + dirToAdd.Name())
+			topLevelDirs = append(topLevelDirs, dir+"/"+dirToAdd.Name())
 		}
 	}
 
@@ -170,24 +171,24 @@ func runCleaner() error {
 			}
 
 			for _, dir := range fsDirs {
-				dirPath := topLevelDir+ "/" + dir.Name()
-				logD("LOCAL", "Checking: " + dirPath, "runCleanerCheckDir")
+				dirPath := topLevelDir + "/" + dir.Name()
+				logD("LOCAL", "Checking: "+dirPath, "runCleanerCheckDir")
 				fileInfo, err = os.Lstat(dirPath)
 				if err != nil {
 					continue
 				}
 
-				if ! fileInfo.IsDir() {
+				if !fileInfo.IsDir() {
 					logD("LOCAL", "File is not a directory. Skipping.", "runCleanerCheckFile")
 					continue
 				}
 
-				if ! shaRegex.MatchString(dir.Name()) {
+				if !shaRegex.MatchString(dir.Name()) {
 					logD("LOCAL", "File is not a hash. Skipping.", "runCleanerCheckNonHash")
 				}
 
 				if _, contains := hashes[dir.Name()]; contains {
-					logD("LOCAL", "Deleting " + dirPath, "runCleanerDeleteDir")
+					logD("LOCAL", "Deleting "+dirPath, "runCleanerDeleteDir")
 					err = os.RemoveAll(dirPath)
 					if err != nil {
 						logE("LOCAL", err, "runCleanerDeleteDirError")
@@ -202,4 +203,3 @@ func runCleaner() error {
 
 	return nil
 }
-

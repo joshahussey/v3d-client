@@ -24,6 +24,10 @@ type Client struct {
 	sessionID string
 }
 
+type ResponseMessage struct {
+	ClientOpened bool `json:"clientOpened"`
+}
+
 // ClientManager manages WebSocket clients and their IDs.
 type ClientManager struct {
 	clients map[string]Client
@@ -105,7 +109,7 @@ func HandleKmlRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleGetViewsRequest(w http.ResponseWriter, r *http.Request) {
-	ctx := ReqContext{w: w, r:r, sessionID: r.URL.Query().Get("sessionID"), uuid: uuid.New().String()}
+	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID"), uuid: uuid.New().String()}
 	err := HandleGetViews(ctx)
 	if err != nil {
 		e(ctx, err)
@@ -114,37 +118,37 @@ func HandleGetViewsRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleViewRequest(w http.ResponseWriter, r *http.Request) {
-	ctx := ReqContext{w: w, r:r, sessionID: r.URL.Query().Get("sessionID"), uuid: uuid.New().String()}
+	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID"), uuid: uuid.New().String()}
 	log.Println("Received view request " + ctx.r.URL.Path)
 
 	switch r.Method {
-		case "":
-			fallthrough // see doc for Request.Method
-		case "GET":
-			log.Println("View request is GET.")
-			err := HandleGetView(ctx)
-			if err != nil {
-				e(ctx, err)
-				return
-			}
-		case "POST":
-			err := HandlePostView(ctx)
-			if err != nil {
-				e(ctx, err)
-				return
-			}
-		case "DELETE":
-			err := HandleDeleteView(ctx)
-			if err != nil {
-				e(ctx, err)
-				return
-			}
-		case "PUT":
-			err := HandlePutView(ctx)
-			if err != nil {
-				e(ctx, err)
-				return
-			}
+	case "":
+		fallthrough // see doc for Request.Method
+	case "GET":
+		log.Println("View request is GET.")
+		err := HandleGetView(ctx)
+		if err != nil {
+			e(ctx, err)
+			return
+		}
+	case "POST":
+		err := HandlePostView(ctx)
+		if err != nil {
+			e(ctx, err)
+			return
+		}
+	case "DELETE":
+		err := HandleDeleteView(ctx)
+		if err != nil {
+			e(ctx, err)
+			return
+		}
+	case "PUT":
+		err := HandlePutView(ctx)
+		if err != nil {
+			e(ctx, err)
+			return
+		}
 	}
 }
 

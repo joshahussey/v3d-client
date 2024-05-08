@@ -47,6 +47,13 @@ type ShapeError struct {
 	err  error
 }
 
+type ShapeResponse struct {
+	ResponseMessage
+	GeoJsonErrorList []string `json:"geoJsonErrorList"`
+	MessageErrorList []string `json:"messageErrorList"`
+	SuccessList      []string `json:"successList"`
+}
+
 func (se ShapeError) Unwrap() error {
 	return se.err
 }
@@ -89,7 +96,7 @@ func HandleShape(ctx ReqContext) error {
 		go processShapeAndCreateService(ctx, hash, geoJsonDir, service, &jsonErrorList, &wg, &mutex)
 	}
 	wg.Wait()
-    layerList,  messageErrorList := sendShapeMessage(ctx, path.Base(filename), hash, &mutex)
+	layerList, messageErrorList := sendShapeMessage(ctx, path.Base(filename), hash, &mutex)
 	if err != nil {
 		return SE("HandleShapeSendLayers", err)
 	}
@@ -125,7 +132,7 @@ func HandleShapeUrl(ctx ReqContext, args json.RawMessage) error {
 		go processShapeAndCreateService(ctx, hash, geoJsonDir, service, &jsonErrorList, &wg, &mutex)
 	}
 	wg.Wait()
-    layerList,  messageErrorList := sendShapeMessage(ctx, path.Base(filename), hash, &mutex)
+	layerList, messageErrorList := sendShapeMessage(ctx, path.Base(filename), hash, &mutex)
 	if err != nil {
 		return SE("HandleShapeSendLayers", err)
 	}
@@ -138,36 +145,36 @@ func HandleShapeUrl(ctx ReqContext, args json.RawMessage) error {
 
 func sendShapeMessage(ctx ReqContext, serviceName string, hash string, mutex *sync.Mutex) ([]string, []string) {
 	client, clientFound := ClientMgr.clients[ctx.sessionID]
-    files, err := os.ReadDir(OgcFeaturesDirPath(hash))
-    if err != nil {
-        logD(ctx.sessionID, fmt.Sprintf("Error reading directory: %v\n", err), "sendShapeMessageReadDir")
-        return []string{}, []string{serviceName}
-    }
-    var layerList []string
-    var errorList []string
+	files, err := os.ReadDir(OgcFeaturesDirPath(hash))
+	if err != nil {
+		logD(ctx.sessionID, fmt.Sprintf("Error reading directory: %v\n", err), "sendShapeMessageReadDir")
+		return []string{}, []string{serviceName}
+	}
+	var layerList []string
+	var errorList []string
 	domainName := os.Getenv("DOMAIN_NAME")
-    logD(ctx.sessionID, fmt.Sprintf("Domain Name: %s\n", domainName), "sendShapeMessage")
+	logD(ctx.sessionID, fmt.Sprintf("Domain Name: %s\n", domainName), "sendShapeMessage")
 	message := ShapefileMessage{}
 	message.Kind = "FEATURE"
 	message.Args = []ShapefileArgs{}
-	for _, layer:= range files {
-        layerDb, err := sql.Open("sqlite3",OgcFeaturesDirPath(hash) + "/" + layer.Name())
-        logD(ctx.sessionID, fmt.Sprintf("Opening db file: %s\n", OgcFeaturesDirPath(hash) + "/" + layer.Name()), "sendShapeMessageOpen")
-        if err != nil {
-            logE(ctx.sessionID, err, "sendShapeMessageOpen")
-            errorList = append(errorList, layer.Name())
-        }
-        defer layerDb.Close()
-        var bbox Wgs84BoundingBox
-        var layerHash string
-        err = layerDb.QueryRow("SELECT uuid, minx, miny, maxx, maxy FROM layer").Scan(&layerHash, &bbox.Minx, &bbox.Miny, &bbox.Maxx, &bbox.Maxy)
-        if err != nil {
-            logE(ctx.sessionID, err, "sendShapeMessageQueryRow")
-            errorList = append(errorList, serviceName)
-        }
+	for _, layer := range files {
+		layerDb, err := sql.Open("sqlite3", OgcFeaturesDirPath(hash)+"/"+layer.Name())
+		logD(ctx.sessionID, fmt.Sprintf("Opening db file: %s\n", OgcFeaturesDirPath(hash)+"/"+layer.Name()), "sendShapeMessageOpen")
+		if err != nil {
+			logE(ctx.sessionID, err, "sendShapeMessageOpen")
+			errorList = append(errorList, layer.Name())
+		}
+		defer layerDb.Close()
+		var bbox Wgs84BoundingBox
+		var layerHash string
+		err = layerDb.QueryRow("SELECT uuid, minx, miny, maxx, maxy FROM layer").Scan(&layerHash, &bbox.Minx, &bbox.Miny, &bbox.Maxx, &bbox.Maxy)
+		if err != nil {
+			logE(ctx.sessionID, err, "sendShapeMessageQueryRow")
+			errorList = append(errorList, serviceName)
+		}
 		args := ShapefileArgs{}
 		args.Uid = layerHash
-        args.Url = "https://" + domainName + "/ogcfeatures/" + hash + "/" + strings.TrimSuffix(layer.Name(), path.Ext(layer.Name())) //geo3d.compusult.com/ogcfeatures/37ea8961-942d-4a5f-8e3b-642b63748e4f/canada_map
+		args.Url = "https://" + domainName + "/ogcfeatures/" + hash + "/" + strings.TrimSuffix(layer.Name(), path.Ext(layer.Name())) //geo3d.compusult.com/ogcfeatures/37ea8961-942d-4a5f-8e3b-642b63748e4f/canada_map
 		// args.Url = "/ogcfeatures/" + hash + "/" + strings.TrimSuffix(layer.Name(), path.Ext(layer.Name())) //geo3d.compusult.com/ogcfeatures/37ea8961-942d-4a5f-8e3b-642b63748e4f/canada_map
 		args.Title = strings.TrimSuffix(layer.Name(), path.Ext(layer.Name()))
 		args.Wgs84BoundingBox = bbox
@@ -176,7 +183,7 @@ func sendShapeMessage(ctx ReqContext, serviceName string, hash string, mutex *sy
 		args.ServiceInfo.ServiceId = hash
 		args.ServiceInfo.ServiceUrl = "UploadedFile"
 		message.Args = append(message.Args, args)
-        layerList = append(layerList, layer.Name())
+		layerList = append(layerList, layer.Name())
 	}
 	message.Uuid = ctx.uuid
 	jsonMessage, err := json.Marshal(message)
@@ -200,30 +207,21 @@ func sendShapeMessage(ctx ReqContext, serviceName string, hash string, mutex *sy
 			return layerList, errorList
 		}
 	}
-    return layerList, errorList
+	return layerList, errorList
 }
 
 func sendShapeResponse(ctx ReqContext, messageErrorList []string, jsonErrorList []string, fileList []string) error {
-	if len(messageErrorList) > 0 || len(jsonErrorList) > 0 && len(fileList) > 0 {
-		logE(ctx.sessionID, fmt.Errorf("Error creating GeoJSON for the following files:\n\t%s\nError sending messages for the following files: \n\t%s\n", strings.Join(jsonErrorList, "\n\t"), strings.Join(messageErrorList, "\n\t")), "HandleShapeResponseAll")
-		_, err := ctx.w.Write([]byte(fmt.Sprintf("Successfully created the following files:\n\t%s\nError creating GeoJSON for the following files:\n\t%s\nError sending messages for the following files: \n\t%s\n", strings.Join(fileList, "\n\t"), strings.Join(jsonErrorList, "\n\t"), strings.Join(messageErrorList, "\n\t"))))
-		if err != nil {
-			return SE("HandleShapePartialSuccessResponseError", err)
-		}
-		return nil
-	}
-	if len(messageErrorList) > 0 || len(jsonErrorList) > 0 && len(fileList) == 0 {
-		logE(ctx.sessionID, fmt.Errorf("Error creating GeoJSON for the following files:\n\t%s\nError sending messages for the following files: \n\t%s\n", strings.Join(jsonErrorList, "\n\t"), strings.Join(messageErrorList, "\n\t")), "HandleShapeResponseNoFiles")
-		_, err := ctx.w.Write([]byte(fmt.Sprintf("No Files Could be added to the map. Error creating GeoJSON for the following files:\n\t%s\nError sending messages for the following files: \n\t%s\n", strings.Join(jsonErrorList, "\n\t"), strings.Join(messageErrorList, "\n\t"))))
-		if err != nil {
-			return SE("HandleShapeCompleteFailureResonse", err)
-		}
-		return nil
-	}
-	logI(ctx.sessionID, fmt.Sprintf("Successfully sent the following files to the map:\n\t%s\n", strings.Join(fileList, "\n\t")), "HandleShapeReponseSuccess")
-	_, err := ctx.w.Write([]byte(fmt.Sprintf("Successfully sent the following files to the map:\n\t%s\n", strings.Join(fileList, "\n\t"))))
+	_, ok := ClientMgr.clients[ctx.sessionID]
+	responseBody := ShapeResponse{}
+	responseBody.ClientOpened = ok
+	responseBody.GeoJsonErrorList = jsonErrorList
+	responseBody.MessageErrorList = messageErrorList
+	responseBody.SuccessList = fileList
+	responseMessage, err := json.Marshal(responseBody)
 	if err != nil {
-		return SE("HandleShapeSuccessResponseError", err)
+		return PoE("MarshalJsonResponse", err)
+	} else {
+		ctx.w.Write(responseMessage)
 	}
 	return nil
 }
@@ -248,22 +246,21 @@ func makeJsonFromShape(ctx ReqContext, geoJsonDir string, shpfilePath string, er
 	return outFilePath
 }
 
-
 func createFeatureService(hash string, geoJsonFilePath string, shpfilePath string) error {
-    shpFile, err := os.Open(shpfilePath)
-    if err != nil {
-        return SE("OpenShpFile", err)
-    }
-    shpBytes, err := io.ReadAll(shpFile)
-    if err != nil {
-        return SE("ReadShpFile", err)
-    }
-    hasher := sha256.New()
-    _, err = hasher.Write(shpBytes)
-    if err != nil {
-        return SE("HashShpFile", err)
-    }
-    layerHash := fmt.Sprintf("%x", hasher.Sum(nil))
+	shpFile, err := os.Open(shpfilePath)
+	if err != nil {
+		return SE("OpenShpFile", err)
+	}
+	shpBytes, err := io.ReadAll(shpFile)
+	if err != nil {
+		return SE("ReadShpFile", err)
+	}
+	hasher := sha256.New()
+	_, err = hasher.Write(shpBytes)
+	if err != nil {
+		return SE("HashShpFile", err)
+	}
+	layerHash := fmt.Sprintf("%x", hasher.Sum(nil))
 	_, inFileName := path.Split(shpfilePath)
 	gjFileName := strings.TrimSuffix(inFileName, path.Ext(inFileName)) + ".json"
 	dbFileName := strings.TrimSuffix(inFileName, path.Ext(inFileName)) + ".sqlite"
@@ -274,7 +271,7 @@ func createFeatureService(hash string, geoJsonFilePath string, shpfilePath strin
 		}
 	}
 	dbpath := OgcFeaturesDirPath(hash) + "/" + dbFileName
-    logD("LOCAL", fmt.Sprintf("Creating db file: %s\n", dbpath), "CreateFeatureService")
+	logD("LOCAL", fmt.Sprintf("Creating db file: %s\n", dbpath), "CreateFeatureService")
 	dbfile, err := os.Create(dbpath)
 	if err != nil {
 		return SE("CreateDbFile", err)
@@ -357,9 +354,9 @@ func shapeServiceList(hash string) (*[]string, error) {
 
 func processShapeAndCreateService(ctx ReqContext, hash string, geoJsonDir string, shpfilePath string, errorList *[]string, wg *sync.WaitGroup, mutex *sync.Mutex) {
 	jsonFilePath := makeJsonFromShape(ctx, geoJsonDir, shpfilePath, errorList, mutex)
-    err := createFeatureService(hash, jsonFilePath, shpfilePath)
-    if err != nil {
-        logD(ctx.sessionID, fmt.Sprintf("Error creating feature service: %v\n", err), "HandleShapeCreateFeatureService")
-    }
+	err := createFeatureService(hash, jsonFilePath, shpfilePath)
+	if err != nil {
+		logD(ctx.sessionID, fmt.Sprintf("Error creating feature service: %v\n", err), "HandleShapeCreateFeatureService")
+	}
 	wg.Done()
 }

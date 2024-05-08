@@ -61,6 +61,14 @@ func HandlePost(ctx ReqContext) error {
 		if err != nil {
 			return PoE("HandleGpkgUrl", err)
 		}
+		responseBody := ResponseMessage{}
+		responseBody.ClientOpened = ok
+		responseMessage, err := json.Marshal(responseBody)
+		if err != nil {
+			return PoE("MarshalJsonResponse", err)
+		} else {
+			ctx.w.Write(responseMessage)
+		}
 		return nil
 	default:
 		msg, err := json.Marshal(jsonBody)
@@ -74,6 +82,14 @@ func HandlePost(ctx ReqContext) error {
 			if err != nil {
 				return PoE("WriteMessage", err)
 			}
+		}
+		responseBody := ResponseMessage{}
+		responseBody.ClientOpened = ok
+		responseMessage, err := json.Marshal(responseBody)
+		if err != nil {
+			return PoE("MarshalJsonResponse", err)
+		} else {
+			ctx.w.Write(responseMessage)
 		}
 		ctx.w.WriteHeader(http.StatusOK)
 		return nil
