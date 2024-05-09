@@ -9,6 +9,7 @@ services:
       - ROOT_DIR_3D
       - TLS_CERT_LOC
       - TLS_KEY_LOC
+      - CSLT_3D_HTTPS_PORT
     image: docker.compusult.com:5000/standalone3d-server:$IMAGE_TAG
     ports:
       - "$HTTP_PORT:$HTTP_PORT"
@@ -25,11 +26,14 @@ services:
   backend:
     environment:
       - BACKEND_PORT
+      - DOMAIN_NAME
     image: docker.compusult.com:5000/standalone3d-backend:$IMAGE_TAG
     ports:
       - "$BACKEND_PORT:$BACKEND_PORT"
+      - "8081:8081"
     volumes:
       - ./logs/:/cslt/backend/logs
+      - ./profiling/:/cslt/profiles
       - docker_web:/cslt/web
 volumes: 
   docker_web:

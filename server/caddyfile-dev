@@ -15,6 +15,12 @@
 		root /srv/
 	}
 
+	route /debug/* {
+		handle {
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
+		}
+	}
+
 	route /map* {
 		handle {
 			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
