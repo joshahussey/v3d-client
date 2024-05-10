@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
 )
 
 const DownloadsDir = "/cslt/downloads"
@@ -15,6 +16,8 @@ const ServiceDir = "/cslt/services"
 const OgcFeaturesDir = ServiceDir + "/ogcfeatures"
 const GpkgDir = ServiceDir + "/gpkg"
 const KmlDir = ExposedServiceDir + "/kml"
+
+const ProfilesDir = "/cslt/profiles"
 
 func DownloadDirPath(hash string, serviceType ServiceType) string {
 	return DownloadsDir + "/" + serviceType.String() + "/" + hash
@@ -46,6 +49,14 @@ func KmlDirPath(hash string) string {
 
 func KmlServicePath(hash string, fileName string) string {
 	return KmlDirPath(hash) + "/" + fileName
+}
+
+func ProfilingDir() string {
+	return ProfilesDir
+}
+
+func NewProfileFile(name string) string {
+	return ProfilesDir + "/" + name + "_" + fmt.Sprintf("%d",time.Now().UnixMilli())
 }
 
 // You might expect there'd be a stdlib func that does this already...

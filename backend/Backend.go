@@ -280,8 +280,12 @@ func main() {
 
 	defer f.Close()
 	port := os.Getenv("BACKEND_PORT")
-	log.Printf("Port: %s", port)
+	logD("LOCAL", fmt.Sprintf("Port: %s", port), "setBackendPort")
 	initSvcDb()
+	err = os.MkdirAll(ProfilingDir(), 0777)
+	if err != nil {
+		panic("Unable to create profiling directory.")
+	}
 	http.HandleFunc("/map", HandleConnect)
 	http.HandleFunc("/add", HandleAdd)
 	http.HandleFunc("/gpkg", HandleGpkgRequest)
