@@ -13,7 +13,7 @@ export function ServiceSettingsButton(props: { layers: (Wes3dMapLayer | WesImage
             if (serviceSettingsMenuShown()) {
                 serviceSettingsMenuRef.classList.remove("settings-menu-hidden");
                 serviceSettingsMenuRef.classList.add("settings-menu");
-                serviceSettingsMenuRef.style.top = `calc(${serviceSettingsMenuButtonRef.getBoundingClientRect().top}px - 4rem)`;
+                serviceSettingsMenuRef.style.top = `${serviceSettingsMenuButtonRef.getBoundingClientRect().top}px`;
                 serviceSettingsMenuRef.style.left =
                     serviceSettingsMenuButtonRef.getBoundingClientRect().left -
                     (serviceSettingsMenuRef.getBoundingClientRect().right -

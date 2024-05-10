@@ -1354,14 +1354,6 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         return <GeoCaUI />;
     }
 
-    //Toolbar element
-    function GeoCaHeader() {
-        return <GeoCaHeaderDiv />;
-    }
-    const geoCaBorder = document.getElementById("geoCaBorder");
-    if (geoCaBorder) {
-        render(GeoCaHeader, geoCaBorder);
-    }
     const wesUI = document.getElementById("WesUserInterface");
     if (wesUI) {
         render(App, wesUI);

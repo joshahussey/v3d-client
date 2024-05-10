@@ -30,7 +30,7 @@ export function LayerSettingsButton(props: {
             if (layerSettingsMenuShown()) {
                 layerSettingsMenuRef.classList.remove("settings-menu-hidden");
                 layerSettingsMenuRef.classList.add("settings-menu");
-                layerSettingsMenuRef.style.top = `calc(${layerSettingsMenuButtonRef.getBoundingClientRect().top}px - 4rem)`;
+                layerSettingsMenuRef.style.top = `${layerSettingsMenuButtonRef.getBoundingClientRect().top}px`;
                 layerSettingsMenuRef.style.left = layerSettingsMenuButtonRef.getBoundingClientRect().left - (layerSettingsMenuRef.getBoundingClientRect().right - layerSettingsMenuRef.getBoundingClientRect().left) + "px";
                 layerSettingsMenuRef.focus();
             } else {
