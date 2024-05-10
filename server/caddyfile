@@ -6,7 +6,7 @@
         @options {
         method OPTIONS
     }
-    @proxy path /map* /add* /shape* /kml* /ogcfeatures* /ogcfeatures/* /gpkg* /tilegpkg* /view/* /views* /
+    @proxy path /map* /add* /shape* /kml* /dataprovider* /ogcfeatures* /ogcfeatures/* /gpkg* /tilegpkg* /view/* /views* /
 	log {
 		format console
 		output file {$ROOT_DIR_3D}/logs/cslt3d_https.log

@@ -157,6 +157,10 @@ const load = async function (mapState: MapState): Promise<Viewer> {
     }
     sessionStorage.setItem("sessionID", sessionID);
 
+    if (!localStorage.getItem("dataProvider")) {
+        localStorage.setItem("dataProvider", window.location.origin);
+    }
+
     const viewer = new Viewer("cesiumContainer", {
         baseLayer: baseImageryLayer,
         homeButton: false,
@@ -300,6 +304,8 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             setIsLoading(LoadingRequestCode.ERROR);
             clearTimeout(loadingRequestMap().get(parsedMessage.uuid));
             loadingRequestMap().delete(parsedMessage.uuid);
+        } else if (parsedMessage.type === "SET_DATA_PROVIDER") {
+            localStorage.setItem("dataProvider", parsedMessage.dataProviderUrl)
         } else {
             addLayerFromBackend(parsedMessage);
             clearTimeout(loadingRequestMap().get(parsedMessage.uuid));

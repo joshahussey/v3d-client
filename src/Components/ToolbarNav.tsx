@@ -110,6 +110,24 @@ export function ToolbarNav(): JSX.Element {
         </svg>
     );
 
+    const catalogIcon = (
+        <svg 
+            viewBox="0 0 32 32" 
+            version="1.0" 
+            xmlns="http://www.w3.org/2000/svg" 
+            preserveAspectRatio="xMidYMid meet"  
+            class="toolbar-button-image"
+        >
+            <g 
+                transform="translate(0.000000,32.000000) scale(0.100000,-0.100000)" 
+                fill="#212121" 
+                stroke="none"
+            >
+                <path d="M73 249 c-59 -68 -61 -72 -61 -124 0 -31 6 -59 13 -65 12 -10 151 -60 166 -60 5 0 32 29 60 65 46 56 53 71 55 115 3 60 -10 73 -30 28 -8 -18 -32 -52 -53 -76 l-38 -43 -72 22 c-56 17 -73 26 -73 41 0 10 1 18 3 18 1 0 31 -9 67 -20 36 -11 68 -20 72 -20 14 0 129 143 121 150 -7 6 -44 15 -148 36 -15 3 -36 -15 -82 -67z m120 15 c44 -10 32 -27 -15 -20 -22 4 -45 9 -50 12 -14 9 2 25 20 20 10 -3 29 -8 45 -12z m43 -179 c-26 -30 -50 -55 -54 -55 -25 0 -142 47 -142 57 0 17 14 16 90 -8 l65 -20 39 46 c21 25 41 43 44 41 3 -3 -16 -30 -42 -61z"/>
+            </g>
+        </svg>
+    );
+
     createEffect(() => {
         if (isSearchOpened()) {
             setLayersOpened(true);
@@ -229,6 +247,18 @@ export function ToolbarNav(): JSX.Element {
                     icon={loadViewIcon}
                     onClick={() => setLoadOpened(!isLoadOpened())}
                     text={t("loadViewButtonText")}
+                />
+                <ToolbarButton
+                    id="CatalogViewButton"
+                    icon={catalogIcon}
+                    onClick={() => { 
+                        window.open(
+                            localStorage.getItem("dataProvider") + "/wes/CSWSearchClient/pages/view.jsp?entryPoint=browseCatalog", 
+                            "Catalog", 
+                            "menubar=no,location=no,toolbar=no,status=no,directories=no,resizable=yes,width=1000,height=720"
+                        ); 
+                    }}
+                    text={t("openCatalogText")}
                 />
                 <ToolbarButton
                     id="LayersButton"

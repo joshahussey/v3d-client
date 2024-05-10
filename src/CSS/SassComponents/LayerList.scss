@@ -5,7 +5,7 @@
 }
 #layer-list > li {
     display: grid;
-    grid-template-columns: repeat(13, 2rem);
+    grid-template-columns: repeat(14, 2rem);
     align-items: center;
     width: -webkit-fill-available;
     border-bottom: 1px solid var(--gray);
@@ -18,6 +18,6 @@
 
 .layer-list-layer-entry {
     display: flex;
-    grid-column: 2/14;
+    grid-column: 2/15;
     align-items: center;
 }

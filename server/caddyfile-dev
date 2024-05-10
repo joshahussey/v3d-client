@@ -86,4 +86,10 @@
 			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
 		}
 	}
+
+	route /dataprovider* {
+		handle {
+			reverse_proxy {$DOMAIN_NAME}:{$BACKEND_PORT}
+		}
+	}
 }

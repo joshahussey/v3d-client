@@ -108,6 +108,30 @@ func HandleKmlRequest(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func HandleDataProviderRequest(w http.ResponseWriter, r *http.Request) {
+	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID"), uuid: uuid.New().String()}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	switch r.Method {
+	case "":
+		fallthrough // see doc for Request.Method
+	case "GET":
+		err := HandleGetDataProvider(ctx)
+		if err != nil {
+			e(ctx, err)
+			return
+		}
+	case "POST":
+		err := HandlePostDataProvider(ctx)
+		if err != nil {
+			e(ctx, err)
+			return
+		}
+	}
+}
+
 func HandleGetViewsRequest(w http.ResponseWriter, r *http.Request) {
 	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID"), uuid: uuid.New().String()}
 	err := HandleGetViews(ctx)
@@ -295,6 +319,7 @@ func main() {
 	http.HandleFunc("/ogcfeatures/", HandleFeaturesRequest)
 	http.HandleFunc("/views", HandleGetViewsRequest)
 	http.HandleFunc("/view/", HandleViewRequest)
+	http.HandleFunc("/dataprovider", HandleDataProviderRequest)
 	go requestQueue.Work()
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }
