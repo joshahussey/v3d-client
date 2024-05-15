@@ -28,14 +28,18 @@ export function LayerSettingsButton(props: {
     createEffect(() => {
         if (layerSettingsMenuShown() != undefined && layerSettingsMenuRef && layerSettingsMenuButtonRef) {
             if (layerSettingsMenuShown()) {
-                layerSettingsMenuRef.classList.remove("settings-menu-hidden");
-                layerSettingsMenuRef.classList.add("settings-menu");
+                layerSettingsMenuRef.classList.remove("layer-settings-menu-hidden");
+                layerSettingsMenuRef.classList.add("layer-settings-menu");
                 layerSettingsMenuRef.style.top = `${layerSettingsMenuButtonRef.getBoundingClientRect().top}px`;
-                layerSettingsMenuRef.style.left = layerSettingsMenuButtonRef.getBoundingClientRect().left - (layerSettingsMenuRef.getBoundingClientRect().right - layerSettingsMenuRef.getBoundingClientRect().left) + "px";
+                layerSettingsMenuRef.style.left =
+                    layerSettingsMenuButtonRef.getBoundingClientRect().left -
+                    (layerSettingsMenuRef.getBoundingClientRect().right -
+                        layerSettingsMenuRef.getBoundingClientRect().left) +
+                    "px";
                 layerSettingsMenuRef.focus();
             } else {
-                layerSettingsMenuRef.classList.remove("settings-menu");
-                layerSettingsMenuRef.classList.add("settings-menu-hidden");
+                layerSettingsMenuRef.classList.remove("layer-settings-menu");
+                layerSettingsMenuRef.classList.add("layer-settings-menu-hidden");
             }
         }
     });

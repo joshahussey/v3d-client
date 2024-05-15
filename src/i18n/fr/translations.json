@@ -86,5 +86,13 @@
   "OgcMapCouldNotGetProviderError": "Error: Could not get provider for ogc map service",
   "constantsOverlaysLabel": "FR_Overlays",
   "map3dControllerFetchDefaultMapStateError1": "FR_Failed to load Default Map State from {INPUT}",
-  "map3dControllerFetchDefaultMapStateError2": "FR_Failed to load Default Map State from {INPUT} with a status code {INPUT}"
+  "map3dControllerFetchDefaultMapStateError2": "FR_Failed to load Default Map State from {INPUT} with a status code {INPUT}",
+  "settingsMenuTitle": "FR_Settings",
+  "settingsItemLanguage": "FR_Language",
+  "settingsItemSubterrain": "FR_Allow Sub-Terrain Navigation",
+  "settingsItemSubterrainHover": "FR_Allow the camera to move below the surface of the earth.",
+  "settingsItemDataProvider": "FR_Data Provider",
+  "settingsItemDataProviderHover": "FR_Data Provider's Catalog Domain",
+  "settingsItemMapState": "FR_Map State",
+  "settingsItemMapStateHover": "FR_Map State"
 }

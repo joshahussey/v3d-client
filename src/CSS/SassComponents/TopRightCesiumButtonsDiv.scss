@@ -1,14 +1,13 @@
 .top-right-cesium-buttons-div {
-    position: absolute;
+    position: fixed;
     right: 0;
-    z-index: 1;
-    margin: 0.6rem;
+    margin: 0rem 0.4rem;
     display: inline-block;
 }
 
 .top-right-cesium-button {
     background-color: var(--white);
-    padding: 7px 12px 3px 12px
+    padding: 7px 12px 3px 12px;
 }
 .top-right-cesium-button:hover {
     background-color: var(--light-gray);

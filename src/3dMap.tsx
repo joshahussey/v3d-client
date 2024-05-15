@@ -16,7 +16,8 @@ import {
     wgsEllipsoidUID,
     standAloneLayersServiceLabel,
     standAloneLayersServiceUID,
-    standAloneLayersServiceUrl
+    standAloneLayersServiceUrl,
+    DEFAULT_ALLOWED_ZOOM_DISTANCE
 } from "./Constants";
 import { getContextSignals, LoadingRequestCode } from "./Context/UIContext";
 import CelestialBodyDataSource from "./Datasources/CelestialBodyDataSource";
@@ -58,7 +59,6 @@ import { createLiveWmsPeriodString, isLiveWms } from "./Utils/TimeParser";
 import FeaturesApiLiveDataSource from "./Datasources/FeaturesApiLiveDatasource";
 import { handleAoiEvent } from "./Utils/Aoi";
 import { GeoCaUI } from "./UI/GeoCaUI";
-import { GeoCaHeaderDiv } from "./Components/GeoCaHeaderDiv";
 import { createReconnectingWS } from "@solid-primitives/websocket";
 import { translate as t } from "./i18n/Translator";
 import {
@@ -133,7 +133,8 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         clockRange: ClockRange.CLAMPED
     });
     const clockModel = new ClockViewModel(clock);
-    Camera.DEFAULT_VIEW_RECTANGLE = Rectangle.fromDegrees(-140.99778, 41.6751050889, -52.6480987209, 83.23324);
+    const [selectedHome, setSelectedHome] = createSignal(HOME_POSITION);
+    Camera.DEFAULT_VIEW_RECTANGLE = Rectangle.fromDegrees(...selectedHome());
     Camera.DEFAULT_VIEW_FACTOR = 0;
     const initCameraViewport = localStorage.getItem("initCameraViewport");
     if (initCameraViewport) {
@@ -176,6 +177,13 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         clockViewModel: clockModel
     });
 
+    let minAllowedZoomDist = localStorage.getItem("minimumAllowedZoomDistance");
+    if (!minAllowedZoomDist) {
+        localStorage.setItem("minimumAllowedZoomDistance", DEFAULT_ALLOWED_ZOOM_DISTANCE.toString());
+        minAllowedZoomDist = DEFAULT_ALLOWED_ZOOM_DISTANCE.toString();
+    }
+    viewer.scene.screenSpaceCameraController.minimumZoomDistance = parseInt(minAllowedZoomDist);
+
     //Cesium wont let you change the text in the tooltip of the fullscreen button, so we do it manually.
     try {
         const fullscreenButton = document.getElementsByClassName("cesium-fullscreenButton");
@@ -196,7 +204,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
     viewer.scene.moon = new Moon();
     viewer.scene.sun = new Sun();
     const navOptions = {
-        defaultResetView: Rectangle.fromDegrees(-140.99778, 41.6751050889, -52.6480987209, 83.23324),
+        defaultResetView: Rectangle.fromDegrees(...selectedHome()),
         enableCompass: true,
         enableZoomControls: true,
         enableDistanceLegend: true,
@@ -237,7 +245,6 @@ const load = async function (mapState: MapState): Promise<Viewer> {
     (window as CesiumWindow).optionsMap = optionsMap;
     const [isLoading, setIsLoading] = createSignal(LoadingRequestCode.UNSET);
     const [loadingRequestMap, setLoadingRequestMap] = createSignal(new Map(), {});
-    const [selectedHome, setSelectedHome] = createSignal(HOME_POSITION);
     const [timeMap, setTimeMap] = createSignal(new Map(), { equals: false });
     (window as CesiumWindow).timeMap = timeMap;
     (window as CesiumWindow).setTimeMap = setTimeMap;
@@ -305,7 +312,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             clearTimeout(loadingRequestMap().get(parsedMessage.uuid));
             loadingRequestMap().delete(parsedMessage.uuid);
         } else if (parsedMessage.type === "SET_DATA_PROVIDER") {
-            localStorage.setItem("dataProvider", parsedMessage.dataProviderUrl)
+            localStorage.setItem("dataProvider", parsedMessage.dataProviderUrl);
         } else {
             addLayerFromBackend(parsedMessage);
             clearTimeout(loadingRequestMap().get(parsedMessage.uuid));

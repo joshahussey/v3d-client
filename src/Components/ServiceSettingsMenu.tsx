@@ -15,13 +15,13 @@ export function ServiceSettingsMenu(props: {
     const { layers, ref, onFocusOutEvent, setServiceSettingsMenuShown } = props;
 
     return (
-        <ul
-            class="settings-menu-hidden"
-            ref={ref}
-            tabIndex={1}
-            onFocusOut={onFocusOutEvent}
-        >
-            <RemoveLayerSettingsMenuItem layers={layers} onDone={() => {setServiceSettingsMenuShown(false)}}/>
+        <ul class="layer-settings-menu-hidden" ref={ref} tabIndex={1} onFocusOut={onFocusOutEvent}>
+            <RemoveLayerSettingsMenuItem
+                layers={layers}
+                onDone={() => {
+                    setServiceSettingsMenuShown(false);
+                }}
+            />
         </ul>
     );
 }

@@ -11,8 +11,8 @@ export function ServiceSettingsButton(props: { layers: (Wes3dMapLayer | WesImage
     createEffect(() => {
         if (serviceSettingsMenuShown() != undefined && serviceSettingsMenuRef && serviceSettingsMenuButtonRef) {
             if (serviceSettingsMenuShown()) {
-                serviceSettingsMenuRef.classList.remove("settings-menu-hidden");
-                serviceSettingsMenuRef.classList.add("settings-menu");
+                serviceSettingsMenuRef.classList.remove("layer-settings-menu-hidden");
+                serviceSettingsMenuRef.classList.add("layer-settings-menu");
                 serviceSettingsMenuRef.style.top = `${serviceSettingsMenuButtonRef.getBoundingClientRect().top}px`;
                 serviceSettingsMenuRef.style.left =
                     serviceSettingsMenuButtonRef.getBoundingClientRect().left -
@@ -21,8 +21,8 @@ export function ServiceSettingsButton(props: { layers: (Wes3dMapLayer | WesImage
                     "px";
                 serviceSettingsMenuRef.focus();
             } else {
-                serviceSettingsMenuRef.classList.remove("settings-menu");
-                serviceSettingsMenuRef.classList.add("settings-menu-hidden");
+                serviceSettingsMenuRef.classList.remove("layer-settings-menu");
+                serviceSettingsMenuRef.classList.add("layer-settings-menu-hidden");
             }
         }
     });

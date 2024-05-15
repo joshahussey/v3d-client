@@ -14,16 +14,13 @@ import { Wes3dMapLayer } from "../Types/types";
  * @param {() => void} props.onDone - A function to call upon completion of layer removal.
  * @returns {JSX.Element} A JSX element representing the delete layer button.
  */
-export function RemoveLayerSettingsMenuItem(props: {
-    layers: Wes3dMapLayer[];
-    onDone: () => void;
-}): JSX.Element {
+export function RemoveLayerSettingsMenuItem(props: { layers: Wes3dMapLayer[]; onDone: () => void }): JSX.Element {
     const { layers, onDone } = props;
     const { sourcesWithLegends, setSourcesWithLegends, osmBuildingsLayer, setOsmBuildingsLayer } =
         useInterfaceContext() as UIContextType;
 
     function removeLayers() {
-        onDone()
+        onDone();
         for (const layer of layers) {
             if (layer && layer instanceof WesDataSource) {
                 (window as CesiumWindow).Map3DViewer.dataSources.remove(layer);
@@ -65,7 +62,7 @@ export function RemoveLayerSettingsMenuItem(props: {
         <li onClick={removeLayers}>
             <Show when={true}>
                 <svg
-                    class="settings-menu-icon"
+                    class="layer-settings-menu-icon"
                     xmlns="http://www.w3.org/2000/svg"
                     preserveAspectRatio="xMidYMid meet"
                     viewBox="0 0 24 24"
@@ -74,7 +71,7 @@ export function RemoveLayerSettingsMenuItem(props: {
                         <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
                     </g>
                 </svg>
-                <span class="settings-menu-text">
+                <span class="layer-settings-menu-text">
                     {layers.length > 1 ? t("serviceSettingsMenuRemove") : t("layerSettingsMenuRemove")}
                 </span>
             </Show>

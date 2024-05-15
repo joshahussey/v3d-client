@@ -7,6 +7,7 @@ import { Legend } from "../Components/Legend";
 import { CesiumWindow } from "../Types/types";
 import { translate as t } from "../i18n/Translator";
 import { LoadingIndicator } from "../Components/LoadingIndicator";
+import { SettingsButton } from "../Components/SettingsButton";
 
 /**
  * Represents the root of the UI elements.
@@ -29,30 +30,35 @@ export function GeoCaUI(): JSX.Element {
                         <div style={{ display: "grid" }}>
                             <div id="cslt-toolbar" class="cslt-toolbar-menu">
                                 <ToolbarNav />
+                                <div class="top-right-cesium-buttons-div">
+                                    <button
+                                        id="Home"
+                                        type="button"
+                                        class="cesium-button top-right-cesium-button"
+                                        style={buttonStyle}
+                                        onClick={() => {
+                                            viewer.camera.flyHome(0.5);
+                                        }}
+                                    >
+                                        <img
+                                            src="./Icons/home_black.png"
+                                            title={t("geoCaHomeButtonTitle")}
+                                            style={buttonImageStyle}
+                                        />
+                                    </button>
+                                </div>
                             </div>
                             <div>
                                 <ExpandedMenu />
                             </div>
                         </div>
-                        <LoadingIndicator/>
+                        <LoadingIndicator />
                         <Slider />
+                        <SettingsButton />
                         <Legend />
                     </InterfaceProvider>
                 </ToolbarStateContext>
             </header>
-            <div class="top-right-cesium-buttons-div">
-                <button
-                    id="Home"
-                    type="button"
-                    class="cesium-button top-right-cesium-button"
-                    style={buttonStyle}
-                    onClick={() => {
-                        viewer.camera.flyHome(0.5);
-                    }}
-                >
-                    <img src="./Icons/home_black.png" title={t("geoCaHomeButtonTitle")} style={buttonImageStyle} />
-                </button>
-            </div>
         </>
     );
 }
