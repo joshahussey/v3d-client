@@ -256,6 +256,7 @@ export default class AoiDataSource extends WesDataSource {
                 name: "AOI",
                 polygon: {
                     heightReference: HeightReference.CLAMP_TO_GROUND,
+                    height: 1, // Required to be able to use heightReference
                     hierarchy,
                     fill: false,
                     outline: true,

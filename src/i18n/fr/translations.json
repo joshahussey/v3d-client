@@ -69,7 +69,6 @@
   "wesDatasourceClusteringSetError1": "FR_Value must be defined.",
   "wesDatasourceFetchJsonError1": "FR_Url is not defined",
   "geoCaHomeButtonTitle": "FR_Zoom To Home",
-  "aoiHandleAoiEventError1": "FR_Received AOI update event without AOI key.",
   "timeParserCreateLiveWmsPeriodStringError1": "FR_No document loaded",
   "timeParserCreateLiveWmsPeriodStringError2": "FR_No layer found",
   "utilsHexToRgbAError1": "FR_Bad Hex",

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -237,6 +238,42 @@ func HandleAdd(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func HandleAoiRequest(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	switch r.Method {
+		case "POST":
+			break;
+		case "OPTIONS":
+			w.WriteHeader(200);
+			return;
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+	}
+	ctx := ReqContext{w: w, r: r, sessionID: r.URL.Query().Get("sessionID"), uuid: uuid.New().String()}
+	aoiJson, err := io.ReadAll(r.Body)
+	if err != nil {
+		logE(ctx.sessionID, err, "HandleAoiRequestReadReqBody")
+		w.WriteHeader(500)
+		return
+	}
+	message := []byte(fmt.Sprintf(`{"type":"AOI","aoi":%s}`, aoiJson))
+
+	client, clientFound := ClientMgr.GetClient(ctx.sessionID)
+	if clientFound {
+		err := client.conn.WriteMessage(1, message)
+		if err != nil {
+			logE(ctx.sessionID, err, "HandleAoiRequestWriteJson")
+			w.WriteHeader(500)
+			return
+		}
+	} else {
+		requestQueue.Enqueue(ctx.sessionID, message)
+	}
+}
+
 // Listen listens for incoming messages from the client.
 func (c *Client) Listen() {
 	defer func() {
@@ -312,6 +349,7 @@ func main() {
 	}
 	http.HandleFunc("/map", HandleConnect)
 	http.HandleFunc("/add", HandleAdd)
+	http.HandleFunc("/aoi", HandleAoiRequest)
 	http.HandleFunc("/gpkg", HandleGpkgRequest)
 	http.HandleFunc("/kml", HandleKmlRequest)
 	http.HandleFunc("/shape", HandleShapeRequest)

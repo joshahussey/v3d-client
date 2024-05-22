@@ -10,7 +10,6 @@ import {
     BLUE_TILE_STYLE,
     HOME_POSITION,
     TRANSPARENT_TILE_STYLE,
-    WES_3D_EVENTS,
     cesiumBuiltInUID,
     googlePhotorealisticUID,
     wgsEllipsoidUID,
@@ -57,7 +56,6 @@ import { getMapState, onLoad, setMapState } from "./Utils/Controller";
 import { createStore } from "solid-js/store";
 import { createLiveWmsPeriodString, isLiveWms } from "./Utils/TimeParser";
 import FeaturesApiLiveDataSource from "./Datasources/FeaturesApiLiveDatasource";
-import { handleAoiEvent } from "./Utils/Aoi";
 import { GeoCaUI } from "./UI/GeoCaUI";
 import { createReconnectingWS } from "@solid-primitives/websocket";
 import { translate as t } from "./i18n/Translator";
@@ -104,6 +102,7 @@ import { zoomTo } from "./Utils/ZoomTo";
 import { styleDefaultClusters, styleGeoJsonBillboard } from "./Utils/ClusterStyling";
 import { addLayerFromBackend } from "./Utils/AddLayerFromBackend";
 import GpkgTilingScheme from "./Utils/GpkgTilingScheme";
+import { updateAoi } from "./Utils/Aoi";
 
 type WesPrimitiveCollection = PrimitiveCollection & {
     _primitives: Wes3DTileSet[];
@@ -256,18 +255,6 @@ const load = async function (mapState: MapState): Promise<Viewer> {
     (window as CesiumWindow).sourcesWithLegends = sourcesWithLegends;
     (window as CesiumWindow).setSourcesWithLegends = setSourcesWithLegends;
 
-    // @tag: WES_SPECIFIC
-    // Disable 'unused variable' warning, because WES calls this and it needs the
-    // function to have 3 variable inputs even if we dont need it.
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (window as CesiumWindow).fireBroadcastEvent = (event: string, eventId: string, _hasPayload: boolean) => {
-        if (!WES_3D_EVENTS.has(eventId)) return;
-
-        if (eventId === "net.compusult.wes.client.cesium.Wes3dAoiEvent") {
-            handleAoiEvent(event);
-        }
-    };
-
     //Scope Listeners
     const removeSignal = new AbortController();
 
@@ -298,26 +285,35 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         const message = e.data;
         if (!message) return;
         const parsedMessage = await JSON.parse(message);
-        if (parsedMessage.type === "LOADING_NOTIFIER") {
-            setIsLoading(LoadingRequestCode.STARTED);
-            loadingRequestMap().set(
-                parsedMessage.uuid,
-                setTimeout(() => {
-                    setIsLoading(LoadingRequestCode.ERROR);
-                    loadingRequestMap().delete(parsedMessage.uuid);
-                }, 30000)
-            );
-        } else if (parsedMessage.type === "LOADING_FAILED_NOTIFIER") {
-            setIsLoading(LoadingRequestCode.ERROR);
-            clearTimeout(loadingRequestMap().get(parsedMessage.uuid));
-            loadingRequestMap().delete(parsedMessage.uuid);
-        } else if (parsedMessage.type === "SET_DATA_PROVIDER") {
-            localStorage.setItem("dataProvider", parsedMessage.dataProviderUrl);
-        } else {
-            addLayerFromBackend(parsedMessage);
-            clearTimeout(loadingRequestMap().get(parsedMessage.uuid));
-            loadingRequestMap().delete(parsedMessage.uuid);
-            setIsLoading(LoadingRequestCode.FINISHED);
+        switch (parsedMessage.type) {
+            case "AOI":
+                updateAoi(parsedMessage.aoi);
+                break;
+            case "LOADING_NOTIFIER":
+                setIsLoading(LoadingRequestCode.STARTED);
+                loadingRequestMap().set(
+                    parsedMessage.uuid,
+                    setTimeout(() => {
+                        setIsLoading(LoadingRequestCode.ERROR);
+                        loadingRequestMap().delete(parsedMessage.uuid);
+                    }, 30000)
+                );
+                break;
+            case "LOADING_FAILED_NOTIFIER":
+                setIsLoading(LoadingRequestCode.ERROR);
+                setIsLoading(LoadingRequestCode.ERROR);
+                clearTimeout(loadingRequestMap().get(parsedMessage.uuid));
+                loadingRequestMap().delete(parsedMessage.uuid);
+                break;
+            case "SET_DATA_PROVIDER":
+                localStorage.setItem("dataProvider", parsedMessage.dataProviderUrl);
+                break;
+            default:
+                addLayerFromBackend(parsedMessage);
+                clearTimeout(loadingRequestMap().get(parsedMessage.uuid));
+                loadingRequestMap().delete(parsedMessage.uuid);
+                setIsLoading(LoadingRequestCode.FINISHED);
+                break;
         }
     });
 

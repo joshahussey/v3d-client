@@ -1,20 +1,9 @@
-import { CesiumWindow, WesDatasources } from "../Types/types";
+import { CesiumWindow, GeoJsonAoi, WesDatasources } from "../Types/types";
 import AoiDataSource from "../Datasources/AoiDataSource";
 import { standAloneLayersServiceLabel, standAloneLayersServiceUID, standAloneLayersServiceUrl } from "../Constants";
-import { translate as t } from "../i18n/Translator";
 
-export async function handleAoiEvent(event: string) {
-    const eventContent = decodeURIComponent(decodeURIComponent(event));
-    const params = new URLSearchParams(eventContent);
-
-    const aoisContent = params.get("AOIS");
-    if (!aoisContent) {
-        console.error(t("aoiHandleAoiEventError1"));
-        return;
-    }
-    const aoisArr = JSON.parse(aoisContent);
-
-    const geoJson = aoisArr && aoisArr.length > 0 ? aoisArr[0] : undefined;
+export async function updateAoi(aoiJson: GeoJsonAoi[]) {
+    const geoJson = aoiJson && aoiJson.length > 0 ? aoiJson[0] : undefined;
 
     const viewer = (window as CesiumWindow).Map3DViewer;
     const datasources = viewer.dataSources as WesDatasources;
@@ -28,7 +17,7 @@ export async function handleAoiEvent(event: string) {
                 serviceId: standAloneLayersServiceUID,
                 serviceTitle: standAloneLayersServiceLabel,
                 serviceUrl: standAloneLayersServiceUrl
-            }
+            };
             aoiDatasource = new AoiDataSource(viewer, geoJson, serviceInfo);
             viewer.dataSources.add(aoiDatasource);
             aoiDatasource.initialize();
@@ -39,6 +28,6 @@ export async function handleAoiEvent(event: string) {
         }
     } else if (uncastAoiDatasource) {
         viewer.dataSources.remove(uncastAoiDatasource);
-        uncastAoiDatasource = null;
+        uncastAoiDatasource = undefined;
     }
 }

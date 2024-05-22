@@ -69,7 +69,6 @@
   "wesDatasourceClusteringSetError1": "Value must be defined.",
   "wesDatasourceFetchJsonError1": "Url is not defined",
   "geoCaHomeButtonTitle": "Zoom To Home",
-  "aoiHandleAoiEventError1": "Received AOI update event without AOI key.",
   "timeParserCreateLiveWmsPeriodStringError1": "No document loaded",
   "timeParserCreateLiveWmsPeriodStringError2": "No layer found",
   "utilsHexToRgbAError1": "Bad Hex",
