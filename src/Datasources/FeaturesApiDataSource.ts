@@ -203,16 +203,23 @@ export default class FeaturesApiDataSource extends WesDataSource {
         const collectionInformation = await this.fetchJson(this._url, {
             f: "json"
         });
+        if (collectionInformation == null) {
+            return;
+        }
         this._collectionInformation.title = collectionInformation.title;
-        this._collectionInformation.clusterColor = collectionInformation.preview.groupColor
-            ? collectionInformation.preview.groupColor
-            : this._collectionInformation.clusterColor;
-        this._collectionInformation.propertyKey = Object.keys(collectionInformation.preview.properties).find(
-            key => collectionInformation.preview.properties[key] === "tooltip"
-        ) as string;
+        if (collectionInformation.preview != null) {
+            this._collectionInformation.clusterColor = collectionInformation.preview.groupColor
+                ? collectionInformation.preview.groupColor
+                : this._collectionInformation.clusterColor;
+            this._collectionInformation.propertyKey = Object.keys(collectionInformation.preview.properties).find(
+                key => collectionInformation.preview.properties[key] === "tooltip"
+            ) as string;
+        }
+
         this._collectionInformation.defaultStyle = collectionInformation.defaultStyle
             ? collectionInformation.defaultStyle
             : this._collectionInformation.defaultStyle;
+
         this._collectionInformation.isLive = collectionInformation.live ? true : false;
         this._update = this._collectionInformation.isLive;
     }
@@ -234,7 +241,14 @@ export default class FeaturesApiDataSource extends WesDataSource {
             });
             if (url !== "") break;
         }
-        const tdd = await this.fetchJson(url.split("?")[0], { f: "3dd" });
+        let tdd = null;
+        try {
+            tdd = await this.fetchJson(url.split("?")[0], { f: "3dd" });
+        } catch (err) {
+            styleDefaultClusters(this, this._viewer);
+            styleGeoJsonBillboard(this, this._viewer);
+            return null;
+        }
         this._userStylesArray = [];
         let count = 0;
         tdd.StyledLayerDescriptor.NamedLayer.UserStyle.forEach((UserStyle: UserStyle, index: number) => {
@@ -975,7 +989,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
         const matchedStyles = feature.properties?.matchedStyles?.getValue();
         const matchedRules = matchedStyles ? matchedStyles[this._userStyle] : undefined;
         this.addFeatureInfo(feature, rawFeature, location, matchedStyles);
-        if (!this._userStylesCount || !matchedRules) {
+        if (!this._userStylesCount || !matchedRules.length) {
             this.fallbackStyles(feature, location);
             return;
         }
@@ -1016,7 +1030,12 @@ export default class FeaturesApiDataSource extends WesDataSource {
         location;
     }
 
-    addFeatureInfo(feature: Entity, rawFeature: OGCFeature, location: Cartesian3 | null = null, matchedStyles: Rule[][]) {
+    addFeatureInfo(
+        feature: Entity,
+        rawFeature: OGCFeature,
+        location: Cartesian3 | null = null,
+        matchedStyles: Rule[][]
+    ) {
         if (rawFeature.properties) {
             feature.properties = new PropertyBag();
             for (const key in rawFeature.properties) {
@@ -1025,7 +1044,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
                 }
             }
             feature.properties.addProperty("json", rawFeature);
-            if (matchedStyles.length && !feature.properties.hasProperty("matchedStyles")) {
+            if (matchedStyles?.length && !feature.properties.hasProperty("matchedStyles")) {
                 feature.properties.addProperty("matchedStyles", matchedStyles);
             }
             if (location) {
@@ -1178,11 +1197,13 @@ export default class FeaturesApiDataSource extends WesDataSource {
         if (pointSymbolizer.Model.Scale != null) {
             const styleScale = pointSymbolizer.Model.Scale;
             let scale;
-            if (typeof styleScale === 'object' && Object.prototype.hasOwnProperty.call(styleScale, "PropertyName")) {
+            if (typeof styleScale === "object" && Object.prototype.hasOwnProperty.call(styleScale, "PropertyName")) {
                 if (feature.properties != null) {
-                    scale = parseInt(feature.properties[(styleScale as { PropertyName: string }).PropertyName].getValue());
+                    scale = parseInt(
+                        feature.properties[(styleScale as { PropertyName: string }).PropertyName].getValue()
+                    );
                 }
-            } else if (typeof styleScale === 'number') {
+            } else if (typeof styleScale === "number") {
                 scale = styleScale;
             }
             if (scale != undefined) {
