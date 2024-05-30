@@ -15,7 +15,6 @@ COPY static/ /cslt/static/
 
 RUN [ "npm", "install" ]
 RUN [ "npm", "run", "build-client" ]
-
 RUN [ "rm", "-rf", "config" ]
 RUN [ "rm", "-rf", "node_modules" ]
 RUN [ "rm", "-rf", "package.json" ]
