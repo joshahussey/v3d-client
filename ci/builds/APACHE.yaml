@@ -3,9 +3,9 @@ name: standalone3d
 services:
   frontend:
     build:
-      context: ../..
+      context: .
       dockerfile: frontend-Dockerfile
   backend:
     build:
-      context: ../../backend
+      context: ./backend
       dockerfile: Dockerfile
