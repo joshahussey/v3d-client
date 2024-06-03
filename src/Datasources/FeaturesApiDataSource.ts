@@ -761,6 +761,9 @@ export default class FeaturesApiDataSource extends WesDataSource {
                     }
                 }
                 feature.model = model;
+                if (feature.model.uri == null) {
+                    console.warn("Model added with invalid uri.");
+                }
             }
             const billboardMatches = pointMatches.filter(rule => rule.PointSymbolizer?.Billboard != null);
             const labelMatches = pointMatches.filter(rule => rule.PointSymbolizer?.Label != null);
