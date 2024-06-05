@@ -111,6 +111,7 @@ func (e *RequestQueueObject) String() string {
 
 func (reqQueue *RequestQueue) Work() {
 	for {
+		time.Sleep(time.Duration(10 * float64(time.Millisecond)))
 		for reqSessionQueueIndex, reqSessionQueue := range reqQueue.requestSessionQueue {
 			client, clientFound := ClientMgr.GetClient(reqSessionQueue.sessionID)
 			for _, reqQueueObject := range reqSessionQueue.requestObjQueue {
