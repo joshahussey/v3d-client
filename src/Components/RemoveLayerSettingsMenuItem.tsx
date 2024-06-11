@@ -7,6 +7,7 @@ import { JSX, Show } from "solid-js";
 import CelestialBodyDataSource from "../Datasources/CelestialBodyDataSource";
 import { translate as t } from "../i18n/Translator";
 import { Wes3dMapLayer } from "../Types/types";
+import FeaturesApiDataSource from "../Datasources/FeaturesApiDataSource";
 
 /**
  * Represents a component for a button to delete a layer from the map.
@@ -27,6 +28,9 @@ export function RemoveLayerSettingsMenuItem(props: { layers: Wes3dMapLayer[]; on
                 setSourcesWithLegends(sourcesWithLegends().filter(source => source.uid !== layer.uid));
                 if (layer && layer instanceof CelestialBodyDataSource) {
                     layer.setServiceRunning(false);
+                }
+                if (layer && layer instanceof FeaturesApiDataSource) {
+                    (window as CesiumWindow).Map3DViewer.scene.camera.changed.removeEventListener(layer.reCluster);
                 }
             }
             if (layer && layer instanceof ImageryLayer) {

@@ -57,14 +57,18 @@ export default class FastFeatureClusters {
                 Cartesian3.fromDegrees(ogcFeature.geometry.coordinates[0], ogcFeature.geometry.coordinates[1], height)
             );
             ogcFeature.screenSpaceCoordinate = screenSpaceCoordinate;
-            this._kdbush.add(screenSpaceCoordinate.x, screenSpaceCoordinate.y);
+            if (screenSpaceCoordinate) {
+                this._kdbush.add(screenSpaceCoordinate.x, screenSpaceCoordinate.y);
+            } else {
+                this._kdbush.numItems = this._kdbush.numItems - 1;
+            }
         });
         this._kdbush.finish();
     }
 
     createClusters() {
         this._rawFeaturesArray.forEach((ogcFeature: OGCFeature) => {
-            if (ogcFeature.isClustered === true) return;
+            if (ogcFeature.isClustered === true || !ogcFeature.screenSpaceCoordinate) return;
             const boundingBox = this.getBoundingBox(ogcFeature);
             const neighbours = this._kdbush.range(
                 boundingBox.minX,

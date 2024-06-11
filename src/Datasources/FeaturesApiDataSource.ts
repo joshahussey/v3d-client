@@ -100,6 +100,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
     _geometryBounds: ImageryBounds;
     isHighlighted: boolean;
     depthDistCond: Property;
+    lastRawFeaturesArray: OGCFeature[] | undefined;
 
     constructor(
         description: string,
@@ -186,6 +187,36 @@ export default class FeaturesApiDataSource extends WesDataSource {
         });
     }
 
+    reCluster = () => {
+        this._renderedClusterSet.forEach(cluster => {
+            this._entityCollection.remove(cluster);
+        });
+        this.lastRawFeaturesArray?.forEach((ogcFeature: OGCFeature) => {
+            ogcFeature.isClustered = false;
+        });
+        if (
+            this.lastRawFeaturesArray &&
+            this._newModelClustering &&
+            (this._viewer.scene.camera.positionCartographic.height > CLUSTER_HEIGHT_CONSTANT ||
+                this.lastRawFeaturesArray.length > 2000)
+        ) {
+            this._fastFeatureClusters = new FastFeatureClusters(this._viewer, this.lastRawFeaturesArray);
+            this._entityCollection.suspendEvents();
+            const clusterSet = this._fastFeatureClusters.clusters();
+            clusterSet.forEach(ogcFeature => {
+                const location = this.getLocation(ogcFeature);
+                const cluster = this.createFastClusteredClusterEntity(location as Cartesian3);
+                this._renderedClusterSet.add(cluster);
+                this.styleFastCluster(cluster, ogcFeature);
+                this._entityCollection.add(cluster);
+            });
+            this._entityCollection.resumeEvents();
+            this._isLoading = false;
+            this._loading.raiseEvent([this, false]);
+            return;
+        }
+    };
+
     async loadService() {
         await this.fetchCollectionInformation();
         await this.fetchStyles();
@@ -196,6 +227,8 @@ export default class FeaturesApiDataSource extends WesDataSource {
     enableClustering() {
         if (this._collectionInformation.clusterColor !== "Unknown") {
             this._newModelClustering = true;
+            this._viewer.camera.percentageChanged = 0.5;
+            this._viewer.camera.changed.addEventListener(this.reCluster);
         }
     }
 
@@ -360,6 +393,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
                 });
             }
         }
+        this.lastRawFeaturesArray = rawFeaturesArray;
         if (rawFeaturesArray.length === 0) {
             return rawFeaturesArray;
         }

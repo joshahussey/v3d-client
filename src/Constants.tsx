@@ -32,7 +32,7 @@ const defaultConstantsJson = {
     wgsEllipsoidUID: "0f9f94c0-93ab-4aa1-957d-74fac18ad526",
     CLUSTER_WIDTH: 35,
     CLUSTER_HEIGHT: 35,
-    CLUSTER_HEIGHT_CONSTANT: 150000,
+    CLUSTER_HEIGHT_CONSTANT: 50000,
     ORANGE_PROPERTY: [255, 165, 0, 1],
     BLUE_PROPERTY: [0, 0, 255, 1]
 };

@@ -103,6 +103,7 @@ import { styleDefaultClusters, styleGeoJsonBillboard } from "./Utils/ClusterStyl
 import { addLayerFromBackend } from "./Utils/AddLayerFromBackend";
 import GpkgTilingScheme from "./Utils/GpkgTilingScheme";
 import { updateAoi } from "./Utils/Aoi";
+import { validateBoundingBox } from "./Utils/Validation";
 
 type WesPrimitiveCollection = PrimitiveCollection & {
     _primitives: Wes3DTileSet[];
@@ -880,6 +881,12 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                 option.bounds.maxY
             );
         }
+        if (bounds) {
+            const isValid = validateBoundingBox(bounds);
+            if (!isValid) {
+                bounds = undefined;
+            }
+        }
         if (option.type === "WMTS") {
             const wmtsOption = option as csltWMTSOption;
             const resource = new Resource({ url: wmtsOption.url });
@@ -1167,7 +1174,6 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                     dataSourceOption.serviceInfo
                 );
                 break;
-
             case "celestial":
                 if (!dataSourceOption.serviceInfo) {
                     serviceInfo = {
