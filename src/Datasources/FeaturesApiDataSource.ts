@@ -188,6 +188,9 @@ export default class FeaturesApiDataSource extends WesDataSource {
     }
 
     reCluster = () => {
+        if (!this._show) {
+            return;
+        }
         this._renderedClusterSet.forEach(cluster => {
             this._entityCollection.remove(cluster);
         });
@@ -211,9 +214,6 @@ export default class FeaturesApiDataSource extends WesDataSource {
                 this._entityCollection.add(cluster);
             });
             this._entityCollection.resumeEvents();
-            this._isLoading = false;
-            this._loading.raiseEvent([this, false]);
-            return;
         }
     };
 
