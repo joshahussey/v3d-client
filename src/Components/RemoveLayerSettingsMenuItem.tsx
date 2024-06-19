@@ -32,6 +32,7 @@ export function RemoveLayerSettingsMenuItem(props: { layers: Wes3dMapLayer[]; on
                 if (layer && layer instanceof FeaturesApiDataSource) {
                     (window as CesiumWindow).Map3DViewer.scene.camera.changed.removeEventListener(layer.reCluster);
                 }
+                layer.stop();
             }
             if (layer && layer instanceof ImageryLayer) {
                 (window as CesiumWindow).Map3DViewer.imageryLayers.remove(layer);
