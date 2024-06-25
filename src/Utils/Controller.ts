@@ -127,6 +127,7 @@ export function addArcGisWMS(addArcGISWMSObject: addArcGisWMSObject[]) {
             uid: arcGisWmsObject.uid,
             type: "ArcGis",
             name: arcGisWmsObject.title,
+            id: arcGisWmsObject.id,
             description: arcGisWmsObject.abstract ? arcGisWmsObject.abstract : arcGisWmsObject.title,
             url: arcGisWmsObject.url,
             serviceInfo: arcGisWmsObject.serviceInfo,

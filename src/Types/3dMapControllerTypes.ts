@@ -52,6 +52,7 @@ export type addArcGisWMSObject = {
     uid: string;
     url: string;
     title: string;
+    id: string;
     abstract: string;
     credit: string;
     wgs84BoundingBox: WGS84BoundingBox;

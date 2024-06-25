@@ -214,6 +214,7 @@ export type csltArcGISWMSOption = {
     uid: string;
     type: string;
     name: string;
+    id: string;
     description: string;
     url: string;
     serviceInfo: ServiceInfo;

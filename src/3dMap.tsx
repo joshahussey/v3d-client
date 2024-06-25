@@ -911,7 +911,8 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             return await ArcGisMapServerImageryProvider.fromUrl(arcgisOption.url, {
                 ellipsoid: Ellipsoid.WGS84,
                 credit: arcgisOption.credit,
-                rectangle: bounds
+                rectangle: bounds,
+                layers: arcgisOption.id
             });
         }
         if (option.type === "WMS") {

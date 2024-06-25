@@ -80,6 +80,7 @@ export async function addLayerFromBackend(parsedMessage: { type: string; args: [
                     uid: arg.uid,
                     url: arg.url,
                     title: arg.title,
+                    id: arg.id,
                     abstract: arg.abstract,
                     credit: arg.credit,
                     wgs84BoundingBox: arg.wgs84BoundingBox,
