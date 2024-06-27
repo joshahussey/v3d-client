@@ -34,7 +34,8 @@ const defaultConstantsJson = {
     CLUSTER_HEIGHT: 35,
     CLUSTER_HEIGHT_CONSTANT: 50000,
     ORANGE_PROPERTY: [255, 165, 0, 1],
-    BLUE_PROPERTY: [0, 0, 255, 1]
+    BLUE_PROPERTY: [0, 0, 255, 1],
+    OGC_MAPS_TILE_SIZE: 2000
 };
 
 let constants: typeof defaultConstantsJson | undefined;
@@ -132,6 +133,9 @@ export const BLUE_PROPERTY = new ConstantProperty(constants.BLUE_PROPERTY);
 export const VERTICAL_ORIGIN_BOTTOM = new ConstantProperty(VerticalOrigin.BOTTOM);
 export const HEIGHT_REFERENCE_CLAMP_TO_GROUND = new ConstantProperty(HeightReference.CLAMP_TO_GROUND);
 export const HEIGHT_REFERENCE_RELATIVE_TO_GROUND = new ConstantProperty(HeightReference.RELATIVE_TO_GROUND);
+
+// Tile size used for OGC Maps
+export const OGC_MAPS_TILE_SIZE = constants.OGC_MAPS_TILE_SIZE;
 
 function createConstants() {
     const constantsString = localStorage.getItem("constants");

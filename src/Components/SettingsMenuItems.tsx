@@ -20,6 +20,7 @@ import {
     googleHybridUID,
     googlePhotorealisticUID,
     HOME_POSITION,
+    OGC_MAPS_TILE_SIZE,
     osmBuildingsUID,
     osmUID,
     standAloneLayersServiceUID,
@@ -391,6 +392,16 @@ export function ConstantsMenuItems() {
             hoverText="CLUSTER_HEIGHT_CONSTANT"
             input={makeTextbox(CLUSTER_HEIGHT_CONSTANT.toString(), e =>
                 updateLocalStorageConstants("CLUSTER_HEIGHT_CONSTANT", e)
+            )}
+        />
+    );
+
+    constantsMenuOptions.push(
+        <SettingsMenuItem
+            title="OGC_MAPS_TILE_SIZE"
+            hoverText="OGC_MAPS_TILE_SIZE"
+            input={makeTextbox(OGC_MAPS_TILE_SIZE.toString(), e =>
+                updateLocalStorageConstants("OGC_MAPS_TILE_SIZE", e)
             )}
         />
     );

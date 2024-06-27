@@ -10,7 +10,7 @@ import {
 import { ServiceInfo, ImageryBounds } from "../Types/types";
 import WesDataSource from "./WesDataSource";
 import { translate as t } from "../i18n/Translator";
-
+import { OGC_MAPS_TILE_SIZE } from "../Constants";
 export default class OgcMapsDatasource extends WesDataSource {
     provider?: ImageryProvider;
     _bounds: ImageryBounds;
@@ -63,10 +63,10 @@ export default class OgcMapsDatasource extends WesDataSource {
         const provider = new UrlTemplateImageryProvider({
             url: resource,
             minimumLevel: 1,
-            maximumLevel: 20,
+            maximumLevel: 30,
             tilingScheme: new GeographicTilingScheme({ ellipsoid: Ellipsoid.WGS84 }),
-            tileWidth: 1500,
-            tileHeight: 1500,
+            tileWidth: OGC_MAPS_TILE_SIZE,
+            tileHeight: OGC_MAPS_TILE_SIZE,
             rectangle: extents
         });
         if (provider != undefined) {
