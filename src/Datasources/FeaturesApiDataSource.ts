@@ -62,7 +62,8 @@ import {
     TRUE_PROPERTY,
     VERTICAL_ORIGIN_BOTTOM,
     ZERO_PROPERTY,
-    BLUE_PROPERTY
+    BLUE_PROPERTY,
+    FEATURES_KEYFRAME_INTERVAL
 } from "../Constants";
 import { styleDefaultClusters, styleGeoJsonBillboard } from "../Utils/ClusterStyling";
 
@@ -89,6 +90,9 @@ export default class FeaturesApiDataSource extends WesDataSource {
     _isHighlighted: boolean;
     _newModelClustering: boolean;
     _webgl: WebGLRenderingContext | null;
+    _frame: number;
+    _lastTimestamp: Date | null;
+    _features: OGCFeature[];
     _featureLocationPointGraphics: PointGraphics;
     _renderedFeatureIdSet: Set<string>;
     _renderedClusterSet: Set<Entity>;
@@ -122,6 +126,9 @@ export default class FeaturesApiDataSource extends WesDataSource {
         this._isHighlighted = false;
         this.isHighlighted = this._isHighlighted;
         this._webgl = this._viewer.canvas.getContext("webgl2");
+        this._frame = 0;
+        this._lastTimestamp = null;
+        this._features = [];
         this.clustering.enabled = false;
         this._newModelClustering = false;
         this._featureLocationPointGraphics = new PointGraphics({
@@ -148,6 +155,9 @@ export default class FeaturesApiDataSource extends WesDataSource {
         this._canvasCache = {};
         this.depthDistCond = new ConstantProperty(this._viewer.camera.positionCartographic.height + 6178137);
         this.initialize(10000);
+        this._viewer.camera.changed.addEventListener(() => {
+            this._frame = FEATURES_KEYFRAME_INTERVAL;
+        });
 
         Object.defineProperties(this, {
             featureType: {
@@ -303,16 +313,16 @@ export default class FeaturesApiDataSource extends WesDataSource {
     async firstLoad() {
         this._isLoading = true;
         this._loading.raiseEvent([this, true]);
-        const rawFeaturesArray = await this.getFeaturesArray(this._bbox);
-        if (!rawFeaturesArray) {
+        await this.getFeaturesArray(this._bbox, true);
+        if (!this._features) {
             return;
         }
         if (
             this._newModelClustering &&
             (this._viewer.scene.camera.positionCartographic.height > CLUSTER_HEIGHT_CONSTANT ||
-                rawFeaturesArray.length > 2000)
+                this._features.length > 2000)
         ) {
-            this._fastFeatureClusters = new FastFeatureClusters(this._viewer, rawFeaturesArray);
+            this._fastFeatureClusters = new FastFeatureClusters(this._viewer, this._features);
             this._renderedFeatureIdSet = this._fastFeatureClusters.renderedFeatures();
             this._entityCollection.suspendEvents();
             this.fastClusterRenderLoop();
@@ -323,7 +333,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
             return;
         }
         this._entityCollection.suspendEvents();
-        this.renderLoop(rawFeaturesArray);
+        this.renderLoop(this._features);
         this._entityCollection.resumeEvents();
         this._isLoading = false;
         this._loading.raiseEvent([this, false]);
@@ -334,7 +344,8 @@ export default class FeaturesApiDataSource extends WesDataSource {
         if (!this._isLoaded) {
             return;
         }
-        const rawFeaturesArray = await this.getFeaturesArray(this._bbox, id);
+        await this.getFeaturesArray(this._bbox, false, id);
+        const rawFeaturesArray = this._features;
         if (rawFeaturesArray == null || rawFeaturesArray.length === 0) {
             return;
         }
@@ -351,16 +362,13 @@ export default class FeaturesApiDataSource extends WesDataSource {
             this._loading.raiseEvent([this, false]);
             return;
         }
-        this._entityCollection.suspendEvents();
-        this.removeFeatures(rawFeaturesArray);
-        this._entityCollection.resumeEvents();
         this._isLoading = false;
         this._loading.raiseEvent([this, false]);
         this.updateLoop(rawFeaturesArray);
         return;
     }
 
-    async getFeaturesArray(bboxTotal: BBox, id?: number | null) {
+    async getFeaturesArray(bboxTotal: BBox, keyFrame: boolean, id?: number | null) {
         bboxTotal = this.setBoundingBox(bboxTotal);
         //if(bboxTotal[0] === -180 && bboxTotal[1]===-90 && bboxTotal[2]===180 && bboxTotal[3]===90){
         //    bboxTotal = [180,90,-180,-90]
@@ -382,22 +390,53 @@ export default class FeaturesApiDataSource extends WesDataSource {
             if (id != null && this.isCancelled(id)) {
                 return;
             }
-            const partialRawFeaturesJson = await this.fetchJson(`${this._url}items`, {
+            this._frame += 1;
+            if (this._frame >= FEATURES_KEYFRAME_INTERVAL) {
+                this._frame = 0;
+                keyFrame = true;
+            }
+            let datetimeString = "";
+            if (!keyFrame && this._lastTimestamp) {
+                const date = new Date(this._lastTimestamp);
+                // Hack to account for DBWMS taking time to populate materialized view
+                date.setMinutes(date.getMinutes() - 1);
+                datetimeString = date.toISOString() + "/..";
+            }
+            const params = {
                 f: "json",
                 limit: 100000,
-                bbox: bboxString
-            });
-            if (partialRawFeaturesJson != null && partialRawFeaturesJson.features != null) {
-                partialRawFeaturesJson.features.forEach((ogcFeature: OGCFeature) => {
-                    rawFeaturesArray.push(ogcFeature);
-                });
+                bbox: bboxString,
+                ...(datetimeString ? { datetime: datetimeString } : {})
+            };
+            const partialRawFeaturesJson = await this.fetchJson(`${this._url}items`, params);
+            if (partialRawFeaturesJson != null) {
+                if (partialRawFeaturesJson.features != null) {
+                    partialRawFeaturesJson.features.forEach((ogcFeature: OGCFeature) => {
+                        rawFeaturesArray.push(ogcFeature);
+                    });
+                }
+
+                const timestamp = partialRawFeaturesJson.timeStamp;
+
+                if (timestamp) {
+                    const parsed = new Date(timestamp);
+                    // https://stackoverflow.com/a/52869830
+                    if (!(parsed instanceof Date && !isNaN(parsed.getTime()) && parsed.toISOString() === timestamp)) {
+                        console.error(
+                            `Unable to delta-poll service ${this._collectionInformation.title}: Invalid timestamp in features response: ${timestamp}`
+                        );
+                    } else {
+                        this._lastTimestamp = partialRawFeaturesJson.timeStamp;
+                    }
+                }
             }
         }
         this.lastRawFeaturesArray = rawFeaturesArray;
-        if (rawFeaturesArray.length === 0) {
-            return rawFeaturesArray;
+        if (keyFrame) {
+            this._features = rawFeaturesArray;
+        } else {
+            this._features = this._features.concat(rawFeaturesArray);
         }
-        return rawFeaturesArray;
     }
 
     setBoundingBox(bbox: BBox) {

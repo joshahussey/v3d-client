@@ -51,6 +51,7 @@ export default class FastFeatureClusters {
 
     populateKDBush() {
         this._rawFeaturesArray.forEach((ogcFeature: OGCFeature) => {
+            ogcFeature.isClustered = false;
             const height = ogcFeature.geometry.coordinates.length === 3 ? ogcFeature.geometry.coordinates[2] : 0;
             const screenSpaceCoordinate = SceneTransforms.wgs84ToWindowCoordinates(
                 this._scene,
