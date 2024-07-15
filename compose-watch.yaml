@@ -1,68 +1,61 @@
 name: standalone3d
 
 services:
-  server:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-      args:
-        BACKEND_PORT_ARG: $BACKEND_PORT
-        CERTS_DIR_ARG: $CERTS_DIR
-        TLS_CERT_LOC_ARG: $TLS_CERT_LOC
-        TLS_KEY_LOC_ARG: $TLS_KEY_LOC
-        DOMAIN_NAME_ARG: $DOMAIN_NAME
-        ROOT_DIR_3D_ARG: $ROOT_DIR_3D
-        HTTP_PORT_ARG: $HTTP_PORT
-        HTTPS_PORT_ARG: $HTTPS_PORT
-        ADMIN_PORT_ARG: $ADMIN_PORT
-        CADDYFILE: $CADDYFILE
-    ports:
-      - "$HTTP_PORT:$HTTP_PORT"
-      - "$HTTPS_PORT:$HTTPS_PORT"
-      - "$ADMIN_PORT:$ADMIN_PORT"
-    volumes:
-      - docker_web:/srv
-      - ./logs/:/cslt/logs
-      - $CERTS_DIR:/certs
-  frontend:
-    build:
-      context: .
-      dockerfile: frontend-Dockerfile
-      args:
-        DOMAIN_NAME_ARG: localhost
-        ROOT_DIR_ARG: .
-        HTTP_PORT_ARG: $HTTP_PORT
-        HTTPS_PORT_ARG: $HTTPS_PORT
-        ADMIN_PORT_ARG: $ADMIN_PORT
-    develop:
-      watch:
-        - action: sync
-          path: ./web
-          target: /cslt/web
-        - action: rebuild
-          path: package.json
-    volumes:
-      - docker_web:/cslt/web
-  backend:
-    environment:
-      - BACKEND_PORT
-      - DOMAIN_NAME
-    ports:
-      - "$BACKEND_PORT:$BACKEND_PORT"
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    develop:
-      watch:
-        - action: sync
-          path: ./backend
-          target: /cslt/backend
-        - action: rebuild
-          path: ./backend/cslt3d
-          target: /cslt/backend/cslt3d
-    volumes:
-      - ./logs/:/cslt/logs
-      - docker_web:/cslt/web
-volumes: 
-  docker_web:
-    driver: local
+    server:
+        build:
+            context: ./server
+            dockerfile: Dockerfile
+            args:
+                BACKEND_PORT_ARG: $BACKEND_PORT
+                CERTS_DIR_ARG: $CERTS_DIR
+                TLS_CERT_LOC_ARG: $TLS_CERT_LOC
+                TLS_KEY_LOC_ARG: $TLS_KEY_LOC
+                DOMAIN_NAME_ARG: $DOMAIN_NAME
+                ROOT_DIR_3D_ARG: $ROOT_DIR_3D
+                HTTP_PORT_ARG: $HTTP_PORT
+                HTTPS_PORT_ARG: $HTTPS_PORT
+                ADMIN_PORT_ARG: $ADMIN_PORT
+                CADDYFILE: $CADDYFILE
+        ports:
+            - "$HTTP_PORT:$HTTP_PORT"
+            - "$HTTPS_PORT:$HTTPS_PORT"
+            - "$ADMIN_PORT:$ADMIN_PORT"
+        volumes:
+            - docker_web:/srv
+            - ./logs/:/cslt/logs
+            - $CERTS_DIR:/certs
+    frontend:
+        build:
+            context: .
+            dockerfile: frontend-Dockerfile
+        develop:
+            watch:
+                - action: sync
+                  path: ./web
+                  target: /cslt/web
+                - action: rebuild
+                  path: package.json
+        volumes:
+            - docker_web:/cslt/web
+    backend:
+        environment:
+            - BACKEND_PORT
+        ports:
+            - "$BACKEND_PORT:$BACKEND_PORT"
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+        develop:
+            watch:
+                - action: sync
+                  path: ./backend
+                  target: /cslt/backend
+                - action: rebuild
+                  path: ./backend/cslt3d
+                  target: /cslt/backend/cslt3d
+        volumes:
+            - ./logs/:/cslt/logs
+            - docker_web:/cslt/web
+volumes:
+    docker_web:
+        driver: local

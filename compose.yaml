@@ -1,17 +1,6 @@
 name: standalone3d
 
 services:
-  server:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-    ports:
-      - "$HTTP_PORT:$HTTP_PORT"
-      - "$HTTPS_PORT:$HTTPS_PORT"
-      - "$ADMIN_PORT:$ADMIN_PORT"
-    volumes:
-      - ./logs:/cslt/logs
-      - $CERTS_DIR:/certs
   frontend:
     build:
       context: .

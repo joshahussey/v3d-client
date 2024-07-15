@@ -16,7 +16,7 @@ import {
 import { MapState, WesImageryObject, csltGpkgOption } from "../Types/types";
 
 /**
- * Adds a WMTS to 3DMap if a layer on top of the imagery if the uid dosn't exist.
+ * Adds a WMTS to 3DMap if a layer on top of the imagery if the uid doesn't exist.
  * If the uid exists then the existing layer is first removed.
  *
  * @param {addWMTSObject[]} addWMTSObject
@@ -52,7 +52,7 @@ export function addWMTS(addWMTSObject: addWMTSObject[]) {
 }
 
 /**
- * Adds an OGC Maps Layer to 3DMap if a layer on top of the imagery if the uid dosn't exist.
+ * Adds an OGC Maps Layer to 3DMap if a layer on top of the imagery if the uid doesn't exist.
  * If the uid exists then the existing layer is first removed.
  *
  * @param {addOGCMapObject[]} addOgcMapObject
@@ -80,7 +80,7 @@ export function addOgcMap(addOgcMapObject: addOGCMapObject[]) {
 }
 
 /**
- * Adds a WMS to 3DMap if a layer on top of the imagery if the uid dosn't exist.
+ * Adds a WMS to 3DMap if a layer on top of the imagery if the uid doesn't exist.
  * If the uid exists then the existing layer is first removed.
  *
  * @param {addWMSObject[]} addWMSObject
@@ -114,7 +114,7 @@ export function addWMS(addWMSObject: addWMSObject[]) {
 }
 
 /**
- * Adds a ArcGIS MapServer to 3DMap if the uid dosn't exist.
+ * Adds a ArcGIS MapServer to 3DMap if the uid doesn't exist.
  * If the uid exists then the existing layer is first removed.
  *
  * @param {addArcGisWMSObject[]} addArcGISWMSObject unique identifier for the layer.
@@ -143,7 +143,7 @@ export function addArcGisWMS(addArcGISWMSObject: addArcGisWMSObject[]) {
 }
 
 /**
- * Adds a 3D Tiles to 3DMap if a layer on top of the map primitives if the uid dosn't exist.
+ * Adds a 3D Tiles to 3DMap if a layer on top of the map primitives if the uid doesn't exist.
  * If the uid exists then the existing layer is first removed.
  *
  * @param {add3DTilesObject[]} add3DTilesObject unique identifier for the layer.

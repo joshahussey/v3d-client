@@ -152,8 +152,6 @@ func sendShapeMessage(ctx ReqContext, serviceName string, hash string, mutex *sy
 	}
 	var layerList []string
 	var errorList []string
-	domainName := os.Getenv("DOMAIN_NAME")
-	logD(ctx.sessionID, fmt.Sprintf("Domain Name: %s\n", domainName), "sendShapeMessage")
 	message := ShapefileMessage{}
 	message.Kind = "FEATURE"
 	message.Args = []ShapefileArgs{}
@@ -174,7 +172,7 @@ func sendShapeMessage(ctx ReqContext, serviceName string, hash string, mutex *sy
 		}
 		args := ShapefileArgs{}
 		args.Uid = layerHash
-		args.Url = "https://" + domainName + "/ogcfeatures/" + hash + "/" + strings.TrimSuffix(layer.Name(), path.Ext(layer.Name())) //geo3d.compusult.com/ogcfeatures/37ea8961-942d-4a5f-8e3b-642b63748e4f/canada_map
+		args.Url = "./ogcfeatures/" + hash + "/" + strings.TrimSuffix(layer.Name(), path.Ext(layer.Name())) //geo3d.compusult.com/ogcfeatures/37ea8961-942d-4a5f-8e3b-642b63748e4f/canada_map
 		// args.Url = "/ogcfeatures/" + hash + "/" + strings.TrimSuffix(layer.Name(), path.Ext(layer.Name())) //geo3d.compusult.com/ogcfeatures/37ea8961-942d-4a5f-8e3b-642b63748e4f/canada_map
 		args.Title = strings.TrimSuffix(layer.Name(), path.Ext(layer.Name()))
 		args.Wgs84BoundingBox = bbox
