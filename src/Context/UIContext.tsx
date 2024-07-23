@@ -37,8 +37,8 @@ let osmBuildingsLayer: Accessor<string>;
 let setOsmBuildingsLayer: Setter<string>;
 let isLoading: Accessor<LoadingRequestCode>;
 let setIsLoading: Setter<LoadingRequestCode>;
-let loadingRequestMap: Accessor<Map<string, ReturnType<typeof setTimeout>>>
-let setLoadingRequestMap: Setter<Map<string, ReturnType<typeof setTimeout>>>
+let loadingRequestMap: Accessor<Map<string, ReturnType<typeof setTimeout>>>;
+let setLoadingRequestMap: Setter<Map<string, ReturnType<typeof setTimeout>>>;
 
 export type UIContextType = {
     baseLayers: Accessor<WesImageryLayer[]>;
@@ -71,7 +71,7 @@ export type UIContextType = {
     setIsLoading: Setter<LoadingRequestCode>;
     loadingRequestMap: Accessor<Map<string, ReturnType<typeof setTimeout>>>;
     setLoadingRequestMap: Setter<Map<string, ReturnType<typeof setTimeout>>>;
-}
+};
 
 export function getContextSignals(
     BaseLayers: Accessor<WesImageryLayer[]>,
@@ -138,7 +138,9 @@ export function getContextSignals(
 }
 const InterfaceContext = createContext<UIContextType>();
 
-export function InterfaceProvider(props: { children: number | boolean | Node | JSX.ArrayElement | string & object | null | undefined; }): JSX.Element {
+export function InterfaceProvider(props: {
+    children: number | boolean | Node | JSX.ArrayElement | (string & object) | null | undefined;
+}): JSX.Element {
     const signals = {
         baseLayers,
         setBaseLayers,

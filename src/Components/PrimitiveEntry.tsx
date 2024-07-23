@@ -23,12 +23,15 @@ export function PrimitiveEntry(props: {
     return (
         <li>
             <div class="layer-list-layer-entry">
-                <span class="layer-name" title={tileset.name}>{tileset.name}</span>
+                <span class="layer-name" title={tileset.name}>
+                    {tileset.name}
+                </span>
                 <LayerSettingsButton
                     opened={opened}
                     setOpened={setOpened}
                     primitiveLayer={tileset}
-                    isEnabled={tileset.enabled as boolean}/>
+                    isEnabled={tileset.enabled as boolean}
+                />
                 <Show when={tileset.enabled != undefined && !tileset.enabled}>
                     <button
                         class="cesium-button osm-warning-button"

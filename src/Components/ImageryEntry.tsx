@@ -36,7 +36,8 @@ export function ImageryEntry(props: {
                     opened={opened}
                     setOpened={setOpened}
                     imageryLayer={imageryLayer}
-                    isEnabled={true}/>
+                    isEnabled={true}
+                />
                 <ShowOnMapCheckbox
                     imageryLayer={imageryLayer}
                     syncServiceCheckboxCallback={syncServiceCheckboxCallback}

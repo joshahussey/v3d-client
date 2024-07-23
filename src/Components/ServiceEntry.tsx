@@ -49,7 +49,7 @@ export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
      */
     function getServiceExpandedStatus(serviceUid: string): boolean | null {
         const service = serviceExpandedMap.find((service: ServiceStatusEntry) => service.serviceUid === serviceUid);
-        
+
         if (service != undefined) {
             return service.serviceOpenedStatus;
         }
@@ -94,7 +94,11 @@ export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
                     serviceCheckBoxState={checkboxState}
                 />
             );
-        } else if ((layer instanceof KmlDataSource) || (layer instanceof GeoJsonDataSource) ||(layer instanceof WesDataSource)) {
+        } else if (
+            layer instanceof KmlDataSource ||
+            layer instanceof GeoJsonDataSource ||
+            layer instanceof WesDataSource
+        ) {
             allLayerDivs.push(
                 <DatasourceEntry
                     datasource={layer}
@@ -115,7 +119,7 @@ export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
     function makeCheckboxStatus() {
         function isShown(layer: WesImageryLayer | Wes3DTileSet | WesDataSource) {
             if (layer instanceof SensorThingsDataSource) {
-                return (layer.show.Things && layer.show.FeaturesOfInterest && layer.show.ObservedAreas)
+                return layer.show.Things && layer.show.FeaturesOfInterest && layer.show.ObservedAreas;
             }
             if (layer instanceof CoverageApiDataSource) {
                 return layer.show || layer.isLoading;
@@ -199,7 +203,7 @@ export function ServiceEntry(entry: ServiceEntryInput): JSX.Element {
                 <span class="layer-name" title={entry.service.serviceTitle}>
                     {entry.service.serviceTitle}
                 </span>
-                <ServiceSettingsButton layers={entry.layers}/>
+                <ServiceSettingsButton layers={entry.layers} />
                 <input
                     type="checkbox"
                     class="cesium-button shown-status-button"

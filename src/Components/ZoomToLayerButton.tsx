@@ -18,7 +18,7 @@ export function ZoomToLayerButton(layer: {
     imageryLayer?: WesImageryLayer;
     primitiveLayer?: Wes3DTileSet;
     isEnabled?: boolean;
-}) : JSX.Element {
+}): JSX.Element {
     const viewer = (window as CesiumWindow).Map3DViewer;
     const camera = viewer.camera;
     return (
@@ -32,12 +32,7 @@ export function ZoomToLayerButton(layer: {
                 if (layer.datasource) {
                     if (layer.datasource instanceof CoverageApiDataSource) {
                         const bounds = layer.datasource.geometryBounds;
-                        if (
-                            bounds.maxY == null ||
-                            bounds.minY == null ||
-                            bounds.maxX == null ||
-                            bounds.minX == null
-                        ) {
+                        if (bounds.maxY == null || bounds.minY == null || bounds.maxX == null || bounds.minX == null) {
                             return;
                         } else {
                             const destination = camera.getRectangleCameraCoordinates(

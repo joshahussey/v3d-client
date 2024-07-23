@@ -2,33 +2,7 @@ import { JSX } from "solid-js";
 import { translate as t } from "../i18n/Translator";
 import { createOptions, Select } from "@thisbeyond/solid-select";
 import { CesiumWindow } from "../Types/types";
-import {
-    AOI_DATASOURCE_ID,
-    AOI_DRAW_PIXEL_WIDTH,
-    arcgisWorldStreetMapUID,
-    bingMapsUID,
-    celestrakUID,
-    cesiumBuiltInUID,
-    CLUSTER_HEIGHT,
-    CLUSTER_HEIGHT_CONSTANT,
-    CLUSTER_WIDTH,
-    csltAsterUID,
-    csltLandsat8UID,
-    csltOpenTopoUID,
-    csltOsmUID,
-    DEFAULT_ALLOWED_ZOOM_DISTANCE,
-    googleHybridUID,
-    googlePhotorealisticUID,
-    HOME_POSITION,
-    OGC_MAPS_TILE_SIZE,
-    osmBuildingsUID,
-    osmUID,
-    standAloneLayersServiceUID,
-    standAloneLayersServiceUrl,
-    stJohnsWmtsUID,
-    usgsShadedReliefUID,
-    wgsEllipsoidUID
-} from "../Constants";
+import { CLUSTER_HEIGHT_CONSTANT, CLUSTER_WIDTH, DEFAULT_ALLOWED_ZOOM_DISTANCE } from "../Constants";
 
 function makeCheckbox(checked: boolean, onChange: (stateChanged: boolean) => void) {
     return (
@@ -70,6 +44,37 @@ export function makeTextbox(defString: string, onChange: (text: string) => void)
     );
 }
 
+function updateSliderLabel(e: Event) {
+    if (e.target && (e.target as HTMLElement).nextElementSibling) {
+        ((e.target as HTMLElement).nextElementSibling as HTMLInputElement).value = (e.target as HTMLInputElement).value;
+    }
+}
+export function makeSlider(
+    minValue: number,
+    maxValue: number,
+    step: number,
+    value: number,
+    onChange: (value: string) => void
+) {
+    return (
+        <div class="settings-menu-item-input">
+            <input
+                class="settings-menu-item-input settings-menu-item-slider"
+                name="alpha"
+                type="range"
+                min={String(minValue)}
+                max={String(maxValue)}
+                step={String(step)}
+                value={String(value)}
+                onChange={e => onChange((e.target as HTMLInputElement).value)}
+                onInput={e => updateSliderLabel(e)}
+            />
+            <output class="settings-menu-slider-value-label">{value}</output>
+        </div>
+    );
+}
+
+/*
 function makeTextboxWithDelete(
     currentValue: string | null,
     changeAction: (text: string) => void,
@@ -93,6 +98,7 @@ function makeTextboxWithDelete(
         </div>
     );
 }
+*/
 
 export function SettingsMenuItem(props: { title: string; hoverText: string; input: JSX.Element }): JSX.Element {
     const { title, hoverText, input } = props;
@@ -108,15 +114,19 @@ export function SettingsMenuItem(props: { title: string; hoverText: string; inpu
     );
 }
 
-export function SettingsMenuItems(): JSX.Element[] {
+export function SettingsMenuItems(settingChanged: (value: boolean) => void): JSX.Element[] {
     const settingsMenuOptions: JSX.Element[] = [];
 
     function setLanguage(language: { name: string }) {
+        let changed = false;
         if (language.name === "English") {
+            if (localStorage.getItem("userLanguage") != "en") changed = true;
             localStorage.setItem("userLanguage", "en");
         } else {
+            if (localStorage.getItem("userLanguage") != "fr") changed = true;
             localStorage.setItem("userLanguage", "fr");
         }
+        settingChanged(changed);
     }
     function getLanguageVerbose() {
         const lang = localStorage.getItem("userLanguage");
@@ -147,6 +157,7 @@ export function SettingsMenuItems(): JSX.Element[] {
             localStorage.setItem("minimumAllowedZoomDistance", "1");
             (window as CesiumWindow).Map3DViewer.scene.screenSpaceCameraController.minimumZoomDistance = 1;
         }
+        settingChanged(true);
     }
     settingsMenuOptions.push(
         <SettingsMenuItem
@@ -158,263 +169,52 @@ export function SettingsMenuItems(): JSX.Element[] {
 
     settingsMenuOptions.push(
         <SettingsMenuItem
-            title={t("settingsItemDataProvider")}
-            hoverText={t("settingsItemDataProviderHover")}
-            input={makeTextboxWithDelete(
-                getLocalStorageItem("dataProvider"),
-                e => setLocalStorageItem("dataProvider", e),
-                () => {
-                    removeLocalStorageItem("dataProvider");
-                }
-            )}
-        />
-    );
-
-    settingsMenuOptions.push(
-        <SettingsMenuItem
             title={t("settingsItemMapState")}
             hoverText={t("settingsItemMapState")}
-            input={makeTextboxWithDelete(
-                getLocalStorageItem("cesiumMapState"),
-                e => setLocalStorageItem("cesiumMapState", e),
-                () => {
-                    removeLocalStorageItem("cesiumMapState");
-                }
-            )}
+            input={
+                <button
+                    class="clear-map-state"
+                    onClick={() => {
+                        removeLocalStorageItem("cesiumMapState");
+                        settingChanged(true);
+                    }}
+                >
+                    <span class=""> {t("settingsClearMapState")} </span>
+                </button>
+            }
         />
     );
 
     return settingsMenuOptions;
 }
 
-export function ConstantsMenuItems() {
+export function ConstantsMenuItems(props: { settingChanged: (value: boolean) => void }) {
+    const { settingChanged } = props;
     const constantsMenuOptions: JSX.Element[] = [];
 
     constantsMenuOptions.push(
         <SettingsMenuItem
-            title="HOME_POSITION"
-            hoverText="HOME_POSITION"
-            input={makeTextbox(JSON.stringify(HOME_POSITION), e => updateLocalStorageConstants("HOME_POSITION", e))}
+            title={t("settingsClusterDimensionTitle")}
+            hoverText={t("settingsClusterDimensionHover")}
+            input={makeSlider(10, 100, 1, CLUSTER_WIDTH.getValue().toString(), e => {
+                updateLocalStorageConstants("CLUSTER_WIDTH_HEIGHT", e);
+                settingChanged(true);
+            })}
         />
     );
 
     constantsMenuOptions.push(
         <SettingsMenuItem
-            title="DEFAULT_ALLOWED_ZOOM_DISTANCE"
-            hoverText="DEFAULT_ALLOWED_ZOOM_DISTANCE"
-            input={makeTextbox(DEFAULT_ALLOWED_ZOOM_DISTANCE.toString(), e =>
-                updateLocalStorageConstants("DEFAULT_ALLOWED_ZOOM_DISTANCE", e)
-            )}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="AOI_DATASOURCE_ID"
-            hoverText="AOI_DATASOURCE_ID"
-            input={makeTextbox(AOI_DATASOURCE_ID, e => updateLocalStorageConstants("AOI_DATASOURCE_ID", e))}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="AOI_DRAW_PIXEL_WIDTH"
-            hoverText="AOI_DRAW_PIXEL_WIDTH"
-            input={makeTextbox(AOI_DRAW_PIXEL_WIDTH.toString(), e =>
-                updateLocalStorageConstants("AOI_DRAW_PIXEL_WIDTH", e)
-            )}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="standAloneLayersServiceUID"
-            hoverText="standAloneLayersServiceUID"
-            input={makeTextbox(standAloneLayersServiceUID, e =>
-                updateLocalStorageConstants("standAloneLayersServiceUID", e)
-            )}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="standAloneLayersServiceUrl"
-            hoverText="standAloneLayersServiceUrl"
-            input={makeTextbox(standAloneLayersServiceUrl, e =>
-                updateLocalStorageConstants("standAloneLayersServiceUrl", e)
-            )}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="bingMapsUID"
-            hoverText="bingMapsUID"
-            input={makeTextbox(bingMapsUID, e => updateLocalStorageConstants("bingMapsUID", e))}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="googleHybridUID"
-            hoverText="googleHybridUID"
-            input={makeTextbox(googleHybridUID, e => updateLocalStorageConstants("googleHybridUID", e))}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="osmUID"
-            hoverText="osmUID"
-            input={makeTextbox(osmUID, e => updateLocalStorageConstants("osmUID", e))}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="arcgisWorldStreetMapUID"
-            hoverText="arcgisWorldStreetMapUID"
-            input={makeTextbox(arcgisWorldStreetMapUID, e => updateLocalStorageConstants("arcgisWorldStreetMapUID", e))}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="usgsShadedReliefUID"
-            hoverText="usgsShadedReliefUID"
-            input={makeTextbox(usgsShadedReliefUID, e => updateLocalStorageConstants("usgsShadedReliefUID", e))}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="csltOsmUID"
-            hoverText="csltOsmUID"
-            input={makeTextbox(csltOsmUID, e => updateLocalStorageConstants("csltOsmUID", e))}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="csltAsterUID"
-            hoverText="csltAsterUID"
-            input={makeTextbox(csltAsterUID, e => updateLocalStorageConstants("csltAsterUID", e))}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="csltLandsat8UID"
-            hoverText="csltLandsat8UID"
-            input={makeTextbox(csltLandsat8UID, e => updateLocalStorageConstants("csltLandsat8UID", e))}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="csltOpenTopoUID"
-            hoverText="csltOpenTopoUID"
-            input={makeTextbox(csltOpenTopoUID, e => updateLocalStorageConstants("csltOpenTopoUID", e))}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="stJohnsWmtsUID"
-            hoverText="stJohnsWmtsUID"
-            input={makeTextbox(stJohnsWmtsUID, e => updateLocalStorageConstants("stJohnsWmtsUID", e))}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="osmBuildingsUID"
-            hoverText="osmBuildingsUID"
-            input={makeTextbox(osmBuildingsUID, e => updateLocalStorageConstants("osmBuildingsUID", e))}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="celestrakUID"
-            hoverText="celestrakUID"
-            input={makeTextbox(celestrakUID, e => updateLocalStorageConstants("celestrakUID", e))}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="cesiumBuiltInUID"
-            hoverText="cesiumBuiltInUID"
-            input={makeTextbox(cesiumBuiltInUID, e => updateLocalStorageConstants("cesiumBuiltInUID", e))}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="googlePhotorealisticUID"
-            hoverText="googlePhotorealisticUID"
-            input={makeTextbox(googlePhotorealisticUID, e => updateLocalStorageConstants("googlePhotorealisticUID", e))}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="wgsEllipsoidUID"
-            hoverText="wgsEllipsoidUID"
-            input={makeTextbox(wgsEllipsoidUID, e => updateLocalStorageConstants("wgsEllipsoidUID", e))}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="CLUSTER_WIDTH"
-            hoverText="CLUSTER_WIDTH"
-            input={makeTextbox(CLUSTER_WIDTH.getValue().toString(), e =>
-                updateLocalStorageConstants("CLUSTER_WIDTH", e)
-            )}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="CLUSTER_HEIGHT"
-            hoverText="CLUSTER_HEIGHT"
-            input={makeTextbox(CLUSTER_HEIGHT.getValue().toString(), e =>
-                updateLocalStorageConstants("CLUSTER_HEIGHT", e)
-            )}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="CLUSTER_HEIGHT_CONSTANT"
-            hoverText="CLUSTER_HEIGHT_CONSTANT"
-            input={makeTextbox(CLUSTER_HEIGHT_CONSTANT.toString(), e =>
-                updateLocalStorageConstants("CLUSTER_HEIGHT_CONSTANT", e)
-            )}
-        />
-    );
-
-    constantsMenuOptions.push(
-        <SettingsMenuItem
-            title="OGC_MAPS_TILE_SIZE"
-            hoverText="OGC_MAPS_TILE_SIZE"
-            input={makeTextbox(OGC_MAPS_TILE_SIZE.toString(), e =>
-                updateLocalStorageConstants("OGC_MAPS_TILE_SIZE", e)
-            )}
+            title={t("settingsClusterHeightTitle")}
+            hoverText={t("settingsClusterHeightHover")}
+            input={makeSlider(0, 100000, 1000, CLUSTER_HEIGHT_CONSTANT, e => {
+                updateLocalStorageConstants("CLUSTER_HEIGHT_CONSTANT", e);
+                settingChanged(true);
+            })}
         />
     );
 
     return constantsMenuOptions;
-}
-
-function setLocalStorageItem(itemKey: string, value: string) {
-    localStorage.setItem(itemKey, value);
-}
-
-function getLocalStorageItem(itemKey: string): string | null {
-    return localStorage.getItem(itemKey);
 }
 
 function removeLocalStorageItem(itemKey: string) {

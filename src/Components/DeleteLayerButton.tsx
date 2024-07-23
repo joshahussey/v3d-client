@@ -33,7 +33,7 @@ export function DeleteLayerButton(layer: {
                     setSourcesWithLegends(
                         sourcesWithLegends().filter(source => {
                             if (layer.datasource != null) {
-                                source.uid !== layer.datasource.uid
+                                source.uid !== layer.datasource.uid;
                             }
                         })
                     );
@@ -46,7 +46,7 @@ export function DeleteLayerButton(layer: {
                     setSourcesWithLegends(
                         sourcesWithLegends().filter(source => {
                             if (layer.imageryLayer != null) {
-                                source.uid !== layer.imageryLayer.uid
+                                source.uid !== layer.imageryLayer.uid;
                             }
                         })
                     );
@@ -61,18 +61,26 @@ export function DeleteLayerButton(layer: {
                 }
                 if (layer.datasource && layer.datasource instanceof CoverageApiDataSource) {
                     (window as CesiumWindow).Map3DViewer.scene.primitives.remove(layer.datasource._renderedPrimitive);
-                    (window as CesiumWindow).removeEventListener("timeChanged", layer.datasource._listener as EventListener);
+                    (window as CesiumWindow).removeEventListener(
+                        "timeChanged",
+                        layer.datasource._listener as EventListener
+                    );
                     layer.datasource._removed = true;
                     layer.datasource._renderedPrimitive = undefined;
                     if (layer.datasource._hasLegend) {
                         setSourcesWithLegends(
-                            sourcesWithLegends().filter(source => source.uid !== (layer.datasource as WesDataSource).uid)
+                            sourcesWithLegends().filter(
+                                source => source.uid !== (layer.datasource as WesDataSource).uid
+                            )
                         );
                     }
                     (window as CesiumWindow).Map3DViewer.dataSources.remove(layer.datasource, true);
                     window.dispatchEvent(new Event("tilesetRemoved"));
                 }
-                if (layer.datasource && (layer.datasource instanceof GeoJsonDataSource || layer.datasource instanceof KmlDataSource)) {
+                if (
+                    layer.datasource &&
+                    (layer.datasource instanceof GeoJsonDataSource || layer.datasource instanceof KmlDataSource)
+                ) {
                     (window as CesiumWindow).Map3DViewer.dataSources.remove(layer.datasource);
                 }
             }}

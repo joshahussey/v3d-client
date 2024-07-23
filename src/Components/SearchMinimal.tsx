@@ -60,7 +60,5 @@ export function SearchMinimal(): JSX.Element {
         }
     });
 
-    return (
-            <div ref={searchRef} id="SearchInput" class="cslt-search-input" />
-    );
+    return <div ref={searchRef} id="SearchInput" class="cslt-search-input" />;
 }

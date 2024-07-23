@@ -2,8 +2,11 @@ import { createSignal, For, JSX, Show } from "solid-js";
 import { translate as t } from "../i18n/Translator";
 import { ConstantsMenuItems, SettingsMenuItems } from "./SettingsMenuItems";
 
-export function SettingsMenu(props: { setSettingsMenuShown: (value: boolean) => void }): JSX.Element {
-    const { setSettingsMenuShown } = props;
+export function SettingsMenu(props: {
+    setSettingsMenuShown: (value: boolean) => void;
+    settingChanged: (value: boolean) => void;
+}): JSX.Element {
+    const { setSettingsMenuShown, settingChanged } = props;
     const [constantsOpened, setConstantsOpened] = createSignal(false);
 
     function clickedOutsideMenu() {
@@ -44,7 +47,7 @@ export function SettingsMenu(props: { setSettingsMenuShown: (value: boolean) => 
                     </button>
                 </div>
                 <nav class="settings-menu-scroll">
-                    <For each={SettingsMenuItems()}>{e => e}</For>
+                    <For each={SettingsMenuItems(settingChanged)}>{e => e}</For>
                     <br />
                     <div style={{ display: "flex" }}>
                         <button
@@ -99,7 +102,18 @@ export function SettingsMenu(props: { setSettingsMenuShown: (value: boolean) => 
                     </div>
                     <Show when={constantsOpened()}>
                         <div class="constants-collapsible-content">
-                            <ConstantsMenuItems />
+                            <ConstantsMenuItems settingChanged={settingChanged} />
+                            <button
+                                class="reset-constants-button"
+                                onClick={() => {
+                                    localStorage.removeItem("constants");
+                                    settingChanged(true);
+                                    setConstantsOpened(false);
+                                    setConstantsOpened(true);
+                                }}
+                            >
+                                <span class=""> {t("settingsResetConstants")} </span>
+                            </button>
                         </div>
                     </Show>
                 </nav>

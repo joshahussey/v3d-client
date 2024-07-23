@@ -29,7 +29,7 @@ export function CatalogView() {
             use:ClickOutsideToolbar={() => setCatalogOpened(false)}
             class="cslt-toolbar-iframe"
             id="CatalogView"
-            src={"/wes/CSWSearchClient/pages/view.jsp?entryPoint=browseCatalog"}// + classificationParameters}
+            src={"/wes/CSWSearchClient/pages/view.jsp?entryPoint=browseCatalog"} // + classificationParameters}
             width="1000px"
             height="720px"
         />

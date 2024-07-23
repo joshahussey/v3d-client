@@ -16,9 +16,7 @@ export type ServiceEntryInput = {
  * @returns {JSX.Element} A JSX element representing the layers div.
  */
 export function LayersTreeDiv(): JSX.Element {
-    const {
-        isBasemapTerrainOpened
-    } = useToolbarStateContext() as ToolbarContextType;
+    const { isBasemapTerrainOpened } = useToolbarStateContext() as ToolbarContextType;
 
     return (
         <div class="layers-view-layer-tree-panel">

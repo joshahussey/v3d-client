@@ -101,6 +101,45 @@
 }
 
 /*
+ * Settings Input Slider
+ */
+.settings-menu-slider-div {
+    width: 100%;
+    height: 100%;
+}
+.settings-menu-item-slider {
+    accent-color: var(--dark-gray);
+}
+.settings-menu-slider-value-label {
+    font-size: medium;
+    margin: auto;
+    text-align: center;
+}
+
+/*
+ * Clear Map State Settings Button
+ */
+.clear-map-state {
+    width: 12rem;
+    color: var(--dark-gray);
+    font-size: medium;
+    background-color: var(--white);
+}
+
+/*
+ * Clear Map State Settings Button
+ */
+.reset-constants-button {
+    width: 12rem;
+    color: var(--dark-gray);
+    font-size: medium;
+    background-color: var(--white);
+    margin-left: auto;
+    margin-right: 0;
+    display: block;
+}
+
+/*
  * Settings Input Delete Button
  */
 .delete-span {

@@ -26,12 +26,10 @@ export function DatasourceEntry(props: {
     return (
         <li>
             <div class="layer-list-layer-entry">
-                <span class="layer-name" title={datasource.name}>{datasource.name}</span>
-                <LayerSettingsButton
-                    opened={opened}
-                    setOpened={setOpened}
-                    datasource={datasource}
-                    isEnabled={true}/>
+                <span class="layer-name" title={datasource.name}>
+                    {datasource.name}
+                </span>
+                <LayerSettingsButton opened={opened} setOpened={setOpened} datasource={datasource} isEnabled={true} />
                 <ShowOnMapCheckbox
                     datasource={datasource}
                     syncServiceCheckboxCallback={syncServiceCheckboxCallback}

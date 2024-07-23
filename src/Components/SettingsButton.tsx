@@ -1,8 +1,15 @@
-import { createSignal, JSX, Show } from "solid-js";
+import { createEffect, createSignal, JSX, Show } from "solid-js";
 import { SettingsMenu } from "./SettingsMenu";
 
 export function SettingsButton(): JSX.Element {
     const [settingsMenuShown, setSettingsMenuShown] = createSignal(false);
+    const [settingChanged, setSettingChanged] = createSignal(false);
+
+    createEffect(() => {
+        if (!settingsMenuShown() && settingChanged()) {
+            location.reload();
+        }
+    });
 
     const settingsSvg = (
         <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="#FFFFFF" version="1.1">
@@ -15,7 +22,7 @@ export function SettingsButton(): JSX.Element {
     return (
         <div class="settings-button-div">
             <Show when={settingsMenuShown()}>
-                <SettingsMenu setSettingsMenuShown={setSettingsMenuShown} />
+                <SettingsMenu setSettingsMenuShown={setSettingsMenuShown} settingChanged={setSettingChanged} />
             </Show>
             <button
                 class="settings-button cesium-button"

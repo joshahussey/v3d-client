@@ -8,7 +8,7 @@ import { CesiumWindow } from "../Types/types";
 interface CsltTimeline extends Timeline {
     prototype: {
         makeLabel(date: JulianDate): string;
-    }
+    };
     addEventListener(type: string, listener: (e: SetTimeEvent) => void, useCapture?: boolean): void;
 }
 
@@ -16,7 +16,7 @@ type SetTimeEvent = Event & {
     timeSeconds: number;
     timeJulian: JulianDate;
     clock: Clock;
-}
+};
 
 const CesiumClient = window as CesiumWindow;
 let timeLineMounted = false;
@@ -38,7 +38,11 @@ export function Slider(): JSX.Element {
                 };
                 if (!CesiumClient.timeline) {
                     CesiumClient.timeline = new Timeline(clockDiv, CesiumClient.Map3DViewer.clock);
-                    (CesiumClient.timeline as unknown as CsltTimeline).addEventListener("settime", onTimelineScrubfunction, false);
+                    (CesiumClient.timeline as unknown as CsltTimeline).addEventListener(
+                        "settime",
+                        onTimelineScrubfunction,
+                        false
+                    );
                     document.querySelector(".cesium-timeline-ruler")?.remove();
                     timeLineMounted = true;
                 }
@@ -52,7 +56,11 @@ export function Slider(): JSX.Element {
                     CesiumClient.timeline.destroy();
                 }
                 CesiumClient.timeline = new Timeline(clockDiv, CesiumClient.Map3DViewer.clock);
-                (CesiumClient.timeline as unknown as CsltTimeline).addEventListener("settime", onTimelineScrubfunction, false);
+                (CesiumClient.timeline as unknown as CsltTimeline).addEventListener(
+                    "settime",
+                    onTimelineScrubfunction,
+                    false
+                );
                 document.querySelector(".cesium-timeline-ruler")?.remove();
             }
         }

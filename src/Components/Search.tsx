@@ -63,7 +63,7 @@ export function Search(): JSX.Element {
     });
 
     return (
-        <div class="search-panel" >
+        <div class="search-panel">
             <div class="search-panel-header-div">
                 <span class="search-panel-header-label"> {t("searchPanelSearch")} </span>
             </div>

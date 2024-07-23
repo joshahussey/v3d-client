@@ -13,7 +13,7 @@ export function LayersOrderDiv(props: { closeLayerOrderPanel: Setter<boolean> })
     const { imageLayers } = useInterfaceContext() as UIContextType;
     const layers = (window as CesiumWindow).Map3DViewer.imageryLayers;
 
-    const [selectedLayer, setSelectedLayer] = createSignal((layers.get(1) as WesImageryLayer), { equals: false });
+    const [selectedLayer, setSelectedLayer] = createSignal(layers.get(1) as WesImageryLayer, { equals: false });
     const [canLower, setCanLower] = createSignal(
         layers.indexOf(selectedLayer()) > 1 && layers.indexOf(selectedLayer()) != -1,
         { equals: false }
@@ -38,10 +38,10 @@ export function LayersOrderDiv(props: { closeLayerOrderPanel: Setter<boolean> })
         //Get the ImageryLayer object corresponding to the layer being dragged and the layer being dropped onto.
         for (let i = 0; i < layers.length; i++) {
             if (e.dataTransfer?.getData("text") === (layers.get(i) as WesImageryLayer).uid) {
-                draggedLayer = (layers.get(i) as WesImageryLayer);
+                draggedLayer = layers.get(i) as WesImageryLayer;
             }
             if ((e.currentTarget as HTMLLIElement).id === (layers.get(i) as WesImageryLayer).uid) {
-                dropLayer = (layers.get(i) as WesImageryLayer);
+                dropLayer = layers.get(i) as WesImageryLayer;
             }
         }
         if (draggedLayer == null || dropLayer == null || draggedLayer.uid === dropLayer.uid) {
