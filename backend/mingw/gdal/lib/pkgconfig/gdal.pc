@@ -1,0 +1,17 @@
+CONFIG_VERSION=3.9.0
+CONFIG_INST_PREFIX=/mingw64
+CONFIG_INST_LIBS=-L/mingw64/lib -lgdal
+CONFIG_INST_CFLAGS=-I/mingw64/include
+CONFIG_INST_DATA=/mingw64/share/gdal
+prefix=${CONFIG_INST_PREFIX}
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${exec_prefix}/include
+datadir=${CONFIG_INST_DATA}
+
+Name: libgdal
+Description: Geospatial Data Abstraction Library
+Version: ${CONFIG_VERSION}
+Libs: ${CONFIG_INST_LIBS}
+Libs.private: -larchive -liconv -lcharset -lcryptopp -lssl -lcrypto -lcrypt32 -llzma -ldeflate -llz4 -larmadillo -lOpenCL -lqhull_r -lSFCGAL -lgeotiff -ltiff -lheif -lLerc -laec -ljpeg -lpoppler -lpodofo -lpng -lgif -lnetcdf -lhdf5_hl -lzstd -lbz2 -lblosc -lcfitsio -lhdf5 -lwebp -lhdf -lmfhdf -lopenjp2 -lOpenEXR -lOpenEXRUtil -lImath -lIex -ljxl -ljxl_threads -lkmlbase -lkmldom -lkmlengine -lminizip -luriparser -lz -lpcre2-8 -lspatialite -lsqlite3 -lxerces-c -lmysqlclient -lpq -lodbc32 -lodbccp32 -lfreexl -larrow_dataset -lparquet -larrow_acero -larrow -lws2_32 -lexpat -lm -lxml2 -lgeos_c -lcurl -lpsapi -lproj -ljson-c -lstdc++ -lgcc_s
+Cflags: ${CONFIG_INST_CFLAGS}
