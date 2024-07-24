@@ -76,7 +76,7 @@ func HandleKml(ctx ReqContext) error {
 		}
 		err = sendKmlResponse(ctx, errorList, *layerList)
 		if err != nil {
-			return SE("HandleSendKmlResponse", err)
+			return KE("HandleSendKmlResponse", err)
 		}
 		return nil
 	} else if !os.IsNotExist(err) {
@@ -106,7 +106,7 @@ func HandleKml(ctx ReqContext) error {
 	}
 	err = sendKmlResponse(ctx, errorList, *layerList)
 	if err != nil {
-		return SE("HandleSendKmlResponse", err)
+		return KE("HandleSendKmlResponse", err)
 	}
 	return nil
 }
@@ -146,7 +146,7 @@ func sendKmlMessage(fileName string, serviceUid string, client *Client, clientFo
 
 func sendKmlResponse(ctx ReqContext, messageErrorList []string, fileList []string) error {
 	_, ok := ClientMgr.clients[ctx.sessionID]
-	responseBody := ShapeResponse{}
+	responseBody := KmlResponse{}
 	responseBody.ClientOpened = ok
 	responseBody.MessageErrorList = messageErrorList
 	responseBody.SuccessList = fileList
@@ -166,11 +166,11 @@ func kmlServiceList(hash string) (*[]string, error) {
 		return &serviceList, err
 	}
 	if !dir.IsDir() {
-		return &serviceList, SE("HandleKmlIsDir", fmt.Errorf("Downloaded file is not a directory"))
+		return &serviceList, KE("HandleKmlIsDir", fmt.Errorf("Downloaded file is not a directory"))
 	}
 	files, err := os.ReadDir(KmlDirPath(hash))
 	if err != nil {
-		return &serviceList, SE("HandleKmlReadDir", err)
+		return &serviceList, KE("HandleKmlReadDir", err)
 	}
 	for _, file := range files {
 		if path.Ext(file.Name()) == ".kml" || path.Ext(file.Name()) == ".kmz" {
@@ -178,7 +178,7 @@ func kmlServiceList(hash string) (*[]string, error) {
 		}
 	}
 	if len(serviceList) == 0 {
-		return &serviceList, SE("HandleKmlServiceList", fmt.Errorf("No kml or kmz files found in directory"))
+		return &serviceList, KE("HandleKmlServiceList", fmt.Errorf("No kml or kmz files found in directory"))
 	}
 	return &serviceList, nil
 }
