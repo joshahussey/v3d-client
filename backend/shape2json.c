@@ -1,9 +1,9 @@
 #include "shape2json.h"
-#include "cpl_conv.h"
-#include "cpl_vsi.h"
-#include "gdal.h"
-#include "ogr_api.h"
-#include "ogr_srs_api.h"
+#include "gdal/cpl_conv.h"
+#include "gdal/cpl_vsi.h"
+#include "gdal/gdal.h"
+#include "gdal/ogr_api.h"
+#include "gdal/ogr_srs_api.h"
 
 int shape2json(char *inputFile, char *outputFile) {
   
