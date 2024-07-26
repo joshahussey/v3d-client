@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"sync"
+    "net/http"
 )
 
 type DataProviderMessage struct {
@@ -76,5 +77,10 @@ func sendDataProviderMessage(client *Client, clientFound bool, ctx ReqContext, m
 			return nil
 		}
 	}
+    sendDataProviderResponse(ctx)
 	return nil
+}
+
+func sendDataProviderResponse(ctx ReqContext) {
+    ctx.w.WriteHeader(http.StatusOK)
 }
