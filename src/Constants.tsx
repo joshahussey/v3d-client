@@ -29,6 +29,19 @@ export enum DatasourceTypes {
     Celestial = "Celestial"
 }
 
+let VIEWS_SERVLET_URL = localStorage.getItem("dataProvider") + "/wes/CesiumViews";
+export function getViewsServletUrl() {
+    VIEWS_SERVLET_URL = localStorage.getItem("dataProvider") + "/wes/CesiumViews";
+    return VIEWS_SERVLET_URL;
+}
+
+export enum VIEW_TYPES {
+    NO_VIEWS = 0,
+    LOCAL_VIEWS = 1,
+    EXTERNAL_VIEWS = 2
+}
+export const VIEW_TYPE = VIEW_TYPES.EXTERNAL_VIEWS;
+
 export const MAX_CHARS_100 = 100;
 export const MAX_CHARS_1024 = 1024;
 export const DEFAULT_ALLOWED_ZOOM_DISTANCE = 10;

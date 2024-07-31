@@ -96,7 +96,8 @@ import {
     UrlTemplateImageryProvider,
     Viewer,
     WebMapServiceImageryProvider,
-    WebMapTileServiceImageryProvider
+    WebMapTileServiceImageryProvider,
+    Math as CesiumMath
 } from "cesium";
 import { zoomTo } from "./Utils/ZoomTo";
 import { styleDefaultClusters, styleGeoJsonBillboard } from "./Utils/ClusterStyling";
@@ -153,7 +154,11 @@ const load = async function (mapState: MapState): Promise<Viewer> {
     if (!sessionID) {
         sessionID = sessionStorage.getItem("sessionID");
         if (!sessionID) {
-            sessionID = self.crypto.randomUUID();
+            if (location.protocol !== "https:") {
+                sessionID = (CesiumMath.nextRandomNumber() * 1e16).toFixed(0).toString();
+            } else {
+                sessionID = self.crypto.randomUUID();
+            }
         }
     }
     sessionStorage.setItem("sessionID", sessionID);

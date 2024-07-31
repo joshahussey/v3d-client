@@ -6,6 +6,7 @@ import { applyViewParameters, loadViewParameters } from "../Utils/SaveView";
 import { zoomToLoadedView } from "../Utils/SaveView";
 import { fuzzySearch } from "@thisbeyond/solid-select";
 import { EditView } from "./EditView";
+import { getViewsServletUrl, VIEW_TYPE, VIEW_TYPES } from "../Constants";
 
 /**
  * @returns {JSX.Element} A JSX Element representing the Load View panel.
@@ -174,16 +175,41 @@ function editView(viewRecord: ViewRecord | undefined): JSX.Element {
 }
 
 async function handleLoad(viewId: bigint) {
-    const url = window.location.origin + "/view/" + viewId + "?sessionID=" + sessionStorage.getItem("sessionID");
-    const response = await fetch(url, {
-        method: "GET",
-        mode: "cors",
-        cache: "no-cache",
-        headers: { "Content-Type": "application/json" },
-        redirect: "follow"
-    });
-    const responseText = await response.text();
-
+    let responseText;
+    if (VIEW_TYPE == VIEW_TYPES.EXTERNAL_VIEWS.valueOf()) {
+        const args = {
+            type: "loadView",
+            sessionId: sessionStorage.getItem("sessionID"),
+            viewId
+        };
+        const response = await fetch(getViewsServletUrl(), {
+            method: "POST",
+            mode: "cors",
+            cache: "no-cache",
+            headers: { "Content-Type": "application/json" },
+            redirect: "follow",
+            body: JSON.stringify(args)
+        });
+        responseText = await response.text();
+    } else if (VIEW_TYPE == VIEW_TYPES.LOCAL_VIEWS.valueOf()) {
+        const url =
+            window.location.origin +
+            window.location.pathname +
+            "/view/" +
+            viewId +
+            "?sessionID=" +
+            sessionStorage.getItem("sessionID");
+        const response = await fetch(url, {
+            method: "GET",
+            mode: "cors",
+            cache: "no-cache",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            redirect: "follow"
+        });
+        responseText = await response.text();
+    } else {
+        return false;
+    }
     localStorage.setItem("cesiumMapState", responseText);
     loadViewParameters();
     const cesiumWindow = window as CesiumWindow;
@@ -196,14 +222,40 @@ async function handleDelete(
     viewId: bigint,
     refetch: (info?: unknown) => ViewRecord[] | Promise<ViewRecord[] | undefined> | null | undefined
 ): Promise<boolean> {
-    const url = window.location.origin + "/view/" + viewId + "?sessionID=" + sessionStorage.getItem("sessionID");
-    const response = await fetch(url, {
-        method: "DELETE",
-        mode: "cors",
-        cache: "no-cache",
-        headers: { "Content-Type": "application/json" },
-        redirect: "follow"
-    });
+    let response;
+    if (VIEW_TYPE == VIEW_TYPES.EXTERNAL_VIEWS.valueOf()) {
+        const args = {
+            type: "deleteView",
+            sessionId: sessionStorage.getItem("sessionID"),
+            viewId
+        };
+        sessionStorage.getItem("sessionID");
+        response = await fetch(getViewsServletUrl(), {
+            method: "POST",
+            mode: "cors",
+            cache: "no-cache",
+            headers: { "Content-Type": "application/json" },
+            redirect: "follow",
+            body: JSON.stringify(args)
+        });
+    } else if (VIEW_TYPE == VIEW_TYPES.LOCAL_VIEWS.valueOf()) {
+        const url =
+            window.location.origin +
+            window.location.pathname +
+            "/view/" +
+            viewId +
+            "?sessionID=" +
+            sessionStorage.getItem("sessionID");
+        response = await fetch(url, {
+            method: "DELETE",
+            mode: "cors",
+            cache: "no-cache",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            redirect: "follow"
+        });
+    } else {
+        return false;
+    }
     const code = response.status;
 
     if (code < 200 || code > 300) {
@@ -216,16 +268,39 @@ async function handleDelete(
 }
 
 async function fetchViews(): Promise<ViewRecord[]> {
-    const url = window.location.origin + "/views?sessionID=" + sessionStorage.getItem("sessionID");
-    return (
-        await fetch(url, {
-            method: "GET",
-            mode: "cors",
-            cache: "no-cache",
-            headers: { "Content-Type": "application/json" },
-            redirect: "follow"
-        })
-    ).json();
+    if (VIEW_TYPE == VIEW_TYPES.EXTERNAL_VIEWS.valueOf()) {
+        const args = {
+            type: "listViews",
+            sessionId: sessionStorage.getItem("sessionID")
+        };
+        return (
+            await fetch(getViewsServletUrl(), {
+                method: "POST",
+                mode: "cors",
+                cache: "no-cache",
+                headers: { "Content-Type": "application/json" },
+                redirect: "follow",
+                body: JSON.stringify(args)
+            })
+        ).json();
+    } else if (VIEW_TYPE == VIEW_TYPES.LOCAL_VIEWS.valueOf()) {
+        const url =
+            window.location.origin +
+            window.location.pathname +
+            "views?sessionID=" +
+            sessionStorage.getItem("sessionID");
+        return (
+            await fetch(url, {
+                method: "GET",
+                mode: "cors",
+                cache: "no-cache",
+                headers: { "Content-Type": "application/json", Accept: "application/json" },
+                redirect: "follow"
+            })
+        ).json();
+    } else {
+        return [];
+    }
 }
 
 function createDeepSignal<T>(value: T): Signal<T> {

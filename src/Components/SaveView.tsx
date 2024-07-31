@@ -2,7 +2,7 @@ import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarSt
 import { saveViewParameters } from "../Utils/SaveView";
 import { CesiumWindow } from "../Types/types";
 import { createSignal } from "solid-js";
-import { MAX_CHARS_100, MAX_CHARS_1024 } from "../Constants";
+import { getViewsServletUrl, MAX_CHARS_100, MAX_CHARS_1024, VIEW_TYPE, VIEW_TYPES } from "../Constants";
 import { JSX } from "solid-js";
 import { translate as t } from "../i18n/Translator";
 import { getMapState } from "../Utils/Controller";
@@ -83,23 +83,50 @@ async function submitSave(title: string, description: string): Promise<boolean> 
 
     const cesiumWindow = window as CesiumWindow;
     saveViewParameters(cesiumWindow.Map3DViewer, cesiumWindow.optionsMap);
-    const mapState = JSON.stringify(getMapState());
 
-    const args = {
-        title,
-        description,
-        mapState
-    };
+    let response;
+    if (VIEW_TYPE == VIEW_TYPES.EXTERNAL_VIEWS.valueOf()) {
+        const mapState = getMapState();
 
-    const url = window.location.origin + "/view/?sessionID=" + sessionStorage.getItem("sessionID");
-    const response = await fetch(url, {
-        method: "POST",
-        mode: "cors",
-        cache: "no-cache",
-        headers: { "Content-Type": "application/json" },
-        redirect: "follow",
-        body: JSON.stringify(args)
-    });
+        const args = {
+            type: "createView",
+            sessionId: sessionStorage.getItem("sessionID"),
+            title,
+            description,
+            mapState
+        };
+
+        response = await fetch(getViewsServletUrl(), {
+            method: "POST",
+            mode: "cors",
+            cache: "no-cache",
+            headers: { "Content-Type": "application/json" },
+            redirect: "follow",
+            body: JSON.stringify(args)
+        });
+    } else if (VIEW_TYPE == VIEW_TYPES.LOCAL_VIEWS.valueOf()) {
+        const mapState = JSON.stringify(getMapState());
+        const args = {
+            title,
+            description,
+            mapState
+        };
+        const url =
+            window.location.origin +
+            window.location.pathname +
+            "/view/?sessionID=" +
+            sessionStorage.getItem("sessionID");
+        response = await fetch(url, {
+            method: "POST",
+            mode: "cors",
+            cache: "no-cache",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            redirect: "follow",
+            body: JSON.stringify(args)
+        });
+    } else {
+        return false;
+    }
 
     const status = response.status;
     if (status < 200 || status > 300) {

@@ -1,7 +1,7 @@
 import { createSignal } from "solid-js";
 import { CesiumWindow, ViewRecord } from "../Types/types";
 import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
-import { MAX_CHARS_100, MAX_CHARS_1024 } from "../Constants";
+import { getViewsServletUrl, MAX_CHARS_100, MAX_CHARS_1024, VIEW_TYPE, VIEW_TYPES } from "../Constants";
 import { saveViewParameters } from "../Utils/SaveView";
 import { getMapState } from "../Utils/Controller";
 
@@ -77,30 +77,62 @@ async function edit(id: bigint, title: string, description: string): Promise<boo
 
     const cesiumWindow = window as CesiumWindow;
     saveViewParameters(cesiumWindow.Map3DViewer, cesiumWindow.optionsMap);
-    const mapState = JSON.stringify(getMapState());
-
-    const args = {
-        viewId: id,
-        title,
-        description,
-        mapState
-    };
-
-    const url = window.location.origin + "/view/" + id + "?sessionID=" + sessionStorage.getItem("sessionID");
-    const response = await fetch(url, {
-        method: "PUT",
-        mode: "cors",
-        cache: "no-cache",
-        headers: { "Content-Type": "application/json" },
-        redirect: "follow",
-        body: JSON.stringify(args)
-    });
-
-    const status = response.status;
-    if (status < 200 || status > 300) {
-        console.error("Edit Cesium view request failed.", response.body);
-        alert("Editing view failed.");
+    if (VIEW_TYPE == VIEW_TYPES.EXTERNAL_VIEWS.valueOf()) {
+        const mapState = getMapState();
+        const args = {
+            type: "editView",
+            viewId: id,
+            sessionId: sessionStorage.getItem("sessionID"),
+            title,
+            description,
+            mapState
+        };
+        const response = await fetch(getViewsServletUrl(), {
+            method: "POST",
+            mode: "cors",
+            cache: "no-cache",
+            headers: { "Content-Type": "application/json" },
+            redirect: "follow",
+            body: JSON.stringify(args)
+        });
+        const status = response.status;
+        if (status < 200 || status > 300) {
+            console.error("Edit Cesium view request failed.", response.body);
+            alert("Editing view failed.");
+            return false;
+        }
+        return true;
+    } else if (VIEW_TYPE == VIEW_TYPES.LOCAL_VIEWS.valueOf()) {
+        const mapState = JSON.stringify(getMapState());
+        const args = {
+            viewId: id,
+            title,
+            description,
+            mapState
+        };
+        const url =
+            window.location.origin +
+            window.location.pathname +
+            "/view/" +
+            id +
+            "?sessionID=" +
+            sessionStorage.getItem("sessionID");
+        const response = await fetch(url, {
+            method: "PUT",
+            mode: "cors",
+            cache: "no-cache",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            redirect: "follow",
+            body: JSON.stringify(args)
+        });
+        const status = response.status;
+        if (status < 200 || status > 300) {
+            console.error("Edit Cesium view request failed.", response.body);
+            alert("Editing view failed.");
+            return false;
+        }
+        return true;
+    } else {
         return false;
     }
-    return true;
 }

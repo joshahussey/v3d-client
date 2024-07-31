@@ -1,5 +1,5 @@
 import { Cartesian3, Credit, GeocodeType, GeocoderService, Rectangle } from "cesium";
-import { VIEWS_SERVLET_URL } from "../Constants";
+import { getViewsServletUrl } from "../Constants";
 
 export default class WesGeoCoderService implements GeocoderService {
     credit: Credit | undefined;
@@ -26,7 +26,7 @@ export default class WesGeoCoderService implements GeocoderService {
             query: query
         };
 
-        const response = await fetch(VIEWS_SERVLET_URL, {
+        const response = await fetch(getViewsServletUrl(), {
             method: "POST",
             mode: "cors",
             headers: { "Content-Type": "application/json" },
