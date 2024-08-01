@@ -207,7 +207,6 @@ export function ToolbarNav(): JSX.Element {
                 >
                     {t("toolbarNavLayers")}
                 </span>
-                <MapModeRockerButton />
                 <ToolbarButton
                     id="SearchButton"
                     icon={searchOpenedIcon}

@@ -29,7 +29,9 @@ ul {
 
 .csltToolbarHeader {
     display: grid;
-    grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    // If we ever bring back the 2D/2.5D button, this is the grid spacing for it.
+    //grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 3fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
     border-bottom: 1px solid var(--gray);
 }
 

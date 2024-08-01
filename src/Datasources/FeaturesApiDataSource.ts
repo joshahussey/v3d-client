@@ -102,6 +102,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
         [key: string]: HTMLCanvasElement | Promise<HTMLCanvasElement> | HTMLImageElement | Promise<HTMLImageElement>;
     };
     _geometryBounds: ImageryBounds;
+    _itemsLink: string = "";
     isHighlighted: boolean;
     depthDistCond: Property;
     lastRawFeaturesArray: OGCFeature[] | undefined;
@@ -257,6 +258,27 @@ export default class FeaturesApiDataSource extends WesDataSource {
             this._collectionInformation.propertyKey = Object.keys(collectionInformation.preview.properties).find(
                 key => collectionInformation.preview.properties[key] === "tooltip"
             ) as string;
+        }
+
+        for (let i = 0; i < collectionInformation.links.length; i++) {
+            if (collectionInformation.links[i].rel == "items") {
+                this._itemsLink = collectionInformation.links[i].href;
+
+                // Find the InfoBox iframe, used to show selected entity information, and allow it to make popups that escape the sandbox.
+                const iframe = document.getElementsByClassName("cesium-infoBox-iframe")[0] as HTMLIFrameElement;
+                if (
+                    iframe.getAttribute("sandbox") !=
+                    "allow-same-origin allow-popups allow-forms allow-popups-to-escape-sandbox"
+                ) {
+                    iframe.setAttribute(
+                        "sandbox",
+                        "allow-same-origin allow-popups allow-forms allow-popups-to-escape-sandbox"
+                    );
+                    (iframe as HTMLIFrameElement).src += "";
+                }
+
+                break;
+            }
         }
 
         this._collectionInformation.defaultStyle = collectionInformation.defaultStyle
@@ -1126,6 +1148,7 @@ export default class FeaturesApiDataSource extends WesDataSource {
             if (location) {
                 feature.properties.addProperty("cartesian3Location", location);
             }
+            feature.properties.addProperty("itemsLink", this._itemsLink);
         }
     }
 
