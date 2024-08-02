@@ -19,3 +19,4 @@ backend/devtools
 backend/.ccls-cache
 backend/.cache/clangd/index
 backend/build
+site_certs

@@ -1,0 +1,17 @@
+CONFIG_VERSION=3.8.4
+CONFIG_INST_PREFIX=/nix/store/blknx4w1qzf75klb28i1sqmxyf9rv365-gdal-3.8.4
+CONFIG_INST_LIBS=-L/nix/store/blknx4w1qzf75klb28i1sqmxyf9rv365-gdal-3.8.4/lib -lgdal
+CONFIG_INST_CFLAGS=-I/nix/store/blknx4w1qzf75klb28i1sqmxyf9rv365-gdal-3.8.4/include
+CONFIG_INST_DATA=/nix/store/blknx4w1qzf75klb28i1sqmxyf9rv365-gdal-3.8.4/share/gdal
+prefix=${CONFIG_INST_PREFIX}
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${exec_prefix}/include
+datadir=${CONFIG_INST_DATA}
+
+Name: libgdal
+Description: Geospatial Data Abstraction Library
+Version: ${CONFIG_VERSION}
+Libs: ${CONFIG_INST_LIBS}
+Libs.private: -ldl -lcryptopp -lssl -lcrypto -llzma -ldeflate -llz4 -larmadillo -lqhull_r -lgeotiff -ltiff -lheif -lLerc -lzstd -lbrunslienc-c -lbrunslidec-c -ljpeg -lpoppler -lpng -lgif -lnetcdf -lblosc -lcfitsio -lhdf5 -lwebp -lhdf -lmfhdf -lz -lopenjp2 -L/nix/store/vj5gxiixafwjz078b6nycg73wjh7m7fb-tiledb-2.18.2/lib64 -ltiledb -lIlmImf -lIlmImfUtil -lHalf -lIex -ljxl -ljxl_threads -lpcre2-8 -lspatialite -lsqlite3 -lxerces-c -L/nix/store/vkwn81r179xf1579n03s5ffd42j820mm-mariadb-connector-c-3.3.5/lib/mysql -lmysqlclient -lpq -larrow_dataset -lparquet -larrow_acero -larrow -lexpat -lxml2 -lgeos_c -lcurl -lproj -ljson-c -lstdc++ -lm
+Cflags: ${CONFIG_INST_CFLAGS}
