@@ -41,17 +41,13 @@ export async function addLayerFromBackend(parsedMessage: { type: string; args: [
             for (const arg of args as [addWMSObject]) {
                 receivedMessageObjects.push({
                     uid: arg.uid,
-                    url: arg.url,
-                    title: arg.title,
-                    abstract: arg.abstract,
+                    capabilitiesUrl: arg.capabilitiesUrl,
                     name: arg.name,
-                    format: arg.format,
                     credit: arg.credit,
-                    wgs84BoundingBox: arg.wgs84BoundingBox,
                     serviceInfo: arg.serviceInfo
                 });
             }
-            addWMS(receivedMessageObjects as addWMSObject[]);
+            await addWMS(receivedMessageObjects as addWMSObject[]);
             raiseMapStateChangedEvent();
             break;
         case "WMTS":

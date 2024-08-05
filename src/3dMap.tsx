@@ -1116,6 +1116,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         layer.alpha = 1;
         layer.show = true;
         (layer as WesImageryLayer).name = imageryOption.name;
+        (layer as WesImageryLayer).description = imageryOption.description;
         (layer as WesImageryLayer).uid = imageryOption.uid;
         (layer as WesImageryLayer).serviceInfo = {
             serviceId: imageryOption.serviceInfo.serviceId,

@@ -29,7 +29,7 @@ export function ImageryEntry(props: {
     return (
         <li>
             <div class="layer-list-layer-entry">
-                <span class="layer-name" title={imageryLayer.name}>
+                <span class="layer-name" title={imageryLayer.description}>
                     {imageryLayer.name}
                 </span>
                 <LayerSettingsButton

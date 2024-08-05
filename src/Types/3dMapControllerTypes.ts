@@ -23,13 +23,9 @@ export type AddRequestObject =
 
 export type addWMSObject = {
     uid: string;
-    url: string;
-    title: string;
-    abstract: string;
+    capabilitiesUrl: string;
     name: string;
-    format: string;
     credit: string;
-    wgs84BoundingBox: WGS84BoundingBox;
     serviceInfo: ServiceInfo;
 };
 

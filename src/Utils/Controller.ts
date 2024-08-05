@@ -14,6 +14,7 @@ import {
     addWMTSObject
 } from "../Types/3dMapControllerTypes";
 import { MapState, WesImageryObject, csltGpkgOption } from "../Types/types";
+import { findImagePngFormat, getCapabilitiesLayerInformation, getWmsCapabilitiesJson } from "./CapabilitiesParsing";
 
 /**
  * Adds a WMTS to 3DMap if a layer on top of the imagery if the uid doesn't exist.
@@ -85,22 +86,39 @@ export function addOgcMap(addOgcMapObject: addOGCMapObject[]) {
  *
  * @param {addWMSObject[]} addWMSObject
  */
-export function addWMS(addWMSObject: addWMSObject[]) {
+export async function addWMS(addWMSObject: addWMSObject[]) {
     const mapState = getMapState();
     let imageLayers = mapState.imageLayers;
     for (const wmsObject of addWMSObject) {
+        const capJson = await getWmsCapabilitiesJson(wmsObject.capabilitiesUrl);
+        if (capJson == null) {
+            console.error("Couldnt get the capabilities json from: " + wmsObject.capabilitiesUrl);
+            return;
+        }
+        const layerInfo = getCapabilitiesLayerInformation(capJson, wmsObject.name);
+        if (layerInfo == null) {
+            console.error(
+                "Couldn't get the layer information from: " + wmsObject.capabilitiesUrl + " for: " + wmsObject.name
+            );
+            return;
+        }
         const option = {
             uid: wmsObject.uid,
             type: "WMS",
-            name: wmsObject.title,
-            description: wmsObject.abstract ? wmsObject.abstract : wmsObject.title,
-            url: wmsObject.url,
+            name: layerInfo.Title,
+            description: layerInfo.Abstract ? layerInfo.Abstract : layerInfo.Title,
+            url: wmsObject.capabilitiesUrl.split("?")[0],
             serviceInfo: wmsObject.serviceInfo,
-            bounds: wmsObject.wgs84BoundingBox,
+            bounds: {
+                minX: layerInfo.EX_GeographicBoundingBox[0],
+                minY: layerInfo.EX_GeographicBoundingBox[1],
+                maxX: layerInfo.EX_GeographicBoundingBox[2],
+                maxY: layerInfo.EX_GeographicBoundingBox[3]
+            },
             layers: wmsObject.name,
             parameters: {
                 transparent: "true",
-                format: wmsObject.format
+                format: findImagePngFormat(capJson)
             },
             credit: wmsObject.credit ? wmsObject.credit : "",
             show: false,
