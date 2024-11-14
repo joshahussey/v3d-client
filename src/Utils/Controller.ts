@@ -445,18 +445,24 @@ export function getDefaultState() {
 }
 
 /**
- * Retrieves the latest version of of the map state from the server using url stored at 'localStoreage.Default3dMapUrl'.
+ * Retrieves the latest version of of the map state from the server using the referrer's url concatenated with
+ * a path to WES's DefaultCesiumState servlet. If this fails, it uses the 3D state.json file.
  * @param {*} force
  * @returns {JSON | null} The default Map State from the server.
  */
 export async function fetchDefaultMapState(force: boolean) {
-    let url = localStorage.Default3dMapUrl;
-    if (!url) {
-        url = "state.json";
+    let url = document.referrer;
+    let response: Response;
+    url = url + "wes/Cesium/DefaultCesiumState";
+    response = await fetch(url);
+    if (response.status !== 200) {
+        console.warn("Failed to fetch Default Map State from ", url);
+        response = await fetch("state.json");
+        if (response.status !== 200) {
+            console.error("Failed to fetch Default Map State from state.json");
+            return;
+        }
     }
-    const response = await fetch(url);
-    console.log(response.status); // 200
-    console.log(response.statusText); // OK
     if (response.status === 200) {
         try {
             const data = await response.json();
