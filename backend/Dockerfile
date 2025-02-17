@@ -1,6 +1,18 @@
 # syntax=docker/dockerfile:1
 
-FROM docker.compusult.com:5000/backend_base
+FROM ghcr.io/osgeo/gdal:alpine-small-3.8.4
+COPY --from=golang:1.21 /usr/local/go /usr/local/go
+ENV PATH="/usr/local/go/bin:${PATH}"
+WORKDIR /cslt
+RUN [ "mkdir", "-p", "./backend" ]
+COPY . ./backend
+WORKDIR /cslt/backend
+RUN [ "apk", "add", "gcc", "musl-dev" ]
+RUN [ "go", "build" ]
+WORKDIR /cslt
+RUN [ "rm", "-rf", "backend" ]
+RUN [ "mkdir", "backend" ]
+
 WORKDIR /cslt
 COPY . ./backend
 WORKDIR /cslt/backend

@@ -12,6 +12,7 @@ COPY package.json /cslt/package.json
 COPY config/ /cslt/config/
 COPY src/ /cslt/src/
 COPY static/ /cslt/static/
+COPY static/startup.sh /cslt/startup.sh
 
 RUN [ "npm", "install" ]
 RUN [ "npm", "run", "build-client" ]
@@ -22,4 +23,6 @@ RUN [ "rm", "-rf", "package-lock.json" ]
 RUN [ "rm", "-rf", "src" ]
 RUN [ "rm", "-rf", "static" ]
 RUN [ "rm", "-rf", "tsconfig.json" ]
-CMD [ "tail", "-F", "/dev/null" ]
+RUN [ "mkdir", "-p", "/cslt/export" ]
+
+CMD [ "sh", "./startup.sh"]

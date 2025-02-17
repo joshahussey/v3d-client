@@ -1,18 +1,21 @@
 name: standalone3d
 
 services:
-  frontend:
-    build:
-      context: .
-      dockerfile: frontend-Dockerfile
-    volumes:
-      - /opt/standalone/web:/cslt/web
-  backend:
-    ports:
-      - "$BACKEND_PORT:$BACKEND_PORT"
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    volumes:
-      - ./logs/:/cslt/backend/logs
-      - /opt/standalone/web:/cslt/web
+    frontend:
+        build:
+            context: .
+            dockerfile: frontend-Dockerfile
+        volumes:
+            - type: bind
+              source: ./standalone_web
+              target: /cslt/export/web
+    backend:
+        environment:
+            - BACKEND_PORT
+        ports:
+            - "$BACKEND_PORT:$BACKEND_PORT"
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+        volumes:
+            - ./logs/:/cslt/logs

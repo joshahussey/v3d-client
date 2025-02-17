@@ -20,3 +20,6 @@ backend/.ccls-cache
 backend/.cache/clangd/index
 backend/build
 site_certs
+certs/compusult_net_2024.crt
+certs/compusult_net_2048_nopass.key
+/standalone_web/*
