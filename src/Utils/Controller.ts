@@ -11,9 +11,10 @@ import {
     addOGCMapObject,
     addSensorThingsObject,
     addWMSObject,
-    addWMTSObject
+    addWMTSObject,
+    addCOGObject
 } from "../Types/3dMapControllerTypes";
-import { MapState, WesImageryObject, csltGpkgOption } from "../Types/types";
+import { MapState, WesImageryObject, csltCOGOption, csltGpkgOption } from "../Types/types";
 import { findImagePngFormat, getCapabilitiesLayerInformation, getWmsCapabilitiesJson } from "./CapabilitiesParsing";
 
 /**
@@ -190,6 +191,25 @@ export function add3DTiles(add3DTilesObject: add3DTilesObject[]) {
         ...mapState,
         primitiveLayers: primitiveLayers
     });
+}
+
+export function addCOG(addCOGObject: addCOGObject[]) {
+    const mapState = getMapState();
+    let imageLayers = mapState.imageLayers;
+    for (const cogObject of addCOGObject) {
+        const option: csltCOGOption = {
+            uid: cogObject.uid,
+            type: "COG",
+            name: cogObject.name,
+            description: cogObject.description,
+            url: cogObject.url,
+            serviceInfo: cogObject.serviceInfo
+        };
+        imageLayers = imageLayers.filter(l => l.uid !== cogObject.uid);
+        imageLayers.push(option);
+    }
+    mapState.imageLayers = imageLayers;
+    setMapState(mapState);
 }
 
 /**

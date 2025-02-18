@@ -50,7 +50,9 @@ import {
     csltOGCCoverageOption,
     csltGpkgOption,
     csltArcGISWMSOption,
-    csltOGCMapOption
+    csltOGCMapOption,
+    csltCOGOption,
+    ServiceInfo
 } from "./Types/types";
 import { getMapState, onLoad, setMapState } from "./Utils/Controller";
 import { createStore } from "solid-js/store";
@@ -105,6 +107,8 @@ import { addLayerFromBackend } from "./Utils/AddLayerFromBackend";
 import GpkgTilingScheme from "./Utils/GpkgTilingScheme";
 import { updateAoi } from "./Utils/Aoi";
 import { validateBoundingBox } from "./Utils/Validation";
+import TIFFImageryProvider from "tiff-imagery-provider";
+import proj4 from "proj4";
 
 type WesPrimitiveCollection = PrimitiveCollection & {
     _primitives: Wes3DTileSet[];
@@ -673,49 +677,55 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         while (dataSourcesToBeAdded.size > 0) {
             const layerOptions = dataSourcesToBeAdded.values();
             const layerOption = layerOptions.next().value;
-            if (checkIfLayerExists(layerOption)) {
+            if (layerOption != undefined) {
+                if (checkIfLayerExists(layerOption)) {
+                    dataSourcesToBeAdded.delete(layerOption);
+                    continue;
+                }
+                await addDataSource(layerOption);
+                if (!hasZoomed) {
+                    hasZoomed = true;
+                    zoomTo(
+                        dataSourceLayers.get(dataSourceLayers.length - 1) as
+                            | WesDataSource
+                            | KmlDataSource
+                            | GeoJsonDataSource
+                    );
+                }
                 dataSourcesToBeAdded.delete(layerOption);
-                continue;
             }
-            await addDataSource(layerOption);
-            if (!hasZoomed) {
-                hasZoomed = true;
-                zoomTo(
-                    dataSourceLayers.get(dataSourceLayers.length - 1) as
-                        | WesDataSource
-                        | KmlDataSource
-                        | GeoJsonDataSource
-                );
-            }
-            dataSourcesToBeAdded.delete(layerOption);
         }
         while (imageryLayersToBeAdded.size > 0) {
             const layerOptions = imageryLayersToBeAdded.values();
             const layerOption = layerOptions.next().value;
-            if (checkIfLayerExists(layerOption)) {
+            if (layerOption != undefined) {
+                if (checkIfLayerExists(layerOption)) {
+                    imageryLayersToBeAdded.delete(layerOption);
+                    continue;
+                }
+                await addAdditionalLayerOption(layerOption);
+                if (!hasZoomed) {
+                    hasZoomed = true;
+                    zoomTo(imageryLayers.get(imageryLayers.length - 1) as WesImageryLayer);
+                }
                 imageryLayersToBeAdded.delete(layerOption);
-                continue;
             }
-            await addAdditionalLayerOption(layerOption);
-            if (!hasZoomed) {
-                hasZoomed = true;
-                zoomTo(imageryLayers.get(imageryLayers.length - 1) as WesImageryLayer);
-            }
-            imageryLayersToBeAdded.delete(layerOption);
         }
         while (tilesetsToBeAdded.size > 0) {
             const layerOptions = tilesetsToBeAdded.values();
             const layerOption = layerOptions.next().value;
-            if (checkIfLayerExists(layerOption)) {
+            if (layerOption != undefined) {
+                if (checkIfLayerExists(layerOption)) {
+                    tilesetsToBeAdded.delete(layerOption);
+                    continue;
+                }
+                await add3dTiles(layerOption);
+                if (!hasZoomed) {
+                    hasZoomed = true;
+                    zoomTo(tileSets()[tileSets().length - 1]);
+                }
                 tilesetsToBeAdded.delete(layerOption);
-                continue;
             }
-            await add3dTiles(layerOption);
-            if (!hasZoomed) {
-                hasZoomed = true;
-                zoomTo(tileSets()[tileSets().length - 1]);
-            }
-            tilesetsToBeAdded.delete(layerOption);
         }
         if (dataSourcesToBeAdded.size > 0 || imageryLayersToBeAdded.size > 0 || tilesetsToBeAdded.size > 0) {
             if (optionsMap != null && viewer != null) {
@@ -878,7 +888,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
      */
     async function getImageryProvider(option: WesImageryObject): Promise<WesImageryProvider> {
         let bounds;
-        if (option.bounds != undefined) {
+        if ("bounds" in option && option.bounds != undefined) {
             bounds = Rectangle.fromDegrees(
                 option.bounds.minX,
                 option.bounds.minY,
@@ -1021,6 +1031,20 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                 tilingScheme: tilingScheme
             });
         }
+        if (option.type === "COG") {
+            const cogOption = option as csltCOGOption;
+            return new TIFFImageryProvider({
+                url: cogOption.url,
+                projFunc: code => {
+                    if (code === 32610) {
+                        return {
+                            project: proj4("EPSG:4326", "EPSG:32610").forward,
+                            unproject: proj4("EPSG:4326", "EPSG:32610").inverse
+                        };
+                    }
+                }
+            }) as unknown as WesImageryProvider;
+        }
 
         throw t("3dMapGetImageryProviderError2");
     }
@@ -1084,7 +1108,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             }
         }
         let layer = null;
-        if (imageryOption.type === "OgcMap") {
+        if (imageryOption.type === "OgcMap" && "bounds" in imageryOption) {
             const createdDatasource = new OgcMapsDatasource(
                 imageryOption.description,
                 imageryOption.name,
@@ -1101,6 +1125,30 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             if (createdDatasource.provider) {
                 layer = ImageryLayer.fromProviderAsync(createdDatasource.getProvider(), {});
             }
+        } else if (imageryOption.type === "COG") {
+            const provider = (await getImageryProvider(imageryOption)) as unknown as TIFFImageryProvider;
+            provider.readyPromise.then(() => {
+                const layer = viewer.imageryLayers.addImageryProvider(provider as unknown as ImageryProvider);
+                if (layer == null) {
+                    return;
+                }
+                layer.alpha = 1;
+                layer.show = true;
+                (layer as WesImageryLayer).name = imageryOption.name;
+                (layer as WesImageryLayer).description = imageryOption.description;
+                (layer as WesImageryLayer).uid = imageryOption.uid;
+                (layer as WesImageryLayer).serviceInfo = {
+                    serviceId: imageryOption.serviceInfo.serviceId,
+                    serviceTitle: imageryOption.serviceInfo.serviceTitle,
+                    serviceUrl: imageryOption.serviceInfo.serviceUrl
+                };
+                const map = optionsMap();
+                map.set(layer as WesImageryLayer, imageryOption);
+                setOptionsMap(map);
+                imageryLayers.add(layer);
+                imageryLayers.raiseToTop(layer);
+            });
+            return;
         } else {
             if (imageryOption.uid === basemapOption.uid) {
                 layer = imageryLayers.get(0);
@@ -1282,7 +1330,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         }
     }
 
-    function checkIfLayerExists(layerOption: WesImageryLayer) {
+    function checkIfLayerExists(layerOption: WesImageryObject | WesDataSourceObject | Wes3DTileSet) {
         for (const option of optionsMap().values()) {
             if (option.uid === layerOption.uid) {
                 return true;

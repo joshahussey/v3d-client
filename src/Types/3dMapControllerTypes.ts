@@ -19,7 +19,8 @@ export type AddRequestObject =
     | addOGCMapObject
     | addOGCFeatureObject
     | addOGCCoverageObject
-    | addGpkgObject;
+    | addGpkgObject
+    | addCOGObject;
 
 export type addWMSObject = {
     uid: string;
@@ -62,6 +63,14 @@ export type add3DTilesObject = {
     description: string;
     serviceInfo: ServiceInfo;
     show?: boolean;
+};
+
+export type addCOGObject = {
+    uid: string;
+    url: string;
+    name: string;
+    description: string;
+    serviceInfo: ServiceInfo;
 };
 
 export type addSensorThingsObject = {

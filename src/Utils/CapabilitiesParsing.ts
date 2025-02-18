@@ -28,26 +28,34 @@ export function getCapabilitiesLayerInformation(
     capabilitiesJson: WMSCapabilitiesJSON,
     layerName: string
 ): Layer3 | undefined {
-    const topLevelLayersArray = capabilitiesJson.Capability.Layer.Layer as (Layer2 | Layer3)[];
-    let leafLayerObj;
-    for (let i = 0; i < topLevelLayersArray.length; i++) {
-        let tempLayerObj = topLevelLayersArray[i];
-        if ((tempLayerObj as Layer2).Layer) {
-            tempLayerObj = tempLayerObj as Layer2;
-            for (let j = 0; j < tempLayerObj.Layer.length; j++) {
-                if (tempLayerObj.Layer[j].Name === layerName) {
-                    leafLayerObj = tempLayerObj.Layer[j];
+    if (capabilitiesJson.Capability.Layer.Layer != null) {
+        const topLevelLayersArray = capabilitiesJson.Capability.Layer.Layer as (Layer2 | Layer3)[];
+        let leafLayerObj;
+        for (let i = 0; i < topLevelLayersArray.length; i++) {
+            let tempLayerObj = topLevelLayersArray[i];
+            if ((tempLayerObj as Layer2).Layer) {
+                tempLayerObj = tempLayerObj as Layer2;
+                for (let j = 0; j < tempLayerObj.Layer.length; j++) {
+                    if (tempLayerObj.Layer[j].Name === layerName) {
+                        leafLayerObj = tempLayerObj.Layer[j];
+                    }
+                }
+            } else {
+                if ((tempLayerObj as Layer3).Name === layerName) {
+                    leafLayerObj = tempLayerObj as Layer3;
                 }
             }
-        } else {
-            if ((tempLayerObj as Layer3).Name === layerName) {
-                leafLayerObj = tempLayerObj as Layer3;
-            }
+        }
+        if (leafLayerObj != null) {
+            return leafLayerObj;
+        }
+    } else if (capabilitiesJson.Capability.Layer != null) {
+        const leafLayerObj = capabilitiesJson.Capability.Layer as unknown as Layer3;
+        if (leafLayerObj.Name === layerName) {
+            return leafLayerObj;
         }
     }
-    if (leafLayerObj != null) {
-        return leafLayerObj;
-    }
+    console.error("Failed to parse layer information for WMS: {} of {}", layerName, capabilitiesJson);
 }
 
 /**

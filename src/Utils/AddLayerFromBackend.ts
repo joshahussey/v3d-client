@@ -2,6 +2,7 @@ import {
     add3DTilesObject,
     addArcGisWMSObject,
     addCelestialObject,
+    addCOGObject,
     addGeoJSONObject,
     addGpkgObject,
     addKmlObject,
@@ -18,6 +19,7 @@ import {
     add3DTiles,
     addArcGisWMS,
     addCelestial,
+    addCOG,
     addGeoJSON,
     addGpkg,
     addKml,
@@ -38,161 +40,51 @@ export async function addLayerFromBackend(parsedMessage: { type: string; args: [
     const receivedMessageObjects: AddRequestObject[] = [];
     switch (parsedMessage.type) {
         case "WMS":
-            for (const arg of args as [addWMSObject]) {
-                receivedMessageObjects.push({
-                    uid: arg.uid,
-                    capabilitiesUrl: arg.capabilitiesUrl,
-                    name: arg.name,
-                    credit: arg.credit,
-                    serviceInfo: arg.serviceInfo
-                });
-            }
-            await addWMS(receivedMessageObjects as addWMSObject[]);
+            await addWMS(args as [addWMSObject]);
             raiseMapStateChangedEvent();
             break;
         case "WMTS":
-            for (const arg of args as [addWMTSObject]) {
-                receivedMessageObjects.push({
-                    uid: arg.uid,
-                    resourceUrlTemplate: arg.resourceUrlTemplate,
-                    title: arg.title,
-                    abstract: arg.abstract,
-                    layerIdentifier: arg.layerIdentifier,
-                    styleIdentifier: arg.styleIdentifier,
-                    format: arg.format,
-                    tileMatrixSetIdentifier: arg.tileMatrixSetIdentifier,
-                    maximumLevel: arg.maximumLevel,
-                    credit: arg.credit,
-                    wgs84BoundingBox: arg.wgs84BoundingBox,
-                    serviceInfo: arg.serviceInfo
-                });
-            }
-            addWMTS(receivedMessageObjects as addWMTSObject[]);
+            addWMTS(args as [addWMTSObject]);
             raiseMapStateChangedEvent();
             break;
         case "ARCGISWMS":
-            for (const arg of args as [addArcGisWMSObject]) {
-                receivedMessageObjects.push({
-                    uid: arg.uid,
-                    url: arg.url,
-                    title: arg.title,
-                    id: arg.id,
-                    abstract: arg.abstract,
-                    credit: arg.credit,
-                    wgs84BoundingBox: arg.wgs84BoundingBox,
-                    serviceInfo: arg.serviceInfo
-                });
-            }
-            addArcGisWMS(receivedMessageObjects as addArcGisWMSObject[]);
+            addArcGisWMS(args as [addArcGisWMSObject]);
             raiseMapStateChangedEvent();
             break;
         case "OGCMAP":
-            for (const arg of args as [addOGCMapObject]) {
-                receivedMessageObjects.push({
-                    uid: arg.uid,
-                    title: arg.title,
-                    url: arg.url,
-                    wgs84BoundingBox: arg.wgs84BoundingBox,
-                    serviceInfo: arg.serviceInfo
-                });
-            }
-            addOgcMap(receivedMessageObjects as addOGCMapObject[]);
+            addOgcMap(args as [addOGCMapObject]);
             raiseMapStateChangedEvent();
             break;
         case "FEATURE":
-            for (const arg of args as [addOGCFeatureObject]) {
-                receivedMessageObjects.push({
-                    uid: arg.uid,
-                    url: arg.url,
-                    title: arg.title,
-                    description: arg.description,
-                    wgs84BoundingBox: arg.wgs84BoundingBox,
-                    serviceInfo: arg.serviceInfo
-                });
-            }
-            addOGCFeature(receivedMessageObjects as addOGCFeatureObject[]);
+            addOGCFeature(args as [addOGCFeatureObject]);
             raiseMapStateChangedEvent();
             break;
         case "COVERAGE":
-            for (const arg of args as [addOGCCoverageObject]) {
-                receivedMessageObjects.push({
-                    uid: arg.uid,
-                    url: arg.url,
-                    title: arg.title,
-                    description: arg.description,
-                    sourceLayerIndex: arg.sourceLayerIndex,
-                    id: arg.id,
-                    wgs84BoundingBox: arg.wgs84BoundingBox,
-                    serviceInfo: arg.serviceInfo
-                });
-            }
-            addOGCCoverage(receivedMessageObjects as addOGCCoverageObject[]);
+            addOGCCoverage(args as [addOGCCoverageObject]);
             raiseMapStateChangedEvent();
             break;
         case "CELESTIAL":
-            for (const arg of args as [addCelestialObject]) {
-                receivedMessageObjects.push({
-                    uid: arg.uid,
-                    url: arg.url,
-                    title: arg.title,
-                    description: arg.description,
-                    serviceInfo: arg.serviceInfo
-                });
-            }
-            addCelestial(receivedMessageObjects as addCelestialObject[]);
+            addCelestial(args as [addCelestialObject]);
             raiseMapStateChangedEvent();
             break;
         case "SENSORTHINGS":
-            for (const arg of args as [addSensorThingsObject]) {
-                receivedMessageObjects.push({
-                    uid: arg.uid,
-                    url: arg.url,
-                    title: arg.title,
-                    description: arg.description,
-                    wgs84BoundingBox: arg.wgs84BoundingBox,
-                    serviceInfo: arg.serviceInfo
-                });
-            }
-            addSensorThings(receivedMessageObjects as addSensorThingsObject[]);
+            addSensorThings(args as [addSensorThingsObject]);
             raiseMapStateChangedEvent();
             break;
         case "GEOJSON":
-            for (const arg of args as [addGeoJSONObject]) {
-                receivedMessageObjects.push({
-                    uid: arg.uid,
-                    urlOrGeoJsonObject: arg.urlOrGeoJsonObject,
-                    title: arg.title,
-                    description: arg.description,
-                    serviceInfo: arg.serviceInfo
-                });
-            }
-            addGeoJSON(receivedMessageObjects as addGeoJSONObject[]);
+            addGeoJSON(args as [addGeoJSONObject]);
             raiseMapStateChangedEvent();
             break;
         case "KML":
-            for (const arg of args as [addKmlObject]) {
-                receivedMessageObjects.push({
-                    uid: arg.uid,
-                    url: arg.url,
-                    title: arg.title,
-                    description: arg.description,
-                    serviceInfo: arg.serviceInfo
-                });
-            }
-            addKml(receivedMessageObjects as addKmlObject[]);
+            addKml(args as [addKmlObject]);
             raiseMapStateChangedEvent();
             break;
         case "3DTILES":
-            for (const arg of args as [add3DTilesObject]) {
-                receivedMessageObjects.push({
-                    uid: arg.uid,
-                    url: arg.url,
-                    title: arg.title,
-                    description: arg.description,
-                    serviceInfo: arg.serviceInfo
-                });
-            }
-            add3DTiles(receivedMessageObjects as add3DTilesObject[]);
+            add3DTiles(args as [add3DTilesObject]);
+            raiseMapStateChangedEvent();
+            break;
+        case "COG":
+            addCOG(args as [addCOGObject]);
             raiseMapStateChangedEvent();
             break;
         case "GPKG":

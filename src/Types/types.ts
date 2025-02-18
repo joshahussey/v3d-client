@@ -167,7 +167,14 @@ export type WesTerrainObject = {
     type: "Terrain";
 };
 
-export type WesImageryObject = csltWMSOption | csltWMTSOption | csltArcGISWMSOption | csltOGCMapOption | csltGpkgOption;
+export type WesImageryObject =
+    | csltWMSOption
+    | csltWMTSOption
+    | csltArcGISWMSOption
+    | csltOGCMapOption
+    | csltGpkgOption
+    | csltCOGOption;
+
 export type csltWMTSOption = {
     uid: string;
     type: string;
@@ -244,6 +251,14 @@ export type csltGpkgOption = {
     tileHeight: number;
     bounds: WGS84BoundingBox;
     matrixDimensions: zoomDim[];
+};
+export type csltCOGOption = {
+    uid: string;
+    name: string;
+    description: string;
+    url: string;
+    type: string;
+    serviceInfo: ServiceInfo;
 };
 
 export type WesPrimitiveObject = cslt3DTilesOption;
