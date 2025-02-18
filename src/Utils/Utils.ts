@@ -344,12 +344,7 @@ export function colorFromRGBGradient(value: number, min: number, max: number) {
         green = colorFromHeight > 75 ? 1 - (2 * (colorFromHeight - 75)) / 50 : 1.0;
         red = colorFromHeight > 75 ? 1.0 : (2 * colorFromHeight) / 50.0;
     }
-    return [
-        Color.floatToByte(red),
-        Color.floatToByte(green),
-        Color.floatToByte(blue),
-        Color.floatToByte(1.0)
-    ];
+    return [Color.floatToByte(red), Color.floatToByte(green), Color.floatToByte(blue), Color.floatToByte(1.0)];
 }
 
 export function rgbaToHex(rgba: number[]) {
@@ -663,10 +658,11 @@ export function mainSwitch(
 
     let coordinates: GeoJsonGetAllResult = [points, lines, polygons];
     const objectCategory =
-        object.type.toLowerCase() == ("feature" || "geometrycollection" || "featurecollection")
+        object.type.toLowerCase() == "feature" ||
+        object.type.toLowerCase() == "geometrycollection" ||
+        object.type.toLowerCase() == "featurecollection"
             ? object.type.toLowerCase()
             : "geometry";
-
     switch (objectCategory) {
         case "geometry": {
             const newCoordinates = geometryObjectSwitch(object);
