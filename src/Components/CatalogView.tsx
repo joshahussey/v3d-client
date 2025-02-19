@@ -1,6 +1,9 @@
 import { useToolbarStateContext, ToolbarContextType } from "../Context/ToolbarStateContext";
 import { CesiumWindow } from "../Types/types";
+import { Stac } from "./Stac/stac.es.js";
 import ClickOutsideToolbar from "./Directives/ClickOutsideToolbar";
+import { createSignal } from "solid-js";
+import "./Stac/components3d.css";
 
 export function CatalogView() {
     const { setCatalogOpened } = useToolbarStateContext() as ToolbarContextType;
@@ -8,7 +11,10 @@ export function CatalogView() {
     (window as CesiumWindow).setCatalogOpen = function (isOpen: boolean) {
         setCatalogOpened(isOpen);
     };
-
+    const bbox = createSignal("");
+    const intersects = createSignal("");
+    const datetime = createSignal("");
+    const selectCallback = console.log;
     /*const classificationParameters =
         "&resourceTypeClassifications=urn:ogc:serviceType:WebMapService" +
         "&resourceTypeClassifications=urn:ogc:serviceType:WebMapTileService" +
@@ -25,13 +31,20 @@ export function CatalogView() {
         "&resourceTypeClassifications=urn:ogc:serviceType:OgcApiTiles";*/
 
     return (
-        <iframe
-            use:ClickOutsideToolbar={() => setCatalogOpened(false)}
-            class="cslt-toolbar-iframe"
-            id="CatalogView"
-            src={"/wes/CSWSearchClient/pages/view.jsp?entryPoint=browseCatalog&is3DClient=true"} // + classificationParameters}
-            width="1000px"
-            height="720px"
+        // <iframe
+        //     use:ClickOutsideToolbar={() => setCatalogOpened(false)}
+        //     class="cslt-toolbar-iframe"
+        //     id="CatalogView"
+        //     src={"/wes/CSWSearchClient/pages/view.jsp?entryPoint=browseCatalog&is3DClient=true"} // + classificationParameters}
+        //     width="1000px"
+        //     height="720px"
+        // />
+        <Stac
+            url="https://earth-search.aws.element84.com/v0"
+            bboxSignal={bbox}
+            intersectsSignal={intersects}
+            datetimeSignal={datetime}
+            selectCallback={selectCallback}
         />
     );
 }

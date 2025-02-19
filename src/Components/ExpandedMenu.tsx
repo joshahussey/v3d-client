@@ -1,5 +1,6 @@
 import { JSX, Show } from "solid-js";
 import { LayersDiv } from "./Components";
+import { CatalogView } from "./CatalogView";
 import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
 
 /**
@@ -7,13 +8,16 @@ import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarSt
  * @returns {JSX.Element} A JSX element representing the expanded menu.
  */
 export function ExpandedMenu(): JSX.Element {
-    const { isLayersOpened } = useToolbarStateContext() as ToolbarContextType;
+    const { isLayersOpened, isCatalogOpened } = useToolbarStateContext() as ToolbarContextType;
 
     return (
         <Show when={isLayersOpened()}>
             <div id="ExpandedMenu" class="cslt-toolbar-expanded">
                 <Show when={isLayersOpened()}>
                     <LayersDiv />
+                </Show>
+                <Show when={isCatalogOpened()}>
+                    <CatalogView />
                 </Show>
             </div>
         </Show>

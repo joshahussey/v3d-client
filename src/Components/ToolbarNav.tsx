@@ -23,7 +23,9 @@ export function ToolbarNav(): JSX.Element {
         isSaveOpened,
         setSaveOpened,
         isLoadOpened,
-        setLoadOpened
+        setLoadOpened,
+        setCatalogOpened,
+        isCatalogOpened
     } = useToolbarStateContext() as ToolbarContextType;
     const layerOrderIcon = (
         <svg
@@ -132,6 +134,7 @@ export function ToolbarNav(): JSX.Element {
             setBasemapTerrainOpened(false);
             setLoadOpened(false);
             setSaveOpened(false);
+            setCatalogOpened(false);
         }
     });
     createEffect(() => {
@@ -142,6 +145,7 @@ export function ToolbarNav(): JSX.Element {
             setBasemapTerrainOpened(false);
             setLoadOpened(false);
             setSaveOpened(false);
+            setCatalogOpened(false);
         }
     });
     createEffect(() => {
@@ -152,6 +156,7 @@ export function ToolbarNav(): JSX.Element {
             setLayersOrderOpened(false);
             setLoadOpened(false);
             setSaveOpened(false);
+            setCatalogOpened(false);
         }
     });
     createEffect(() => {
@@ -161,6 +166,7 @@ export function ToolbarNav(): JSX.Element {
             setLayersOrderOpened(false);
             setLoadOpened(false);
             setSaveOpened(false);
+            setCatalogOpened(false);
         }
     });
     createEffect(() => {
@@ -169,6 +175,7 @@ export function ToolbarNav(): JSX.Element {
             setLayersTreeOpened(false);
             setLayersOrderOpened(false);
             setSaveOpened(false);
+            setCatalogOpened(false);
         }
     });
     createEffect(() => {
@@ -177,6 +184,16 @@ export function ToolbarNav(): JSX.Element {
             setLayersTreeOpened(false);
             setLayersOrderOpened(false);
             setLoadOpened(false);
+            setCatalogOpened(false);
+        }
+    });
+    createEffect(() => {
+        if (isCatalogOpened()) {
+            setLayersOpened(true);
+            setLayersTreeOpened(false);
+            setLayersOrderOpened(false);
+            setLoadOpened(false);
+            setSaveOpened(false);
         }
     });
     createEffect(() => {
@@ -185,7 +202,8 @@ export function ToolbarNav(): JSX.Element {
             !isLayersOrderOpened() &&
             !isSearchOpened() &&
             !isLoadOpened() &&
-            !isSaveOpened()
+            !isSaveOpened() &&
+            !isCatalogOpened()
         ) {
             setLayersOpened(false);
         }
@@ -247,12 +265,7 @@ export function ToolbarNav(): JSX.Element {
                     id="CatalogViewButton"
                     icon={catalogIcon}
                     onClick={() => {
-                        window.open(
-                            localStorage.getItem("dataProvider") +
-                                "/wes/CSWSearchClient/pages/view.jsp?entryPoint=browseCatalog",
-                            "Catalog",
-                            "menubar=no,location=no,toolbar=no,status=no,directories=no,resizable=yes,width=1000,height=720"
-                        );
+                        setCatalogOpened(!isCatalogOpened());
                     }}
                     text={t("openCatalogText")}
                 />
