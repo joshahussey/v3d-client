@@ -1033,8 +1033,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         }
         if (option.type === "COG") {
             const cogOption = option as csltCOGOption;
-            return new TIFFImageryProvider({
-                url: cogOption.url,
+            return TIFFImageryProvider.fromUrl(cogOption.url, {
                 projFunc: code => {
                     if (code === 32610) {
                         return {
@@ -1125,30 +1124,6 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             if (createdDatasource.provider) {
                 layer = ImageryLayer.fromProviderAsync(createdDatasource.getProvider(), {});
             }
-        } else if (imageryOption.type === "COG") {
-            const provider = (await getImageryProvider(imageryOption)) as unknown as TIFFImageryProvider;
-            provider.readyPromise.then(() => {
-                const layer = viewer.imageryLayers.addImageryProvider(provider as unknown as ImageryProvider);
-                if (layer == null) {
-                    return;
-                }
-                layer.alpha = 1;
-                layer.show = true;
-                (layer as WesImageryLayer).name = imageryOption.name;
-                (layer as WesImageryLayer).description = imageryOption.description;
-                (layer as WesImageryLayer).uid = imageryOption.uid;
-                (layer as WesImageryLayer).serviceInfo = {
-                    serviceId: imageryOption.serviceInfo.serviceId,
-                    serviceTitle: imageryOption.serviceInfo.serviceTitle,
-                    serviceUrl: imageryOption.serviceInfo.serviceUrl
-                };
-                const map = optionsMap();
-                map.set(layer as WesImageryLayer, imageryOption);
-                setOptionsMap(map);
-                imageryLayers.add(layer);
-                imageryLayers.raiseToTop(layer);
-            });
-            return;
         } else {
             if (imageryOption.uid === basemapOption.uid) {
                 layer = imageryLayers.get(0);
