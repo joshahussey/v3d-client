@@ -1,6 +1,5 @@
 export { BasemapSelector } from "./BasemapSelector";
 export { DatasourceEntry } from "./DatasourceEntry";
-export { DeleteLayerButton } from "./DeleteLayerButton";
 export { DropDownButton } from "./DropDownButton";
 export { ExpandedMenu } from "./ExpandedMenu";
 export { ImageryEntry } from "./ImageryEntry";
