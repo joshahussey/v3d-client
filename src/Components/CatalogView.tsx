@@ -61,7 +61,7 @@ export function CatalogView() {
         //     height="720px"
         // />
         <Stac
-            url="https://earth-search.aws.element84.com/v0"
+            url="https://datacube.services.geo.ca/stac/api"
             bboxSignal={bbox}
             intersectsSignal={intersects}
             datetimeSignal={datetime}
