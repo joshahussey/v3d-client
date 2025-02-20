@@ -202,6 +202,7 @@ export function addCOG(addCOGObject: addCOGObject[]) {
             type: "COG",
             name: cogObject.name,
             description: cogObject.description,
+            projection: cogObject.projection,
             url: cogObject.url,
             serviceInfo: cogObject.serviceInfo
         };

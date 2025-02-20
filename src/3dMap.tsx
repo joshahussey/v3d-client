@@ -51,8 +51,7 @@ import {
     csltGpkgOption,
     csltArcGISWMSOption,
     csltOGCMapOption,
-    csltCOGOption,
-    ServiceInfo
+    csltCOGOption
 } from "./Types/types";
 import { getMapState, onLoad, setMapState } from "./Utils/Controller";
 import { createStore } from "solid-js/store";
@@ -108,7 +107,7 @@ import GpkgTilingScheme from "./Utils/GpkgTilingScheme";
 import { updateAoi } from "./Utils/Aoi";
 import { validateBoundingBox } from "./Utils/Validation";
 import TIFFImageryProvider from "tiff-imagery-provider";
-import proj4 from "proj4";
+import { createCogProjectionObject } from "./Utils/Utils";
 
 type WesPrimitiveCollection = PrimitiveCollection & {
     _primitives: Wes3DTileSet[];
@@ -1035,12 +1034,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             const cogOption = option as csltCOGOption;
             return TIFFImageryProvider.fromUrl(cogOption.url, {
                 projFunc: code => {
-                    if (code === 32610) {
-                        return {
-                            project: proj4("EPSG:4326", "EPSG:32610").forward,
-                            unproject: proj4("EPSG:4326", "EPSG:32610").inverse
-                        };
-                    }
+                    return createCogProjectionObject(code);
                 }
             }) as unknown as WesImageryProvider;
         }

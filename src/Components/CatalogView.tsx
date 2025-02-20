@@ -1,12 +1,33 @@
 import { useToolbarStateContext, ToolbarContextType } from "../Context/ToolbarStateContext";
-import { CesiumWindow } from "../Types/types";
+import { CesiumWindow, ServiceInfo } from "../Types/types";
 import { Stac } from "./Stac/stac.es.js";
 import ClickOutsideToolbar from "./Directives/ClickOutsideToolbar";
 import { createSignal } from "solid-js";
 import "./Stac/components3d.css";
+import { addCOG, raiseMapStateChangedEvent } from "../Utils/Controller";
+import { addCOGObject } from "../Types/3dMapControllerTypes";
 
 export function CatalogView() {
     const { setCatalogOpened } = useToolbarStateContext() as ToolbarContextType;
+
+    type StacCallbackInputType = { asset: StacAssetObject; feature: StacItem };
+    function addStacItemToMap(stacItemProj: StacCallbackInputType) {
+        const arg = {
+            uid: `${stacItemProj.feature.id}/${stacItemProj.asset.title}`,
+            url: stacItemProj.asset.href,
+            name: stacItemProj.asset.title,
+            description: stacItemProj.asset.description,
+            type: "COG",
+            projection: stacItemProj.feature.properties["proj:epsg"]?.toString() ?? "4326",
+            serviceInfo: {
+                serviceTitle: stacItemProj.feature.id,
+                serviceId: stacItemProj.feature.id,
+                serviceUrl: stacItemProj.feature.links.href
+            } as ServiceInfo
+        } as addCOGObject;
+        addCOG([arg] as [addCOGObject]);
+        raiseMapStateChangedEvent();
+    }
 
     (window as CesiumWindow).setCatalogOpen = function (isOpen: boolean) {
         setCatalogOpened(isOpen);
@@ -14,7 +35,7 @@ export function CatalogView() {
     const bbox = createSignal("");
     const intersects = createSignal("");
     const datetime = createSignal("");
-    const selectCallback = console.log;
+    const selectCallback = addStacItemToMap;
     /*const classificationParameters =
         "&resourceTypeClassifications=urn:ogc:serviceType:WebMapService" +
         "&resourceTypeClassifications=urn:ogc:serviceType:WebMapTileService" +

@@ -8,6 +8,7 @@ import { Geometry } from "geojson";
 import { FeatureCollection } from "geojson";
 import { GeometryCollection } from "geojson";
 import { translate as t } from "../i18n/Translator";
+import proj4 from "proj4";
 
 export type indexedPoint = [GeoJSON.Point["coordinates"], number];
 export type indexedLine = [GeoJSON.LineString["coordinates"], number];
@@ -702,4 +703,14 @@ export function mainSwitch(
             break;
     }
     return coordinates;
+}
+
+export function createCogProjectionObject(epsgCode: number): {
+    project: (pos: number[]) => number[];
+    unproject: (pos: number[]) => number[];
+} {
+    return {
+        project: proj4("EPSG:4326", `EPSG:${epsgCode}`).forward,
+        unproject: proj4("EPSG:4326", `EPSG:${epsgCode}`).inverse
+    };
 }

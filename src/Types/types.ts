@@ -258,6 +258,7 @@ export type csltCOGOption = {
     description: string;
     url: string;
     type: string;
+    projection: string;
     serviceInfo: ServiceInfo;
 };
 

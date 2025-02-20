@@ -70,6 +70,7 @@ export type addCOGObject = {
     url: string;
     name: string;
     description: string;
+    projection: string;
     serviceInfo: ServiceInfo;
 };
 
