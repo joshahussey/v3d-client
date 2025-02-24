@@ -1,7 +1,7 @@
 import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
-import { saveViewParameters } from "../Utils/SaveView";
+import { downloadMapState, saveViewParameters } from "../Utils/SaveView";
 import { CesiumWindow } from "../Types/types";
-import { createSignal } from "solid-js";
+import { createSignal, Show } from "solid-js";
 import { getViewsServletUrl, MAX_CHARS_100, MAX_CHARS_1024, VIEW_TYPE, VIEW_TYPES } from "../Constants";
 import { JSX } from "solid-js";
 import { translate as t } from "../i18n/Translator";
@@ -43,15 +43,17 @@ export function SaveView(): JSX.Element {
                     cols="48"
                     placeholder="Title"
                 />
-                <label class="save-view-form-description-label">Description</label>
-                <textarea
-                    class="save-view-form-description"
-                    value={description()}
-                    onInput={e => setDescription(e.currentTarget.value)}
-                    rows="4"
-                    cols="48"
-                    placeholder="Description"
-                />
+                <Show when={VIEW_TYPE !== VIEW_TYPES.DOWNLOAD_VIEWS.valueOf()}>
+                    <label class="save-view-form-description-label">Description</label>
+                    <textarea
+                        class="save-view-form-description"
+                        value={description()}
+                        onInput={e => setDescription(e.currentTarget.value)}
+                        rows="4"
+                        cols="48"
+                        placeholder="Description"
+                    />
+                </Show>
                 <button type="submit" class="save-view-form-save-button">
                     {t("saveViewSave")}
                 </button>
@@ -84,54 +86,61 @@ async function submitSave(title: string, description: string): Promise<boolean> 
     const cesiumWindow = window as CesiumWindow;
     saveViewParameters(cesiumWindow.Map3DViewer, cesiumWindow.optionsMap);
 
-    let response;
-    if (VIEW_TYPE == VIEW_TYPES.EXTERNAL_VIEWS.valueOf()) {
-        const mapState = getMapState();
+    if (VIEW_TYPE !== VIEW_TYPES.DOWNLOAD_VIEWS.valueOf()) {
+        let response;
+        if (VIEW_TYPE == VIEW_TYPES.EXTERNAL_VIEWS.valueOf()) {
+            const mapState = getMapState();
 
-        const args = {
-            type: "createView",
-            sessionId: sessionStorage.getItem("sessionID"),
-            title,
-            description,
-            mapState
-        };
+            const args = {
+                type: "createView",
+                sessionId: sessionStorage.getItem("sessionID"),
+                title,
+                description,
+                mapState
+            };
 
-        response = await fetch(getViewsServletUrl(), {
-            method: "POST",
-            mode: "cors",
-            cache: "no-cache",
-            headers: { "Content-Type": "application/json" },
-            redirect: "follow",
-            body: JSON.stringify(args)
-        });
-    } else if (VIEW_TYPE == VIEW_TYPES.LOCAL_VIEWS.valueOf()) {
-        const mapState = JSON.stringify(getMapState());
-        const args = {
-            title,
-            description,
-            mapState
-        };
-        const url =
-            window.location.origin +
-            window.location.pathname +
-            "/view/?sessionID=" +
-            sessionStorage.getItem("sessionID");
-        response = await fetch(url, {
-            method: "POST",
-            mode: "cors",
-            cache: "no-cache",
-            headers: { "Content-Type": "application/json", Accept: "application/json" },
-            redirect: "follow",
-            body: JSON.stringify(args)
-        });
+            response = await fetch(getViewsServletUrl(), {
+                method: "POST",
+                mode: "cors",
+                cache: "no-cache",
+                headers: { "Content-Type": "application/json" },
+                redirect: "follow",
+                body: JSON.stringify(args)
+            });
+        } else if (VIEW_TYPE == VIEW_TYPES.LOCAL_VIEWS.valueOf()) {
+            const mapState = JSON.stringify(getMapState());
+            const args = {
+                title,
+                description,
+                mapState
+            };
+            const url =
+                window.location.origin +
+                window.location.pathname +
+                "/view/?sessionID=" +
+                sessionStorage.getItem("sessionID");
+            response = await fetch(url, {
+                method: "POST",
+                mode: "cors",
+                cache: "no-cache",
+                headers: { "Content-Type": "application/json", Accept: "application/json" },
+                redirect: "follow",
+                body: JSON.stringify(args)
+            });
+        } else {
+            return false;
+        }
+
+        const status = response.status;
+        if (status < 200 || status > 300) {
+            alert(t("saveViewSubmitSaveError4"));
+            return false;
+        }
+        return true;
     } else {
-        return false;
+        const mapState = JSON.stringify(getMapState());
+        const myFile = new File([mapState], `${title}.json`);
+        downloadMapState(myFile);
+        return true;
     }
-
-    const status = response.status;
-    if (status < 200 || status > 300) {
-        alert(t("saveViewSubmitSaveError4"));
-        return false;
-    }
-    return true;
 }

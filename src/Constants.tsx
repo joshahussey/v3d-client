@@ -38,9 +38,10 @@ export function getViewsServletUrl() {
 export enum VIEW_TYPES {
     NO_VIEWS = 0,
     LOCAL_VIEWS = 1,
-    EXTERNAL_VIEWS = 2
+    EXTERNAL_VIEWS = 2,
+    DOWNLOAD_VIEWS = 3
 }
-export const VIEW_TYPE = VIEW_TYPES.EXTERNAL_VIEWS;
+export const VIEW_TYPE = VIEW_TYPES.DOWNLOAD_VIEWS;
 
 export const MAX_CHARS_100 = 100;
 export const MAX_CHARS_1024 = 1024;

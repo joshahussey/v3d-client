@@ -1,12 +1,16 @@
 import { createEffect, createResource, createSignal, For, JSX, Show, Signal, Suspense } from "solid-js";
+import { createDropzone, UploadFile, fileUploader, createFileUploader } from "@solid-primitives/upload";
 import { createStore, reconcile, unwrap } from "solid-js/store";
-import { CesiumWindow, ViewRecord } from "../Types/types";
+import { CesiumWindow, MapState, ViewRecord } from "../Types/types";
 import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { applyViewParameters, loadViewParameters } from "../Utils/SaveView";
 import { zoomToLoadedView } from "../Utils/SaveView";
 import { fuzzySearch } from "@thisbeyond/solid-select";
 import { EditView } from "./EditView";
 import { getViewsServletUrl, VIEW_TYPE, VIEW_TYPES } from "../Constants";
+import { setMapState } from "../Utils/Controller";
+
+fileUploader;
 
 /**
  * @returns {JSX.Element} A JSX Element representing the Load View panel.
@@ -78,87 +82,158 @@ export function LoadView(): JSX.Element {
         }
     });
 
+    const [files, setFiles] = createSignal<UploadFile[]>([]);
+    createFileUploader();
+
+    const { setRef: dropZoneRef } = createDropzone({
+        onDrop: async files => {
+            files.forEach(f => setFiles([f]));
+        } //,
+        //onDragStart: files => files.forEach(f => console.log(f)),
+        //onDragOver: files => console.log("drag over")
+    });
+
+    function loadUploadedMapState(mapStateJsonFile: File) {
+        const fileReader = new FileReader();
+        fileReader.onload = () => {
+            try {
+                const fileRead = fileReader.result;
+                const mapStateJson = JSON.parse(fileRead as string) as MapState;
+                if (mapStateJson.version) {
+                    switch (mapStateJson.version) {
+                        case 1.0: {
+                            setMapState(mapStateJson);
+                            loadViewParameters();
+                            const cesiumWindow = window as CesiumWindow;
+                            const viewer = cesiumWindow.Map3DViewer;
+                            applyViewParameters(cesiumWindow.optionsMap);
+                            zoomToLoadedView(viewer);
+                            break;
+                        }
+                        default:
+                            console.error("Unsupported version number for map state json");
+                    }
+                }
+            } catch {
+                console.error("Could not parse view json.");
+            }
+        };
+        fileReader.readAsText(mapStateJsonFile);
+    }
+
     return (
         <>
             <Show when={!isEditOpened()}>
                 <div class="load-view">
-                    <div class="load-view-container grid">
-                        <Suspense fallback={<p>Loading...</p>}>
-                            <div class="load-view-header-label">Load View</div>
-                            <input
-                                type="text"
-                                class="load-view-filter"
-                                onKeyUp={e => setFilterValue(e.currentTarget.value)}
-                                placeholder="Filter Views"
-                            />
-                            <nav class="load-view-layer-list-scroll">
-                                <ul class="load-view-list cslt-list" ref={viewListRef as HTMLUListElement}>
-                                    <For each={resource()}>
-                                        {view => (
-                                            <li
-                                                class="load-view-entry grid"
-                                                id={view.id.toString()}
-                                                onClick={() => {
-                                                    setSelectedView(view);
-                                                }}
-                                            >
-                                                <span title={view.title} class="load-view-entry-title">
-                                                    {view.title}
-                                                </span>
-                                                <p title={view.description} class="load-view-entry-description">
-                                                    {view.description}
-                                                </p>
-                                                <div class="load-view-entry-button-div">
-                                                    <input type="radio" class="load-view-entry-button" />
-                                                </div>
-                                            </li>
-                                        )}
-                                    </For>
-                                </ul>
-                            </nav>
-                        </Suspense>
-                        <button
-                            class="load-view-load-button load-bottom-buttons"
-                            ref={loadButtonRef}
-                            onClick={() => {
-                                const view = selectedView();
-                                if (view) {
-                                    handleLoad(view.id);
-                                }
-                            }}
-                        >
-                            Load
-                        </button>
-                        <button
-                            class="load-view-delete-button load-bottom-buttons"
-                            onClick={async () => {
-                                const view = selectedView();
-                                if (view) {
-                                    const clear = await handleDelete(view.id, refetch);
-                                    if (clear) setSelectedView();
-                                }
-                            }}
-                        >
-                            Delete
-                        </button>
-                        <button
-                            class="load-view-edit-button load-bottom-buttons"
-                            ref={editButtonRef}
-                            onClick={async () => {
-                                setEditOpened(true);
-                            }}
-                        >
-                            Edit
-                        </button>
-                        <button
-                            class="load-view-cancel-button load-bottom-buttons"
-                            onClick={() => {
-                                setLoadOpened(false);
-                            }}
-                        >
-                            Cancel
-                        </button>
-                    </div>
+                    <Show when={VIEW_TYPE !== VIEW_TYPES.DOWNLOAD_VIEWS.valueOf()}>
+                        <div class="load-view-container grid">
+                            <Suspense fallback={<p>Loading...</p>}>
+                                <div class="load-view-header-label">Load View</div>
+                                <input
+                                    type="text"
+                                    class="load-view-filter"
+                                    onKeyUp={e => setFilterValue(e.currentTarget.value)}
+                                    placeholder="Filter Views"
+                                />
+                                <nav class="load-view-layer-list-scroll">
+                                    <ul class="load-view-list cslt-list" ref={viewListRef as HTMLUListElement}>
+                                        <For each={resource()}>
+                                            {view => (
+                                                <li
+                                                    class="load-view-entry grid"
+                                                    id={view.id.toString()}
+                                                    onClick={() => {
+                                                        setSelectedView(view);
+                                                    }}
+                                                >
+                                                    <span title={view.title} class="load-view-entry-title">
+                                                        {view.title}
+                                                    </span>
+                                                    <p title={view.description} class="load-view-entry-description">
+                                                        {view.description}
+                                                    </p>
+                                                    <div class="load-view-entry-button-div">
+                                                        <input type="radio" class="load-view-entry-button" />
+                                                    </div>
+                                                </li>
+                                            )}
+                                        </For>
+                                    </ul>
+                                </nav>
+                            </Suspense>
+                            <button
+                                class="load-view-load-button load-bottom-buttons"
+                                ref={loadButtonRef}
+                                onClick={() => {
+                                    const view = selectedView();
+                                    if (view) {
+                                        handleLoad(view.id);
+                                    }
+                                }}
+                            >
+                                Load
+                            </button>
+                            <button
+                                class="load-view-delete-button load-bottom-buttons"
+                                onClick={async () => {
+                                    const view = selectedView();
+                                    if (view) {
+                                        const clear = await handleDelete(view.id, refetch);
+                                        if (clear) setSelectedView();
+                                    }
+                                }}
+                            >
+                                Delete
+                            </button>
+                            <button
+                                class="load-view-edit-button load-bottom-buttons"
+                                ref={editButtonRef}
+                                onClick={async () => {
+                                    setEditOpened(true);
+                                }}
+                            >
+                                Edit
+                            </button>
+                            <button
+                                class="load-view-cancel-button load-bottom-buttons"
+                                onClick={() => {
+                                    setLoadOpened(false);
+                                }}
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </Show>
+                    <Show when={VIEW_TYPE == VIEW_TYPES.DOWNLOAD_VIEWS.valueOf()}>
+                        <div id="load-view-upload-div">
+                            <div id="load-view-upload-dropzone" ref={dropZoneRef}>
+                                <div id="load-view-inner-dropzone">
+                                    Drop File Here
+                                    <br />
+                                    <label for="file-upload" class="load-view-custom-file-upload">
+                                        Choose File
+                                    </label>
+                                    <input
+                                        id="file-upload"
+                                        type="file"
+                                        use:fileUploader={{
+                                            userCallback: fs => fs.forEach(f => console.log(f)),
+                                            setFiles
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                            <div id="load-view-upload-buttons-div">
+                                <span id="load-view-upload-file-name">{files().length > 0 ? files()[0].name : ""}</span>
+                                <button
+                                    id="load-view-upload-file-load-button"
+                                    onClick={() => loadUploadedMapState(files()[0].file)}
+                                >
+                                    Load
+                                </button>
+                            </div>
+                        </div>
+                    </Show>
                 </div>
             </Show>
             <Show when={isEditOpened() && selectedView()}>{editView(selectedView())})</Show>

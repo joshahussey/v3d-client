@@ -438,6 +438,7 @@ export type MapState = {
     cameraPosition: number[];
     saveLayerParameters: { show?: boolean; alpha?: number; uid: string }[];
     catalogList: addCatalogObj[];
+    version: number;
 };
 export type UserStyleDefinition = {
     index: number;

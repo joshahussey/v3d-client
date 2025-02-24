@@ -29,6 +29,7 @@
         "@babel/plugin-transform-unicode-regex": "^7.24.1",
         "@babel/preset-env": "^7.24.3",
         "@babel/preset-typescript": "^7.24.1",
+        "@solid-primitives/upload": "^0.1.0",
         "@thisbeyond/solid-select": "^0.14.0",
         "@types/geojson": "^7946.0.14",
         "@types/jest": "^29.5.12",

@@ -175,5 +175,6 @@
             "url": "https://terrain.compusult.com/nl5m"
         }
     ],
-    "catalogList": []
+    "catalogList": [],
+    "version": 1.0
 }
