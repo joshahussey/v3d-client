@@ -108,6 +108,7 @@ import { updateAoi } from "./Utils/Aoi";
 import { validateBoundingBox } from "./Utils/Validation";
 import TIFFImageryProvider from "tiff-imagery-provider";
 import { createCogProjectionObject } from "./Utils/Utils";
+import { addCatalogObj } from "./Types/3dMapControllerTypes";
 
 type WesPrimitiveCollection = PrimitiveCollection & {
     _primitives: Wes3DTileSet[];
@@ -317,6 +318,17 @@ const load = async function (mapState: MapState): Promise<Viewer> {
             case "SET_DATA_PROVIDER":
                 localStorage.setItem("dataProvider", parsedMessage.dataProviderUrl);
                 break;
+            case "CATALOG": {
+                clearTimeout(loadingRequestMap().get(parsedMessage.uuid));
+                loadingRequestMap().delete(parsedMessage.uuid);
+                setIsLoading(LoadingRequestCode.FINISHED);
+                const mapState = getMapState();
+                if (!mapState.catalogList.some((obj: addCatalogObj) => obj.uid === parsedMessage.args.uid)) {
+                    mapState.catalogList.unshift(parsedMessage.args);
+                }
+                setMapState(mapState);
+                break;
+            }
             default:
                 addLayerFromBackend(parsedMessage);
                 clearTimeout(loadingRequestMap().get(parsedMessage.uuid));

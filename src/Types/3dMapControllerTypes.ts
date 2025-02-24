@@ -149,6 +149,13 @@ export type addGpkgObject = {
     zoomDims: zoomDim[];
 };
 
+export interface addCatalogObj {
+    uid: string;
+    title: string;
+    url: string;
+    type: string;
+}
+
 export type zoomDim = {
     level: number;
     width: number;

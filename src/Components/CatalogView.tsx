@@ -2,13 +2,44 @@ import { useToolbarStateContext, ToolbarContextType } from "../Context/ToolbarSt
 import { CesiumWindow, ServiceInfo } from "../Types/types";
 import { Stac } from "./Stac/stac.es.js";
 import ClickOutsideToolbar from "./Directives/ClickOutsideToolbar";
-import { createSignal } from "solid-js";
+import { createSignal, Show } from "solid-js";
 import "./Stac/components3d.css";
-import { addCOG, raiseMapStateChangedEvent } from "../Utils/Controller";
-import { addCOGObject } from "../Types/3dMapControllerTypes";
+import { addCOG, getMapState, raiseMapStateChangedEvent, setMapState } from "../Utils/Controller";
+import { addCatalogObj, addCOGObject } from "../Types/3dMapControllerTypes";
+import { createOptions, Select } from "@thisbeyond/solid-select";
 
 export function CatalogView() {
+    const defaultCatalog = {
+        uid: "stac-fastapi",
+        title: "stac-fastapi",
+        url: "https://datacube.services.geo.ca/stac/api",
+        type: "STAC"
+    };
     const { setCatalogOpened } = useToolbarStateContext() as ToolbarContextType;
+    const [isCatalogSelected, setIsCatalogSelected] = createSignal(false);
+    const [selectedCatalog, setSelectedCatalog] = createSignal<addCatalogObj>(defaultCatalog);
+
+    function parseCatalogOptions() {
+        const mapState = getMapState();
+        if (!mapState.catalogList.some((opt: addCatalogObj) => opt.uid === defaultCatalog.uid)) {
+            mapState.catalogList.unshift(defaultCatalog);
+        }
+        return createOptions(mapState.catalogList, { key: "title" });
+    }
+
+    function removeCatalogOption(optToRemove: addCatalogObj) {
+        if (optToRemove.uid === defaultCatalog.uid) {
+            console.warn("Cannot remove default catalog.");
+            return;
+        }
+        const mapState = getMapState();
+        mapState.catalogList = mapState.catalogList.filter((opt: addCatalogObj) => opt.uid !== optToRemove.uid);
+        setCatalogOptionsSignal(parseCatalogOptions());
+        setSelectedCatalog(defaultCatalog);
+        setMapState(mapState);
+    }
+
+    const [catalogOptionsSignal, setCatalogOptionsSignal] = createSignal(parseCatalogOptions());
 
     type StacCallbackInputType = { asset: StacAssetObject; feature: StacItem };
     function addStacItemToMap(stacItemProj: StacCallbackInputType) {
@@ -60,12 +91,48 @@ export function CatalogView() {
         //     width="1000px"
         //     height="720px"
         // />
-        <Stac
-            url="https://datacube.services.geo.ca/stac/api"
-            bboxSignal={bbox}
-            intersectsSignal={intersects}
-            datetimeSignal={datetime}
-            selectCallback={selectCallback}
-        />
+        <>
+            <Show when={!isCatalogSelected()}>
+                <div id="catalogSelectorDiv">
+                    <div id="catalogSelectorSelectDiv">
+                        <Select
+                            class="catalogSelector"
+                            placeholder="Select Catalog."
+                            onChange={setSelectedCatalog}
+                            initialValue={selectedCatalog()}
+                            {...catalogOptionsSignal()}
+                        />
+                    </div>
+
+                    <div id="catalogSelectorButtonsDiv">
+                        <button
+                            id="catalogDeleteButton"
+                            onClick={() => {
+                                removeCatalogOption(selectedCatalog());
+                            }}
+                        >
+                            Delete
+                        </button>
+                        <button
+                            id="catalogViewButton"
+                            onClick={() => {
+                                setIsCatalogSelected(true);
+                            }}
+                        >
+                            View
+                        </button>
+                    </div>
+                </div>
+            </Show>
+            <Show when={isCatalogSelected()}>
+                <Stac
+                    url={selectedCatalog().url}
+                    bboxSignal={bbox}
+                    intersectsSignal={intersects}
+                    datetimeSignal={datetime}
+                    selectCallback={selectCallback}
+                />
+            </Show>
+        </>
     );
 }

@@ -174,5 +174,6 @@
             "type": "Terrain",
             "url": "https://terrain.compusult.com/nl5m"
         }
-    ]
+    ],
+    "catalogList": []
 }

@@ -42,7 +42,7 @@ import {
     CesiumTextSymbolizerObject,
     CesiumRasterSymbolizerObject
 } from "../Utils/Wes3dSldStyler";
-import { WGS84BoundingBox, zoomDim } from "./3dMapControllerTypes";
+import { addCatalogObj, WGS84BoundingBox, zoomDim } from "./3dMapControllerTypes";
 export interface WesDatasources extends DataSourceCollection {
     _dataSources: WesDataSource[];
 }
@@ -437,6 +437,7 @@ export type MapState = {
     terrainSets: WesTerrainObject[];
     cameraPosition: number[];
     saveLayerParameters: { show?: boolean; alpha?: number; uid: string }[];
+    catalogList: addCatalogObj[];
 };
 export type UserStyleDefinition = {
     index: number;

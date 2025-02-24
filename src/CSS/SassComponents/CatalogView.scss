@@ -1,0 +1,29 @@
+#catalogSelectorDiv {
+    background: white;
+}
+
+#catalogSelectorSelectDiv {
+    margin: 5px;
+}
+
+.catalogSelector {
+}
+
+#catalogSelectorButtonsDiv {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 5px;
+}
+
+#catalogDeleteButton {
+    padding: 3px;
+    color: #ff0000;
+    border-color: #ff0000;
+    border-radius: 3px;
+}
+
+#catalogViewButton {
+    margin-left: 5px;
+    padding: 3px;
+}
