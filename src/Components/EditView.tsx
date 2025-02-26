@@ -1,12 +1,19 @@
 import { createSignal } from "solid-js";
 import { CesiumWindow, ViewRecord } from "../Types/types";
 import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
-import { getViewsServletUrl, MAX_CHARS_100, MAX_CHARS_1024, VIEW_TYPE, VIEW_TYPES } from "../Constants";
+import {
+    getViewsServletUrl,
+    MAX_CHARS_100,
+    MAX_CHARS_1024,
+    OPENED_LAYER_PAGE,
+    VIEW_TYPE,
+    VIEW_TYPES
+} from "../Constants";
 import { saveViewParameters } from "../Utils/SaveView";
 import { getMapState } from "../Utils/Controller";
 
 export function EditView(view: ViewRecord) {
-    const { setEditOpened, setLoadOpened } = useToolbarStateContext() as ToolbarContextType;
+    const { setEditOpened, setOpenedLayerPage } = useToolbarStateContext() as ToolbarContextType;
 
     const [title, setTitle] = createSignal(view.title);
     const [description, setDescription] = createSignal(view.description);
@@ -24,7 +31,7 @@ export function EditView(view: ViewRecord) {
 
                     if (await edit(viewId(), title(), description() || "")) {
                         setEditOpened(false);
-                        setLoadOpened(false);
+                        setOpenedLayerPage(OPENED_LAYER_PAGE.CLOSED);
                     }
                 }}
             >

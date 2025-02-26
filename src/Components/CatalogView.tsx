@@ -1,5 +1,5 @@
 import { useToolbarStateContext, ToolbarContextType } from "../Context/ToolbarStateContext";
-import { CesiumWindow, ServiceInfo } from "../Types/types";
+import { ServiceInfo } from "../Types/types";
 import { Stac } from "./Stac/stac.es.js";
 import ClickOutsideToolbar from "./Directives/ClickOutsideToolbar";
 import { createSignal, Show } from "solid-js";
@@ -7,6 +7,7 @@ import "./Stac/components3d.css";
 import { addCOG, getMapState, raiseMapStateChangedEvent, setMapState } from "../Utils/Controller";
 import { addCatalogObj, addCOGObject } from "../Types/3dMapControllerTypes";
 import { createOptions, Select } from "@thisbeyond/solid-select";
+import { OPENED_LAYER_PAGE } from "../Constants";
 
 export function CatalogView() {
     const defaultCatalog = {
@@ -15,7 +16,7 @@ export function CatalogView() {
         url: "https://datacube.services.geo.ca/stac/api",
         type: "STAC"
     };
-    const { setCatalogOpened } = useToolbarStateContext() as ToolbarContextType;
+    const { setOpenedLayerPage } = useToolbarStateContext() as ToolbarContextType;
     const [isCatalogSelected, setIsCatalogSelected] = createSignal(false);
     const [selectedCatalog, setSelectedCatalog] = createSignal<addCatalogObj>(defaultCatalog);
 
@@ -58,11 +59,9 @@ export function CatalogView() {
         } as addCOGObject;
         addCOG([arg] as [addCOGObject]);
         raiseMapStateChangedEvent();
+        setOpenedLayerPage(OPENED_LAYER_PAGE.LAYERS);
     }
 
-    (window as CesiumWindow).setCatalogOpen = function (isOpen: boolean) {
-        setCatalogOpened(isOpen);
-    };
     const bbox = createSignal("");
     const intersects = createSignal("");
     const datetime = createSignal("");
@@ -125,13 +124,15 @@ export function CatalogView() {
                 </div>
             </Show>
             <Show when={isCatalogSelected()}>
-                <Stac
-                    url={selectedCatalog().url}
-                    bboxSignal={bbox}
-                    intersectsSignal={intersects}
-                    datetimeSignal={datetime}
-                    selectCallback={selectCallback}
-                />
+                <div use:ClickOutsideToolbar={() => setOpenedLayerPage(OPENED_LAYER_PAGE.CLOSED)}>
+                    <Stac
+                        url={selectedCatalog().url}
+                        bboxSignal={bbox}
+                        intersectsSignal={intersects}
+                        datetimeSignal={datetime}
+                        selectCallback={selectCallback}
+                    />
+                </div>
             </Show>
         </>
     );

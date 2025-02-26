@@ -2,7 +2,7 @@ import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarSt
 import { CesiumWindow } from "../Types/types";
 import { JSX, createEffect } from "solid-js";
 import { Geocoder } from "cesium";
-import { USE_CESIUM_GEOCODER } from "../Constants";
+import { OPENED_LAYER_PAGE, USE_CESIUM_GEOCODER } from "../Constants";
 import WesGeoCoderService from "../Utils/WesGeoCoderService";
 import { translate as t } from "../i18n/Translator";
 
@@ -11,11 +11,11 @@ import { translate as t } from "../i18n/Translator";
  * @returns {JSX.Element} A JSX element representing the search component.
  */
 export function SearchMinimal(): JSX.Element {
-    const { isSearchOpened } = useToolbarStateContext() as ToolbarContextType;
+    const { openedLayerPage } = useToolbarStateContext() as ToolbarContextType;
     let searchRef: HTMLDivElement | undefined;
     let isSearchCreated = false;
     createEffect(() => {
-        if (isSearchOpened() != undefined) {
+        if (openedLayerPage() == OPENED_LAYER_PAGE.SEARCH) {
             if (!isSearchCreated) {
                 if (!searchRef) {
                     return;

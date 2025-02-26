@@ -2,13 +2,14 @@ import { JSX, For, createSignal, createEffect, Setter } from "solid-js";
 import { UIContextType, useInterfaceContext } from "../Context/UIContext";
 import { translate as t } from "../i18n/Translator";
 import { CesiumWindow, WesImageryLayer } from "../Types/types";
+import { OPENED_LAYER_PAGE } from "../Constants";
 
 /**
  * @param {Object} props - An object containing the parameters
- * @param {Setter<boolean>} props.closeLayerOrderPanel - A function used to close the layer panel from the 'Close' button.
+ * @param {Setter<OPENED_LAYER_PAGE>} props.closeLayerOrderPanel - A function used to close the layer panel from the 'Close' button.
  * @returns {JSX.Element} A JSX element containing the layers order panel.
  */
-export function LayersOrderDiv(props: { closeLayerOrderPanel: Setter<boolean> }): JSX.Element {
+export function LayersOrderDiv(props: { closeLayerOrderPanel: Setter<OPENED_LAYER_PAGE> }): JSX.Element {
     const { closeLayerOrderPanel } = props;
     const { imageLayers } = useInterfaceContext() as UIContextType;
     const layers = (window as CesiumWindow).Map3DViewer.imageryLayers;
@@ -148,7 +149,7 @@ export function LayersOrderDiv(props: { closeLayerOrderPanel: Setter<boolean> })
                 >
                     &#9660;
                 </button>
-                <button class="cesium-button" onClick={() => closeLayerOrderPanel(false)}>
+                <button class="cesium-button" onClick={() => closeLayerOrderPanel(OPENED_LAYER_PAGE.CLOSED)}>
                     {t("layersOrderDivClose")}
                 </button>
             </div>

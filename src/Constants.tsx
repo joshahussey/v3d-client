@@ -35,6 +35,16 @@ export function getViewsServletUrl() {
     return VIEWS_SERVLET_URL;
 }
 
+export enum OPENED_LAYER_PAGE {
+    CLOSED = 0,
+    SEARCH = 1,
+    LAYER_ORDER = 2,
+    SAVE_VIEW = 3,
+    LOAD_VIEW = 4,
+    CATALOG = 5,
+    LAYERS = 6
+}
+
 export enum VIEW_TYPES {
     NO_VIEWS = 0,
     LOCAL_VIEWS = 1,

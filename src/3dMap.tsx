@@ -751,7 +751,9 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         }
 
         // Null check as this won't exist the first time load is called -- it's set in ExpandedMenu.tsx
-        (window as CesiumWindow).setCatalogOpen?.(false);
+        //if (openedLayerPage() == OPENED_LAYER_PAGE.CATALOG) {
+        //    setOpenedLayerPage(OPENED_LAYER_PAGE.LAYERS);
+        //}
     }
 
     /**

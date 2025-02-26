@@ -7,7 +7,7 @@ import { applyViewParameters, loadViewParameters } from "../Utils/SaveView";
 import { zoomToLoadedView } from "../Utils/SaveView";
 import { fuzzySearch } from "@thisbeyond/solid-select";
 import { EditView } from "./EditView";
-import { getViewsServletUrl, VIEW_TYPE, VIEW_TYPES } from "../Constants";
+import { getViewsServletUrl, OPENED_LAYER_PAGE, VIEW_TYPE, VIEW_TYPES } from "../Constants";
 import { setMapState } from "../Utils/Controller";
 
 fileUploader;
@@ -75,9 +75,10 @@ export function LoadView(): JSX.Element {
         }
     });
 
-    const { isLoadOpened, setLoadOpened, isEditOpened, setEditOpened } = useToolbarStateContext() as ToolbarContextType;
+    const { openedLayerPage, setOpenedLayerPage, isEditOpened, setEditOpened } =
+        useToolbarStateContext() as ToolbarContextType;
     createEffect(() => {
-        if (isEditOpened() && (!isLoadOpened() || selectedView() == null)) {
+        if (isEditOpened() && (openedLayerPage() !== OPENED_LAYER_PAGE.LOAD_VIEW || selectedView() == null)) {
             setEditOpened(false);
         }
     });
@@ -197,7 +198,7 @@ export function LoadView(): JSX.Element {
                             <button
                                 class="load-view-cancel-button load-bottom-buttons"
                                 onClick={() => {
-                                    setLoadOpened(false);
+                                    setOpenedLayerPage(OPENED_LAYER_PAGE.CLOSED);
                                 }}
                             >
                                 Cancel

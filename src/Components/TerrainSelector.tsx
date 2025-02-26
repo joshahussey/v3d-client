@@ -2,7 +2,7 @@ import { Select, createOptions } from "@thisbeyond/solid-select";
 import { createEffect } from "solid-js";
 import { UIContextType, useInterfaceContext } from "../Context/UIContext";
 import { JSX } from "solid-js";
-import { cesiumBuiltInUID, googlePhotorealisticUID, osmBuildingsUID } from "../Constants";
+import { cesiumBuiltInUID, googlePhotorealisticUID, OPENED_LAYER_PAGE, osmBuildingsUID } from "../Constants";
 import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarStateContext";
 import { translate as t } from "../i18n/Translator";
 import { saveViewParameters } from "../Utils/SaveView";
@@ -14,7 +14,7 @@ import { CesiumWindow, Wes3dMapLayer, WesLayerPropertiesObject, cslt3DTilesOptio
  */
 export function TerrainSelector(): JSX.Element {
     const { terrainSets, selectedTerrain, setSelectedTerrain, tileSets } = useInterfaceContext() as UIContextType;
-    const { setLayersOpened } = useToolbarStateContext() as ToolbarContextType;
+    const { setOpenedLayerPage } = useToolbarStateContext() as ToolbarContextType;
     const terrainSetsArray = terrainSets();
     const properties = createOptions(terrainSetsArray, {
         key: "name"
@@ -72,11 +72,11 @@ export function TerrainSelector(): JSX.Element {
 
             // eslint-disable-next-line no-undef
             process.nextTick(() => {
-                setLayersOpened(false);
+                setOpenedLayerPage(OPENED_LAYER_PAGE.CLOSED);
             });
             // eslint-disable-next-line no-undef
             process.nextTick(() => {
-                setLayersOpened(true);
+                setOpenedLayerPage(OPENED_LAYER_PAGE.LAYERS);
             });
         }
     });

@@ -2,7 +2,14 @@ import { ToolbarContextType, useToolbarStateContext } from "../Context/ToolbarSt
 import { downloadMapState, saveViewParameters } from "../Utils/SaveView";
 import { CesiumWindow } from "../Types/types";
 import { createSignal, Show } from "solid-js";
-import { getViewsServletUrl, MAX_CHARS_100, MAX_CHARS_1024, VIEW_TYPE, VIEW_TYPES } from "../Constants";
+import {
+    getViewsServletUrl,
+    MAX_CHARS_100,
+    MAX_CHARS_1024,
+    OPENED_LAYER_PAGE,
+    VIEW_TYPE,
+    VIEW_TYPES
+} from "../Constants";
 import { JSX } from "solid-js";
 import { translate as t } from "../i18n/Translator";
 import { getMapState } from "../Utils/Controller";
@@ -14,7 +21,7 @@ export function SaveView(): JSX.Element {
     const [title, setTitle] = createSignal("");
     const [description, setDescription] = createSignal("");
 
-    const { setSaveOpened } = useToolbarStateContext() as ToolbarContextType;
+    const { setOpenedLayerPage } = useToolbarStateContext() as ToolbarContextType;
 
     return (
         <div class="save-view">
@@ -30,7 +37,7 @@ export function SaveView(): JSX.Element {
                     if (success) {
                         setTitle("");
                         setDescription("");
-                        setSaveOpened(false);
+                        setOpenedLayerPage(OPENED_LAYER_PAGE.CLOSED);
                     }
                 }}
             >
@@ -59,7 +66,7 @@ export function SaveView(): JSX.Element {
                 </button>
                 <button
                     onClick={() => {
-                        setSaveOpened(false);
+                        setOpenedLayerPage(OPENED_LAYER_PAGE.CLOSED);
                         setTitle("");
                         setDescription("");
                     }}

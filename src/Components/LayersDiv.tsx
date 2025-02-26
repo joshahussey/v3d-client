@@ -1,4 +1,4 @@
-import { JSX, Show } from "solid-js";
+import { JSX, Match, Switch } from "solid-js";
 import { ServiceInfo, Wes3DTileSet, WesImageryLayer } from "../Types/types";
 import WesDataSource from "../Datasources/WesDataSource";
 import { LayersOrderDiv } from "./LayersOrderDiv";
@@ -7,6 +7,7 @@ import { LayersTreeDiv } from "./LayersTreeDiv";
 import { SearchMinimal } from "./SearchMinimal";
 import { LoadView } from "./LoadView";
 import { SaveView } from "./SaveView";
+import { OPENED_LAYER_PAGE } from "../Constants";
 
 export type ServiceEntryInput = {
     service: ServiceInfo;
@@ -22,32 +23,27 @@ export type ServiceEntryInput = {
  * @returns {JSX.Element} A JSX element representing the layers div.
  */
 export function LayersDiv(): JSX.Element {
-    const {
-        isLayersOrderOpened,
-        setLayersOrderOpened,
-        isSearchOpened,
-        isLayersTreeOpened,
-        isLoadOpened,
-        isSaveOpened
-    } = useToolbarStateContext() as ToolbarContextType;
+    const { openedLayerPage, setOpenedLayerPage } = useToolbarStateContext() as ToolbarContextType;
 
     return (
         <div class="layers-view">
-            <Show when={isLayersTreeOpened()}>
-                <LayersTreeDiv />
-            </Show>
-            <Show when={isLayersOrderOpened()}>
-                <LayersOrderDiv closeLayerOrderPanel={setLayersOrderOpened} />
-            </Show>
-            <Show when={isSearchOpened()}>
-                <SearchMinimal />
-            </Show>
-            <Show when={isSaveOpened()}>
-                <SaveView />
-            </Show>
-            <Show when={isLoadOpened()}>
-                <LoadView />
-            </Show>
+            <Switch>
+                <Match when={openedLayerPage() == OPENED_LAYER_PAGE.LAYERS}>
+                    <LayersTreeDiv />
+                </Match>
+                <Match when={openedLayerPage() == OPENED_LAYER_PAGE.LAYER_ORDER}>
+                    <LayersOrderDiv closeLayerOrderPanel={setOpenedLayerPage} />
+                </Match>
+                <Match when={openedLayerPage() == OPENED_LAYER_PAGE.SEARCH}>
+                    <SearchMinimal />
+                </Match>
+                <Match when={openedLayerPage() == OPENED_LAYER_PAGE.SAVE_VIEW}>
+                    <SaveView />
+                </Match>
+                <Match when={openedLayerPage() == OPENED_LAYER_PAGE.LOAD_VIEW}>
+                    <LoadView />
+                </Match>
+            </Switch>
         </div>
     );
 }

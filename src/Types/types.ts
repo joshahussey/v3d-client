@@ -156,7 +156,6 @@ export type CesiumWindow = Window &
         Map3DViewer: Viewer;
         optionsMap: Accessor<Map<Wes3dMapLayer, WesLayerPropertiesObject>>;
         timeline?: Timeline;
-        setCatalogOpen?: (isOpen: boolean) => void;
         fireBroadcastEvent: (event: string, eventId: string, _hasPayload: boolean) => void;
     };
 
