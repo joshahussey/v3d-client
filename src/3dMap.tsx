@@ -294,7 +294,10 @@ const load = async function (mapState: MapState): Promise<Viewer> {
     webSocket.addEventListener("message", async e => {
         const message = e.data;
         if (!message) return;
-        const parsedMessage = await JSON.parse(message);
+        let parsedMessage = await JSON.parse(message);
+        if (parsedMessage.message) {
+            parsedMessage = parsedMessage.message;
+        }
         switch (parsedMessage.type) {
             case "AOI":
                 updateAoi(parsedMessage.aoi);
