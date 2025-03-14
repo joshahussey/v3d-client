@@ -281,11 +281,19 @@ const load = async function (mapState: MapState): Promise<Viewer> {
     switch (window.location.protocol) {
         case "http:":
             //eslint-disable-next-line
-            webSocket = createReconnectingWS(`ws://${window.location.hostname}/map?sessionID=${sessionID}`);
+            webSocket = createReconnectingWS(
+                `wss://io61s2y903.execute-api.ca-central-1.amazonaws.com/test/?sessionID=${sessionStorage.getItem(
+                    "sessionID"
+                )}`
+            );
             break;
         case "https:":
             //eslint-disable-next-line
-            webSocket = createReconnectingWS(`wss://${window.location.hostname}/map?sessionID=${sessionID}`);
+            webSocket = createReconnectingWS(
+                `wss://io61s2y903.execute-api.ca-central-1.amazonaws.com/test/?sessionID=${sessionStorage.getItem(
+                    "sessionID"
+                )}`
+            );
             break;
         default:
             throw new Error(t("3dMapLoadError1"));
