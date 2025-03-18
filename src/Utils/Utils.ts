@@ -1,6 +1,6 @@
 import { Cartesian3, Color, ConstantProperty, Entity, HeightReference, PolygonHierarchy } from "cesium";
 import SensorThingsDataSource from "../Datasources/SensorThingsDataSource";
-import { OGCFeature, GeoJsonGetAllResult } from "../Types/types";
+import { OGCFeature, GeoJsonGetAllResult, MapState } from "../Types/types";
 import GeoJsonDecoder from "./GeoJsonDecoder";
 import * as GeoJSON from "geojson";
 import { Feature } from "geojson";
@@ -713,4 +713,18 @@ export function createCogProjectionObject(epsgCode: number): {
         project: proj4("EPSG:4326", `EPSG:${epsgCode}`).forward,
         unproject: proj4("EPSG:4326", `EPSG:${epsgCode}`).inverse
     };
+}
+
+export function validateMapState(json: MapState) {
+    if (!json.accessToken) return false;
+    if (!json.baseMapLayers) return false;
+    if (!json.dataSources) return false;
+    if (!json.imageLayers) return false;
+    if (!json.primitiveLayers) return false;
+    if (!json.terrainSets) return false;
+    if (!json.cameraPosition) return false;
+    if (!json.saveLayerParameters) return false;
+    if (!json.catalogList) return false;
+    if (!json.version) return false;
+    return true;
 }

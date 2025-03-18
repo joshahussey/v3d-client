@@ -10,6 +10,7 @@ import { EditView } from "./EditView";
 import { getViewsServletUrl, OPENED_LAYER_PAGE, VIEW_TYPE, VIEW_TYPES } from "../Constants";
 import { setMapState } from "../Utils/Controller";
 import { translate as t } from "../i18n/Translator";
+import { validateMapState } from "../Utils/Utils";
 
 fileUploader;
 
@@ -85,11 +86,15 @@ export function LoadView(): JSX.Element {
     });
 
     const [files, setFiles] = createSignal<UploadFile[]>([]);
+    const [uploadMessage, setUploadMessage] = createSignal<string>("");
     createFileUploader();
 
     const { setRef: dropZoneRef } = createDropzone({
         onDrop: async files => {
             files.forEach(f => setFiles([f]));
+            if (files.length > 0) {
+                setUploadMessage(files[0].name);
+            }
         } //,
         //onDragStart: files => files.forEach(f => console.log(f)),
         //onDragOver: files => console.log("drag over")
@@ -101,6 +106,9 @@ export function LoadView(): JSX.Element {
             try {
                 const fileRead = fileReader.result;
                 const mapStateJson = JSON.parse(fileRead as string) as MapState;
+                if (!validateMapState(mapStateJson)) {
+                    throw t("loadViewMapStateInvalidError");
+                }
                 if (mapStateJson.version) {
                     switch (mapStateJson.version) {
                         case 1.0: {
@@ -116,8 +124,8 @@ export function LoadView(): JSX.Element {
                             console.error("Unsupported version number for map state json");
                     }
                 }
-            } catch {
-                console.error("Could not parse view json.");
+            } catch (e) {
+                setUploadMessage(t("loadViewMapStateInvalidError"));
             }
         };
         fileReader.readAsText(mapStateJsonFile);
@@ -226,10 +234,16 @@ export function LoadView(): JSX.Element {
                                 </div>
                             </div>
                             <div id="load-view-upload-buttons-div">
-                                <span id="load-view-upload-file-name">{files().length > 0 ? files()[0].name : ""}</span>
+                                <span id="load-view-upload-file-name">{uploadMessage()}</span>
                                 <button
                                     id="load-view-upload-file-load-button"
-                                    onClick={() => loadUploadedMapState(files()[0].file)}
+                                    onClick={() => {
+                                        if (files().length > 0) {
+                                            loadUploadedMapState(files()[0].file);
+                                        } else {
+                                            console.log("No file uploaded.");
+                                        }
+                                    }}
                                 >
                                     {t("loadViewLoad")}
                                 </button>

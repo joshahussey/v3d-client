@@ -103,6 +103,7 @@
     "settingsMenuConstants": "FR_Constants",
     "catalogRemove": "FR_Remove",
     "catalogView": "FR_View",
+    "loadViewMapStateInvalidError": "FR_Uploaded file is not a valid mapstate.",
     "loadViewDropFileHere": "FR_Drop File Here",
     "loadViewChooseFile": "FR_Choose File",
     "loadViewLoad": "FR_Load",

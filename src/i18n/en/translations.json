@@ -103,6 +103,7 @@
     "settingsMenuConstants": "Constants",
     "catalogRemove": "Remove",
     "catalogView": "View",
+    "loadViewMapStateInvalidError": "Uploaded file is not a valid mapstate.",
     "loadViewDropFileHere": "Drop File Here",
     "loadViewChooseFile": "Choose File",
     "loadViewLoad": "Load",
