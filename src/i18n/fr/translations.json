@@ -99,5 +99,8 @@
     "settingsClusterDimensionTitle": "FR_Cluster Dimensions",
     "settingsClusterDimensionHover": "FR_Dimensions Of The Area Which Will Be Clustered",
     "settingsClusterHeightTitle": "FR_Minimum Clustering Height",
-    "settingsClusterHeightHover": "FR_Minimum Height At Which Clusters Will Form"
+    "settingsClusterHeightHover": "FR_Minimum Height At Which Clusters Will Form",
+    "settingsMenuConstants": "FR_Constants",
+    "catalogRemove": "FR_Remove",
+    "catalogView": "FR_View"
 }

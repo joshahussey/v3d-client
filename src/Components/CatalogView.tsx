@@ -8,6 +8,7 @@ import { addCOG, getMapState, raiseMapStateChangedEvent, setMapState } from "../
 import { addCatalogObj, addCOGObject } from "../Types/3dMapControllerTypes";
 import { createOptions, Select } from "@thisbeyond/solid-select";
 import { OPENED_LAYER_PAGE } from "../Constants";
+import { translate as t } from "../i18n/Translator";
 
 export function CatalogView() {
     const defaultCatalog = {
@@ -110,7 +111,7 @@ export function CatalogView() {
                                 removeCatalogOption(selectedCatalog());
                             }}
                         >
-                            Delete
+                            {t("catalogRemove")}
                         </button>
                         <button
                             id="catalogViewButton"
@@ -118,7 +119,7 @@ export function CatalogView() {
                                 setIsCatalogSelected(true);
                             }}
                         >
-                            View
+                            {t("catalogView")}
                         </button>
                     </div>
                 </div>

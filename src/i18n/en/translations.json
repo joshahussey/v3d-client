@@ -99,5 +99,8 @@
     "settingsClusterDimensionTitle": "Cluster Dimensions",
     "settingsClusterDimensionHover": "Dimensions Of The Area Which Will Be Clustered",
     "settingsClusterHeightTitle": "Minimum Clustering Height",
-    "settingsClusterHeightHover": "Minimum Height At Which Clusters Will Form"
+    "settingsClusterHeightHover": "Minimum Height At Which Clusters Will Form",
+    "settingsMenuConstants": "Constants",
+    "catalogRemove": "Remove",
+    "catalogView": "View"
 }

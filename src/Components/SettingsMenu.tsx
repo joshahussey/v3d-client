@@ -62,7 +62,7 @@ export function SettingsMenu(props: {
                                     "align-items": "center"
                                 }}
                             >
-                                <span style={{ "justify-self": "left" }}>Constants</span>
+                                <span style={{ "justify-self": "left" }}>{t("settingsMenuConstants")}</span>
                                 <Show when={constantsOpened()} fallback={<></>}>
                                     <span style={{ "justify-self": "right" }}>
                                         <svg
