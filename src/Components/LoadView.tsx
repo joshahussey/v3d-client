@@ -9,6 +9,7 @@ import { fuzzySearch } from "@thisbeyond/solid-select";
 import { EditView } from "./EditView";
 import { getViewsServletUrl, OPENED_LAYER_PAGE, VIEW_TYPE, VIEW_TYPES } from "../Constants";
 import { setMapState } from "../Utils/Controller";
+import { translate as t } from "../i18n/Translator";
 
 fileUploader;
 
@@ -172,7 +173,7 @@ export function LoadView(): JSX.Element {
                                     }
                                 }}
                             >
-                                Load
+                                {t("loadViewLoad")}
                             </button>
                             <button
                                 class="load-view-delete-button load-bottom-buttons"
@@ -184,7 +185,7 @@ export function LoadView(): JSX.Element {
                                     }
                                 }}
                             >
-                                Delete
+                                {t("loadViewDelete")}
                             </button>
                             <button
                                 class="load-view-edit-button load-bottom-buttons"
@@ -193,7 +194,7 @@ export function LoadView(): JSX.Element {
                                     setEditOpened(true);
                                 }}
                             >
-                                Edit
+                                {t("loadViewEdit")}
                             </button>
                             <button
                                 class="load-view-cancel-button load-bottom-buttons"
@@ -201,7 +202,7 @@ export function LoadView(): JSX.Element {
                                     setOpenedLayerPage(OPENED_LAYER_PAGE.CLOSED);
                                 }}
                             >
-                                Cancel
+                                {t("loadViewCancel")}
                             </button>
                         </div>
                     </Show>
@@ -209,10 +210,10 @@ export function LoadView(): JSX.Element {
                         <div id="load-view-upload-div">
                             <div id="load-view-upload-dropzone" ref={dropZoneRef}>
                                 <div id="load-view-inner-dropzone">
-                                    Drop File Here
+                                    {t("loadViewDropFileHere")}
                                     <br />
                                     <label for="file-upload" class="load-view-custom-file-upload">
-                                        Choose File
+                                        {t("loadViewChooseFile")}
                                     </label>
                                     <input
                                         id="file-upload"
@@ -230,7 +231,7 @@ export function LoadView(): JSX.Element {
                                     id="load-view-upload-file-load-button"
                                     onClick={() => loadUploadedMapState(files()[0].file)}
                                 >
-                                    Load
+                                    {t("loadViewLoad")}
                                 </button>
                             </div>
                         </div>

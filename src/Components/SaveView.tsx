@@ -41,24 +41,24 @@ export function SaveView(): JSX.Element {
                     }
                 }}
             >
-                <label class="save-view-form-title-label">Title</label>
+                <label class="save-view-form-title-label">{t("saveViewTitle")}</label>
                 <textarea
                     class="save-view-form-title"
                     value={title()}
                     onInput={e => setTitle(e.currentTarget.value)}
                     rows="1"
                     cols="48"
-                    placeholder="Title"
+                    placeholder={t("saveViewTitle")}
                 />
                 <Show when={VIEW_TYPE !== VIEW_TYPES.DOWNLOAD_VIEWS.valueOf()}>
-                    <label class="save-view-form-description-label">Description</label>
+                    <label class="save-view-form-description-label">{t("saveViewDescription")}</label>
                     <textarea
                         class="save-view-form-description"
                         value={description()}
                         onInput={e => setDescription(e.currentTarget.value)}
                         rows="4"
                         cols="48"
-                        placeholder="Description"
+                        placeholder={t("saveViewDescription")}
                     />
                 </Show>
                 <button type="submit" class="save-view-form-save-button">

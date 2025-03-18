@@ -102,5 +102,13 @@
     "settingsClusterHeightHover": "Minimum Height At Which Clusters Will Form",
     "settingsMenuConstants": "Constants",
     "catalogRemove": "Remove",
-    "catalogView": "View"
+    "catalogView": "View",
+    "loadViewDropFileHere": "Drop File Here",
+    "loadViewChooseFile": "Choose File",
+    "loadViewLoad": "Load",
+    "loadViewCancel": "Cancel",
+    "loadViewDelete": "Delete",
+    "loadViewEdit": "Edit",
+    "saveViewTitle": "Title",
+    "saveViewDescription": "Description"
 }

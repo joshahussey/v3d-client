@@ -102,5 +102,13 @@
     "settingsClusterHeightHover": "FR_Minimum Height At Which Clusters Will Form",
     "settingsMenuConstants": "FR_Constants",
     "catalogRemove": "FR_Remove",
-    "catalogView": "FR_View"
+    "catalogView": "FR_View",
+    "loadViewDropFileHere": "FR_Drop File Here",
+    "loadViewChooseFile": "FR_Choose File",
+    "loadViewLoad": "FR_Load",
+    "loadViewCancel": "FR_Cancel",
+    "loadViewDelete": "FR_Delete",
+    "loadViewEdit": "FR_Edit",
+    "saveViewTitle": "FR_Title",
+    "saveViewDescription": "FR_Description"
 }
