@@ -1,5 +1,5 @@
 import { Cesium3DTileset, GeoJsonDataSource, ImageryLayer, KmlDataSource } from "cesium";
-import { CesiumWindow } from "../Types/types";
+import { CesiumWindow, WesDatasources } from "../Types/types";
 import WesDataSource from "../Datasources/WesDataSource";
 import CoverageApiDataSource from "../Datasources/CoverageApiDataSource";
 import { UIContextType, useInterfaceContext } from "../Context/UIContext";
@@ -22,20 +22,22 @@ export function RemoveLayerSettingsMenuItem(props: { layers: Wes3dMapLayer[]; on
 
     function removeLayers() {
         onDone();
+        const cesiumWindow = window as CesiumWindow;
+        const viewer = cesiumWindow.Map3DViewer;
         for (const layer of layers) {
             if (layer && layer instanceof WesDataSource) {
-                (window as CesiumWindow).Map3DViewer.dataSources.remove(layer);
+                viewer.dataSources.remove(layer);
                 setSourcesWithLegends(sourcesWithLegends().filter(source => source.uid !== layer.uid));
                 if (layer && layer instanceof CelestialBodyDataSource) {
                     layer.setServiceRunning(false);
                 }
                 if (layer && layer instanceof FeaturesApiDataSource) {
-                    (window as CesiumWindow).Map3DViewer.scene.camera.changed.removeEventListener(layer.reCluster);
+                    viewer.scene.camera.changed.removeEventListener(layer.reCluster);
                 }
                 layer.stop();
             }
             if (layer && layer instanceof ImageryLayer) {
-                (window as CesiumWindow).Map3DViewer.imageryLayers.remove(layer);
+                viewer.imageryLayers.remove(layer);
                 setSourcesWithLegends(sourcesWithLegends().filter(source => source.uid !== layer.uid));
             }
             if (layer && layer instanceof Cesium3DTileset) {
@@ -43,22 +45,35 @@ export function RemoveLayerSettingsMenuItem(props: { layers: Wes3dMapLayer[]; on
                 if (osmBuildingsId && layer.uid == osmBuildingsId) {
                     setOsmBuildingsLayer("");
                 }
-                (window as CesiumWindow).Map3DViewer.scene.primitives.remove(layer);
+                viewer.scene.primitives.remove(layer);
                 window.dispatchEvent(new Event("tilesetRemoved"));
             }
             if (layer && layer instanceof CoverageApiDataSource) {
-                (window as CesiumWindow).Map3DViewer.scene.primitives.remove(layer._renderedPrimitive);
-                (window as CesiumWindow).removeEventListener("timeChanged", layer._listener as EventListener);
+                viewer.scene.primitives.remove(layer._renderedPrimitive);
+                cesiumWindow.removeEventListener("timeChanged", layer._listener as EventListener);
                 layer._removed = true;
                 layer._renderedPrimitive = undefined;
                 if (layer._hasLegend) {
                     setSourcesWithLegends(sourcesWithLegends().filter(source => source.uid !== layer._uid));
                 }
-                (window as CesiumWindow).Map3DViewer.dataSources.remove(layer, true);
+                viewer.dataSources.remove(layer, true);
                 window.dispatchEvent(new Event("tilesetRemoved"));
             }
-            if (layer && (layer instanceof GeoJsonDataSource || layer instanceof KmlDataSource)) {
-                (window as CesiumWindow).Map3DViewer.dataSources.remove(layer);
+            if (layer && layer instanceof GeoJsonDataSource) {
+                viewer.dataSources.remove(layer);
+            }
+            if (layer && layer instanceof KmlDataSource) {
+                viewer.dataSources.remove(layer);
+                let kmlCount = 0;
+                for (let i = 0; i < (viewer.dataSources as WesDatasources)._dataSources.length; i++) {
+                    const dataSource = (viewer.dataSources as WesDatasources)._dataSources[i];
+                    if (dataSource instanceof KmlDataSource) {
+                        kmlCount += 1;
+                    }
+                }
+                if (kmlCount == 0) {
+                    viewer.scene.globe.depthTestAgainstTerrain = true;
+                }
             }
         }
     }

@@ -7,6 +7,8 @@ import FeaturesApiDataSource from "../Datasources/FeaturesApiDataSource";
 import { CoverageApiDropdown } from "./CoverageApiDropdown";
 import { makeCheckboxStatus } from "./ServiceEntry";
 import { LayerSettingsButton } from "./LayerSettingsButton";
+import { KmlDataSource } from "cesium";
+import { translate as t } from "../i18n/Translator";
 
 /**
  * Represents a component for displaying a single entry in a data source list.
@@ -30,6 +32,15 @@ export function DatasourceEntry(props: {
                     {datasource.name}
                 </span>
                 <LayerSettingsButton opened={opened} setOpened={setOpened} datasource={datasource} isEnabled={true} />
+                <Show when={datasource instanceof KmlDataSource}>
+                    <button
+                        class="cesium-button kml-warning-button"
+                        title={t("kmlDepthTestWarningIconText")}
+                        disabled={true}
+                    >
+                        &#9888;
+                    </button>
+                </Show>
                 <ShowOnMapCheckbox
                     datasource={datasource}
                     syncServiceCheckboxCallback={syncServiceCheckboxCallback}

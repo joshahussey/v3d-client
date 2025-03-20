@@ -111,5 +111,6 @@
     "loadViewDelete": "FR_Delete",
     "loadViewEdit": "FR_Edit",
     "saveViewTitle": "FR_Title",
-    "saveViewDescription": "FR_Description"
+    "saveViewDescription": "FR_Description",
+    "kmlDepthTestWarningIconText": "FR_Adding a KML file to the map will allow imagery to display through terrain features."
 }

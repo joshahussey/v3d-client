@@ -1282,6 +1282,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
                     createdDataSource.description = dataSourceOption.description;
                     createdDataSource.name = dataSourceOption.name;
                     createdDataSource.url = dataSourceOption.url;
+                    viewer.scene.globe.depthTestAgainstTerrain = false;
                 }
                 break;
             case "coverage":
