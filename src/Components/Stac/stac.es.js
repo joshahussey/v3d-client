@@ -1,4 +1,4 @@
-import { createComponent as c, delegateEvents as we, template as $, insert as o, use as se, memo as E, effect as L, setAttribute as A, addEventListener as ge, className as xe, mergeProps as Pe } from "solid-js/web";
+import { createComponent as c, delegateEvents as we, template as $, insert as o, use as se, memo as E, effect as F, setAttribute as A, addEventListener as ge, className as xe, mergeProps as Pe } from "solid-js/web";
 import { createContext as Oe, createSignal as y, useContext as Ae, createResource as _e, createEffect as J, Suspense as Re, For as ce, Switch as Ve, Match as me, splitProps as Me, mergeProps as De, on as ee, createMemo as Ge, Show as O } from "solid-js";
 const Ee = Oe(void 0);
 function Je() {
@@ -55,7 +55,8 @@ async function Ke(r) {
   return (await (await fetch(r)).json()).features;
 }
 function v() {
-  if (localStorage.getItem("userLanguage") == "en") return !0;
+  if (localStorage.getItem("userLanguage") == "en" || localStorage.getItem("userLanguage") == null)
+    return !0;
 }
 function Ne() {
   return v() ? "Search" : "FR_Search";
@@ -135,7 +136,7 @@ function pt() {
 function vt() {
   return v() ? "Creation Date: " : "FR_Creation Date: ";
 }
-function Fe() {
+function Le() {
   return v() ? "Intersects..." : "FR_Intersects...";
 }
 function mt() {
@@ -165,7 +166,7 @@ function xt() {
 function Pt() {
   return v() ? "Custom GeoJson Expression" : "FR_Custom GeoJson Expression";
 }
-var kt = /* @__PURE__ */ $("<nav class=StacScroll>"), wt = /* @__PURE__ */ $("<p>Getting STAC Response"), Rt = /* @__PURE__ */ $("<div class=StacCollectionCard><h2></h2><p>"), It = /* @__PURE__ */ $("<nav class=collectionPageScroll>"), Tt = /* @__PURE__ */ $("<div class=collectionPage-hidden><div class=collectionPageInfo><div class=collectionPageInfoTopDiv><button><span class></span></button> <p></p></div><h3></h3><p class=collectionPageDescription></p><div class=collectionPageInfoBottomDiv><p class=collectionPageInfoBottomKeywordsLabel> </p><p></p><p class=collectionPageInfoBottomLicenseLabel>"), Ft = /* @__PURE__ */ $("<p>Getting Items"), Lt = /* @__PURE__ */ $("<div class=StacItems>");
+var kt = /* @__PURE__ */ $("<nav class=StacScroll>"), wt = /* @__PURE__ */ $("<p>Getting STAC Response"), Rt = /* @__PURE__ */ $("<div class=StacCollectionCard><h2></h2><p>"), It = /* @__PURE__ */ $("<nav class=collectionPageScroll>"), Tt = /* @__PURE__ */ $("<div class=collectionPage-hidden><div class=collectionPageInfo><div class=collectionPageInfoTopDiv><button><span class></span></button> <p></p></div><h3></h3><p class=collectionPageDescription></p><div class=collectionPageInfoBottomDiv><p class=collectionPageInfoBottomKeywordsLabel> </p><p></p><p class=collectionPageInfoBottomLicenseLabel>"), Lt = /* @__PURE__ */ $("<p>Getting Items"), Ft = /* @__PURE__ */ $("<div class=StacItems>");
 function Ot(r) {
   const {
     url: e
@@ -242,7 +243,7 @@ function Vt(r) {
       t(null), l(!1);
     }, o(f, We), o(m, () => `${Ie()}${e ? e.id : ""}`), o(x, () => e ? e.title : ""), o(S, () => e ? e.description : ""), o(h, () => `${Ze()}${e ? e.keywords?.join(", ") : ""}`, null), o(I, () => `${Xe()}${e && e.license}`), o(i, c(Re, {
       get fallback() {
-        return Ft();
+        return Lt();
       },
       get children() {
         var b = It();
@@ -255,7 +256,7 @@ function Vt(r) {
           }) : null;
         })()), b;
       }
-    }), null), L((b) => {
+    }), null), F((b) => {
       var w = e ? e.keywords?.join(", ") : "", V = e ? e.license : "";
       return w !== b.e && A(h, "title", b.e = w), V !== b.t && A(I, "title", b.t = V), b;
     }, {
@@ -269,7 +270,7 @@ function Dt(r) {
     url: e
   } = r, [t] = _e(() => e, Ke);
   return (() => {
-    var l = Lt();
+    var l = Ft();
     return o(l, c(ce, {
       get each() {
         return t();
@@ -281,7 +282,7 @@ function Dt(r) {
   })();
 }
 we(["click"]);
-var Et = /* @__PURE__ */ $("<mark>"), Nt = /* @__PURE__ */ $("<div>"), Bt = /* @__PURE__ */ $("<div class=solid-select-control>"), jt = /* @__PURE__ */ $("<div class=solid-select-placeholder>"), Mt = /* @__PURE__ */ $("<div class=solid-select-single-value>"), Gt = /* @__PURE__ */ $("<div class=solid-select-multi-value><span></span><button type=button class=solid-select-multi-value-remove>⨯"), Jt = /* @__PURE__ */ $("<input class=solid-select-input type=text tabindex=0 autocomplete=off autocapitalize=none autocorrect=off size=1>"), qt = /* @__PURE__ */ $("<div class=solid-select-list>"), Le = /* @__PURE__ */ $("<div class=solid-select-list-placeholder>"), zt = /* @__PURE__ */ $("<div class=solid-select-option>"), Ht = (r) => {
+var Et = /* @__PURE__ */ $("<mark>"), Nt = /* @__PURE__ */ $("<div>"), Bt = /* @__PURE__ */ $("<div class=solid-select-control>"), jt = /* @__PURE__ */ $("<div class=solid-select-placeholder>"), Mt = /* @__PURE__ */ $("<div class=solid-select-single-value>"), Gt = /* @__PURE__ */ $("<div class=solid-select-multi-value><span></span><button type=button class=solid-select-multi-value-remove>⨯"), Jt = /* @__PURE__ */ $("<input class=solid-select-input type=text tabindex=0 autocomplete=off autocapitalize=none autocorrect=off size=1>"), qt = /* @__PURE__ */ $("<div class=solid-select-list>"), Fe = /* @__PURE__ */ $("<div class=solid-select-list-placeholder>"), zt = /* @__PURE__ */ $("<div class=solid-select-option>"), Ht = (r) => {
   const e = De({
     multiple: !1,
     disabled: !1,
@@ -584,7 +585,7 @@ var Et = /* @__PURE__ */ $("<mark>"), Nt = /* @__PURE__ */ $("<div>"), Bt = /* @
     var t = Nt();
     return t.$$mousedown = (l) => {
       e.onMouseDown(l), l.currentTarget.getElementsByTagName("input")[0].focus();
-    }, ge(t, "focusout", e.onFocusOut, !0), ge(t, "focusin", e.onFocusIn, !0), o(t, () => r.children), L((l) => {
+    }, ge(t, "focusout", e.onFocusOut, !0), ge(t, "focusin", e.onFocusIn, !0), o(t, () => r.children), F((l) => {
       var n = `solid-select-container ${r.class !== void 0 ? r.class : ""}`, i = e.disabled;
       return n !== l.e && xe(t, l.e = n), i !== l.t && A(t, "data-disabled", l.t = i), l;
     }, {
@@ -655,7 +656,7 @@ var Et = /* @__PURE__ */ $("<mark>"), Nt = /* @__PURE__ */ $("<div>"), Bt = /* @
         var i = r.ref;
         typeof i == "function" ? i(n) : r.ref = n;
       }
-    }), null), L((n) => {
+    }), null), F((n) => {
       var i = e.multiple, u = e.hasValue(), s = e.disabled;
       return i !== n.e && A(l, "data-multiple", n.e = i), u !== n.t && A(l, "data-has-value", n.t = u), s !== n.a && A(l, "data-disabled", n.a = s), n;
     }, {
@@ -685,7 +686,7 @@ var Et = /* @__PURE__ */ $("<mark>"), Nt = /* @__PURE__ */ $("<div>"), Bt = /* @
       e.onKeyDown(n), n.defaultPrevented || n.key === "Escape" && (n.preventDefault(), n.stopPropagation(), n.target.blur());
     }, ge(t, "input", e.onInput, !0);
     var l = r.ref;
-    return typeof l == "function" ? se(l, t) : r.ref = t, L((n) => {
+    return typeof l == "function" ? se(l, t) : r.ref = t, F((n) => {
       var i = r.id, u = r.name, s = e.multiple, a = e.isActive(), f = r.autofocus, d = r.readonly, m = e.disabled;
       return i !== n.e && A(t, "id", n.e = i), u !== n.t && A(t, "name", n.t = u), s !== n.a && A(t, "data-multiple", n.a = s), a !== n.o && A(t, "data-is-active", n.o = a), f !== n.i && (t.autofocus = n.i = f), d !== n.n && (t.readOnly = n.n = d), m !== n.s && (t.disabled = n.s = m), n;
     }, {
@@ -696,7 +697,7 @@ var Et = /* @__PURE__ */ $("<mark>"), Nt = /* @__PURE__ */ $("<div>"), Bt = /* @
       i: void 0,
       n: void 0,
       s: void 0
-    }), L(() => t.value = e.inputValue()), t;
+    }), F(() => t.value = e.inputValue()), t;
   })();
 }, ln = (r) => {
   const e = ue();
@@ -712,7 +713,7 @@ var Et = /* @__PURE__ */ $("<mark>"), Nt = /* @__PURE__ */ $("<div>"), Bt = /* @
         },
         get fallback() {
           return (() => {
-            var l = Le();
+            var l = Fe();
             return o(l, () => r.loadingPlaceholder), l;
           })();
         },
@@ -723,7 +724,7 @@ var Et = /* @__PURE__ */ $("<mark>"), Nt = /* @__PURE__ */ $("<div>"), Bt = /* @
             },
             get fallback() {
               return (() => {
-                var l = Le();
+                var l = Fe();
                 return o(l, () => r.emptyPlaceholder), l;
               })();
             },
@@ -748,7 +749,7 @@ var Et = /* @__PURE__ */ $("<mark>"), Nt = /* @__PURE__ */ $("<div>"), Bt = /* @
   };
   return (() => {
     var l = zt();
-    return l.$$click = () => e.pickOption(r.option), se(t, l), o(l, () => r.children), L((n) => {
+    return l.$$click = () => e.pickOption(r.option), se(t, l), o(l, () => r.children), F((n) => {
       var i = e.isOptionDisabled(r.option), u = e.isOptionFocused(r.option);
       return i !== n.e && A(l, "data-disabled", n.e = i), u !== n.t && A(l, "data-focused", n.t = u), n;
     }, {
@@ -871,12 +872,12 @@ function Cn(r) {
     }) : Y = await fetch(p, {
       method: "GET"
     });
-    const ne = await Y.json(), de = ne.links.find((z) => z.rel === "next"), F = ne.links.find((z) => z.rel === "previous");
-    return de?.href ? D(de.href) : D(""), F?.href ? N(F.href) : N(""), ne;
+    const ne = await Y.json(), de = ne.links.find((z) => z.rel === "next"), L = ne.links.find((z) => z.rel === "previous");
+    return de?.href ? D(de.href) : D(""), L?.href ? N(L.href) : N(""), ne;
   }
-  const [j, le] = y(null), [q, he] = y(Fe());
+  const [j, le] = y(null), [q, he] = y(Le());
   J(() => {
-    j() === null || j()?.trim() === "" ? he(Fe()) : he(Ct() + j());
+    j() === null || j()?.trim() === "" ? he(Le()) : he(Ct() + j());
   });
   const pe = (k) => {
     le(k), P(!1), f(k ?? "");
@@ -911,27 +912,27 @@ function Cn(r) {
       n(t), Z(t);
     }, T.style.setProperty("grid-row", "1/3"), T.style.setProperty("grid-column", "4"), o(T, Ne), X.$$click = () => {
       D(""), N(""), W(!1), n("");
-    }, X.style.setProperty("grid-row", "1/3"), X.style.setProperty("grid-column", "5"), o(X, ot), M.$$click = () => P(!0), M.style.setProperty("white-space", "nowrap"), M.style.setProperty("overflow-x", "clip"), M.style.setProperty("text-overflow", "ellipses"), o(M, q), Y.addEventListener("change", (F) => {
-      m(F.currentTarget.value);
-    }), ne.addEventListener("change", (F) => s(F.currentTarget.value)), o(k, c(O, {
+    }, X.style.setProperty("grid-row", "1/3"), X.style.setProperty("grid-column", "5"), o(X, ot), M.$$click = () => P(!0), M.style.setProperty("white-space", "nowrap"), M.style.setProperty("overflow-x", "clip"), M.style.setProperty("text-overflow", "ellipses"), o(M, q), Y.addEventListener("change", (L) => {
+      m(L.currentTarget.value);
+    }), ne.addEventListener("change", (L) => s(L.currentTarget.value)), o(k, c(O, {
       get when() {
         return re();
       },
       get children() {
-        var F = cn(), z = oe;
-        return typeof z == "function" ? se(z, F) : oe = F, o(F, c(wn, {
+        var L = cn(), z = oe;
+        return typeof z == "function" ? se(z, L) : oe = L, o(L, c(wn, {
           onClose: () => P(!1),
           onSave: pe
-        })), F;
+        })), L;
       }
-    }), null), L((F) => {
+    }), null), F((L) => {
       var z = q(), ve = `StacDatetimeInput ${B()}`, Te = `StacBboxInput ${U()}`;
-      return z !== F.e && A(M, "title", F.e = z), ve !== F.t && xe(Y, F.t = ve), Te !== F.a && xe(ne, F.a = Te), F;
+      return z !== L.e && A(M, "title", L.e = z), ve !== L.t && xe(Y, L.t = ve), Te !== L.a && xe(ne, L.a = Te), L;
     }, {
       e: void 0,
       t: void 0,
       a: void 0
-    }), L(() => Y.value = d() ? d() : ""), L(() => ne.value = u() ? u() : ""), k;
+    }), F(() => Y.value = d() ? d() : ""), F(() => ne.value = u() ? u() : ""), k;
   })(), (() => {
     var k = fn();
     return o(k, c(O, {
@@ -1060,7 +1061,7 @@ function je(r) {
       var _ = E(() => !!e.assets.thumbnail?.href);
       return () => _() ? (() => {
         var h = vn();
-        return L((C) => {
+        return F((C) => {
           var I = e.assets.thumbnail.href, b = e.assets.thumbnail.title ? e.assets.thumbnail.title : ft();
           return I !== C.e && A(h, "src", C.e = I), b !== C.t && A(h, "alt", C.t = b), C;
         }, {
@@ -1159,7 +1160,7 @@ function wn(r) {
           },
           get children() {
             var P = mn(), B = P.firstChild, K = B.firstChild, U = B.nextSibling, G = U.firstChild;
-            return o(B, _t, K), K.addEventListener("change", (g) => n(g.currentTarget.value)), o(U, yt, G), G.addEventListener("change", (g) => u(g.currentTarget.value)), L(() => K.value = l()), L(() => G.value = i()), P;
+            return o(B, _t, K), K.addEventListener("change", (g) => n(g.currentTarget.value)), o(U, yt, G), G.addEventListener("change", (g) => u(g.currentTarget.value)), F(() => K.value = l()), F(() => G.value = i()), P;
           }
         }), c(me, {
           get when() {
@@ -1177,7 +1178,7 @@ function wn(r) {
                   x(U(), "lat", ie.currentTarget.value);
                 }), q.style.setProperty("margin-left", "8px"), pe.addEventListener("change", (ie) => {
                   x(U(), "lon", ie.currentTarget.value);
-                }), L(() => le.value = K.lat), L(() => pe.value = K.lon), G;
+                }), F(() => le.value = K.lat), F(() => pe.value = K.lon), G;
               })()
             }), B), B.$$click = m, o(B, St), P;
           }
@@ -1189,11 +1190,11 @@ function wn(r) {
             var P = bn();
             return P.addEventListener("change", (B) => {
               d(B.currentTarget.value);
-            }), L(() => A(P, "placeholder", Pt())), P;
+            }), F(() => A(P, "placeholder", Pt())), P;
           }
         })];
       }
-    }), null), R.style.setProperty("margin-top", "16px"), ge(Z, "click", r.onClose, !0), re.$$click = S, L(() => b.checked = e() === "none"), L(() => V.checked = e() === "point"), L(() => H.checked = e() === "polygon"), L(() => te.checked = e() === "custom"), _;
+    }), null), R.style.setProperty("margin-top", "16px"), ge(Z, "click", r.onClose, !0), re.$$click = S, F(() => b.checked = e() === "none"), F(() => V.checked = e() === "point"), F(() => H.checked = e() === "polygon"), F(() => te.checked = e() === "custom"), _;
   })();
 }
 we(["click"]);
