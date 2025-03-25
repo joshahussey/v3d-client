@@ -58,8 +58,8 @@ export const MAX_CHARS_1024 = 1024;
 export const DEFAULT_ALLOWED_ZOOM_DISTANCE = 10;
 
 // Geocoder state
-const geocoderString = localStorage.getItem("useCesiumGeocoder");
-export const USE_CESIUM_GEOCODER = !geocoderString || /^true$/i.test(geocoderString);
+//const geocoderString = localStorage.getItem("useCesiumGeocoder");
+export const USE_CESIUM_GEOCODER = false; //!geocoderString || /^true$/i.test(geocoderString);
 
 // The WES events that will be caught an propagated from the 2D client
 // Any 2D events not in this set will be ignored by the 3D client.

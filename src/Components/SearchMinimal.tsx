@@ -3,8 +3,8 @@ import { CesiumWindow } from "../Types/types";
 import { JSX, createEffect } from "solid-js";
 import { Geocoder } from "cesium";
 import { OPENED_LAYER_PAGE, USE_CESIUM_GEOCODER } from "../Constants";
-import WesGeoCoderService from "../Utils/WesGeoCoderService";
 import { translate as t } from "../i18n/Translator";
+import GeogratisGeoCoderService from "../Utils/GeogratisGeoCoderService";
 
 /**
  * Represents a component for handling search functionality and toggling search state.
@@ -20,7 +20,7 @@ export function SearchMinimal(): JSX.Element {
                 if (!searchRef) {
                     return;
                 }
-                const geocoders = USE_CESIUM_GEOCODER ? undefined : [new WesGeoCoderService()];
+                const geocoders = USE_CESIUM_GEOCODER ? undefined : [new GeogratisGeoCoderService()];
                 new Geocoder({
                     container: searchRef,
                     geocoderServices: geocoders,
