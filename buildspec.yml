@@ -1,0 +1,25 @@
+---
+version: 0.2
+
+phases:
+    install:
+        runtime-versions:
+            nodejs: 16
+        commands:
+            - echo "Installing pnpm globally..."
+            - npm install -g pnpm
+    pre_build:
+        commands:
+            - echo "Installing dependencies via pnpm..."
+            - pnpm install
+    build:
+        commands:
+            - echo "Running build script..."
+            - pnpm run build-client
+    post_build:
+        commands:
+            - echo "Build completed!"
+artifacts:
+    base-directory: web
+    files:
+        - "web"
