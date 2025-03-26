@@ -19,6 +19,16 @@ switch (TARGET) {
                 hints: false,
                 maxEntrypointSize: 5120000,
                 maxAssetSize: 5120000
+            },
+            module: {
+                rules: [
+                    {
+                        enforce: "pre",
+                        test: /\.js$/,
+                        loader: "source-map-loader",
+                        exclude: /node_modules/
+                    }
+                ]
             }
         });
         break;
