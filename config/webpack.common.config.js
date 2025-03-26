@@ -107,7 +107,8 @@ module.exports = {
             ]
         }),
         new webpack.DefinePlugin({
-            CESIUM_BASE_URL: JSON.stringify("")
+            CESIUM_BASE_URL: JSON.stringify(""),
+            AWS_SOCKET: JSON.stringify(process.env.AWS_SOCKET)
         }),
         new HtmlWebpackPlugin({
             template: "../src/index.html",

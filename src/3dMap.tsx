@@ -278,22 +278,21 @@ const load = async function (mapState: MapState): Promise<Viewer> {
     loadViewParameters();
 
     let webSocket;
+    // let websocketUrl = "wss://hqpj80bujc.execute-api.ca-central-1.amazonaws.com/Prod/";
+    let wsUrl = AWS_SOCKET;
+    let wssUrl = AWS_SOCKET;
+    if (wsUrl === undefined || wsUrl === "") {
+        wsUrl = `ws://${window.location.hostname}/map/`;
+        wssUrl = `wss://${window.location.hostname}/map/`;
+    }
     switch (window.location.protocol) {
         case "http:":
             //eslint-disable-next-line
-            webSocket = createReconnectingWS(
-                `wss://hqpj80bujc.execute-api.ca-central-1.amazonaws.com/Prod/?sessionID=${sessionStorage.getItem(
-                    "sessionID"
-                )}`
-            );
+            webSocket = createReconnectingWS(`${wsUrl}?sessionID=${sessionStorage.getItem("sessionID")}`);
             break;
         case "https:":
             //eslint-disable-next-line
-            webSocket = createReconnectingWS(
-                `wss://hqpj80bujc.execute-api.ca-central-1.amazonaws.com/Prod/?sessionID=${sessionStorage.getItem(
-                    "sessionID"
-                )}`
-            );
+            webSocket = createReconnectingWS(`${wssUrl}?sessionID=${sessionStorage.getItem("sessionID")}`);
             break;
         default:
             throw new Error(t("3dMapLoadError1"));
