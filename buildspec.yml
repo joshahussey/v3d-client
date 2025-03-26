@@ -15,7 +15,7 @@ phases:
     build:
         commands:
             - echo "Running build script..."
-            - pnpm run build-client
+            - pnpm run build-client-release
     post_build:
         commands:
             - echo "Build completed!"
