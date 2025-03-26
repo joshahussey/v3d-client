@@ -282,7 +282,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         case "http:":
             //eslint-disable-next-line
             webSocket = createReconnectingWS(
-                `wss://io61s2y903.execute-api.ca-central-1.amazonaws.com/test/?sessionID=${sessionStorage.getItem(
+                `wss://diciftc4qh.execute-api.ca-central-1.amazonaws.com/Prod/?sessionID=${sessionStorage.getItem(
                     "sessionID"
                 )}`
             );
@@ -290,7 +290,7 @@ const load = async function (mapState: MapState): Promise<Viewer> {
         case "https:":
             //eslint-disable-next-line
             webSocket = createReconnectingWS(
-                `wss://io61s2y903.execute-api.ca-central-1.amazonaws.com/test/?sessionID=${sessionStorage.getItem(
+                `wss://diciftc4qh.execute-api.ca-central-1.amazonaws.com/Prod/?sessionID=${sessionStorage.getItem(
                     "sessionID"
                 )}`
             );

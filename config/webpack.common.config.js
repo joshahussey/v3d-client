@@ -89,9 +89,9 @@ module.exports = {
         ]
     },
     plugins: [
-	    new webpack.ProvidePlugin({
-		process: "process/browser",
-	    }),
+        new webpack.ProvidePlugin({
+            process: "process/browser"
+        }),
         new CopyWebpackPlugin({
             patterns: [
                 { from: path.join(cesiumSource, cesiumWorkers), to: "Workers" },
@@ -103,7 +103,6 @@ module.exports = {
                     from: path.join(static),
                     to: "."
                 },
-                { from: path.join(glbmodels), to: "glbmodels" },
                 { from: path.join(CSS, "loading.css"), to: "loading.css" }
             ]
         }),
