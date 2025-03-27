@@ -18,16 +18,40 @@ export async function getWmsCapabilitiesJson(capabilitiesUrl: string): Promise<W
     return new WMSCapabilities(capXml, null).toJSON();
 }
 
+function getLeafLayers(layerObj: (Layer2 | Layer3)[]): (Layer2 | Layer3)[] {
+    let layersToReturn: (Layer2 | Layer3)[] = [];
+    for (const layer of layerObj) {
+        if ((layer as Layer2).Layer) {
+            layersToReturn = layersToReturn.concat(getLeafLayers((layer as Layer2).Layer));
+        } else {
+            layersToReturn.push(layer as Layer3);
+        }
+    }
+    return layersToReturn;
+}
+
 /**
  * Given a WMSCapabilitiesJSON object and a layer name to find, returns the layer3 object matching that layer name.
  * @param {WMSCapabilitiesJSON} capabilitiesJson Object representing the capabilities document as a json. Can be obtained via getWmsCapabilitiesJson
  * @param {string} layerName Name of the layer to return
  * @returns {Layer3} Object representing the layer requested, undefined if it couldn't find the layer.
  */
-export function getCapabilitiesLayerInformation(
-    capabilitiesJson: WMSCapabilitiesJSON,
-    layerName: string
-): Layer3 | undefined {
+export function getCapabilitiesLayerInformation(capabilitiesJson: WMSCapabilitiesJSON, layerName: string): Layer3[] {
+    let returningLayers: (Layer2 | Layer3)[] = [];
+    if (capabilitiesJson.Capability.Layer.Layer != null) {
+        returningLayers = returningLayers.concat(getLeafLayers(capabilitiesJson.Capability.Layer.Layer));
+        if (layerName.trim() !== "") {
+            returningLayers.filter(layer => (layer as Layer3).Name === layerName);
+        }
+    } else {
+        const leafLayerObj = capabilitiesJson.Capability.Layer as unknown as Layer3;
+        if (leafLayerObj.Name === layerName || layerName.trim() === "") {
+            returningLayers.push(leafLayerObj);
+        }
+    }
+    return returningLayers as Layer3[];
+
+    /*
     if (capabilitiesJson.Capability.Layer.Layer != null) {
         const topLevelLayersArray = capabilitiesJson.Capability.Layer.Layer as (Layer2 | Layer3)[];
         let leafLayerObj;
@@ -56,6 +80,7 @@ export function getCapabilitiesLayerInformation(
         }
     }
     console.error("Failed to parse layer information for WMS: {} of {}", layerName, capabilitiesJson);
+    */
 }
 
 /**
@@ -70,4 +95,27 @@ export function findImagePngFormat(capabilitiesJson: WMSCapabilitiesJSON): strin
     } else {
         return formats[0];
     }
+}
+
+export type layerInfo = { id: string; name: string };
+export async function getArcGisRestCapabilitiesLayerInformation(
+    capabilitiesUrl: string,
+    layerId: string
+): Promise<layerInfo[]> {
+    let returningLayers: layerInfo[] = [];
+    await fetch(
+        capabilitiesUrl +
+            "?" +
+            new URLSearchParams({
+                f: "pjson"
+            }).toString()
+    )
+        .then(response => response.json())
+        .then(data => {
+            returningLayers = data.subLayers as [];
+            if (layerId.trim() !== "") {
+                returningLayers.filter((layer: layerInfo) => layer.id.toString() === layerId);
+            }
+        });
+    return returningLayers;
 }

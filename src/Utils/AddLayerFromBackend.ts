@@ -48,7 +48,7 @@ export async function addLayerFromBackend(parsedMessage: { type: string; args: [
             raiseMapStateChangedEvent();
             break;
         case "ARCGISWMS":
-            addArcGisWMS(args as [addArcGisWMSObject]);
+            await addArcGisWMS(args as [addArcGisWMSObject]);
             raiseMapStateChangedEvent();
             break;
         case "OGCMAP":

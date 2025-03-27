@@ -15,7 +15,12 @@ import {
     addCOGObject
 } from "../Types/3dMapControllerTypes";
 import { MapState, WesImageryObject, csltCOGOption, csltGpkgOption } from "../Types/types";
-import { findImagePngFormat, getCapabilitiesLayerInformation, getWmsCapabilitiesJson } from "./CapabilitiesParsing";
+import {
+    findImagePngFormat,
+    getArcGisRestCapabilitiesLayerInformation,
+    getCapabilitiesLayerInformation,
+    getWmsCapabilitiesJson
+} from "./CapabilitiesParsing";
 
 /**
  * Adds a WMTS to 3DMap if a layer on top of the imagery if the uid doesn't exist.
@@ -97,36 +102,40 @@ export async function addWMS(addWMSObject: addWMSObject[]) {
             return;
         }
         const layerInfo = getCapabilitiesLayerInformation(capJson, wmsObject.name);
-        if (layerInfo == null) {
+        if (layerInfo == null || layerInfo.length == 0) {
             console.error(
                 "Couldn't get the layer information from: " + wmsObject.capabilitiesUrl + " for: " + wmsObject.name
             );
             return;
         }
-        const option = {
-            uid: wmsObject.uid,
-            type: "WMS",
-            name: layerInfo.Title,
-            description: layerInfo.Abstract ? layerInfo.Abstract : layerInfo.Title,
-            url: wmsObject.capabilitiesUrl.split("?")[0],
-            serviceInfo: wmsObject.serviceInfo,
-            bounds: {
-                minX: layerInfo.EX_GeographicBoundingBox[0],
-                minY: layerInfo.EX_GeographicBoundingBox[1],
-                maxX: layerInfo.EX_GeographicBoundingBox[2],
-                maxY: layerInfo.EX_GeographicBoundingBox[3]
-            },
-            layers: wmsObject.name,
-            parameters: {
-                transparent: "true",
-                format: findImagePngFormat(capJson)
-            },
-            credit: wmsObject.credit ? wmsObject.credit : "",
-            show: false,
-            alpha: 1.0
-        };
-        imageLayers = imageLayers.filter(l => l.uid !== wmsObject.uid);
-        imageLayers.push(option);
+        for (const layer of layerInfo) {
+            if (layer.Name !== undefined) {
+                const option = {
+                    uid: wmsObject.uid + "_" + layer.Name,
+                    type: "WMS",
+                    name: layer.Title,
+                    description: layer.Abstract ? layer.Abstract : layer.Title,
+                    url: wmsObject.capabilitiesUrl.split("?")[0],
+                    serviceInfo: wmsObject.serviceInfo,
+                    bounds: {
+                        minX: layer.EX_GeographicBoundingBox[0],
+                        minY: layer.EX_GeographicBoundingBox[1],
+                        maxX: layer.EX_GeographicBoundingBox[2],
+                        maxY: layer.EX_GeographicBoundingBox[3]
+                    },
+                    layers: layer.Name,
+                    parameters: {
+                        transparent: "true",
+                        format: findImagePngFormat(capJson)
+                    },
+                    credit: wmsObject.credit ? wmsObject.credit : "",
+                    show: false,
+                    alpha: 1.0
+                };
+                imageLayers = imageLayers.filter(l => l.uid !== wmsObject.uid + "_" + layer.Name);
+                imageLayers.push(option);
+            }
+        }
     }
     mapState.imageLayers = imageLayers;
     setMapState(mapState);
@@ -138,24 +147,28 @@ export async function addWMS(addWMSObject: addWMSObject[]) {
  *
  * @param {addArcGisWMSObject[]} addArcGISWMSObject unique identifier for the layer.
  */
-export function addArcGisWMS(addArcGISWMSObject: addArcGisWMSObject[]) {
+export async function addArcGisWMS(addArcGISWMSObject: addArcGisWMSObject[]) {
     const mapState = getMapState();
     let imageLayers = mapState.imageLayers;
     for (const arcGisWmsObject of addArcGISWMSObject) {
-        const option: WesImageryObject = {
-            uid: arcGisWmsObject.uid,
-            type: "ArcGis",
-            name: arcGisWmsObject.title,
-            id: arcGisWmsObject.id,
-            description: arcGisWmsObject.abstract ? arcGisWmsObject.abstract : arcGisWmsObject.title,
-            url: arcGisWmsObject.url,
-            serviceInfo: arcGisWmsObject.serviceInfo,
-            bounds: arcGisWmsObject.wgs84BoundingBox,
-            credit: arcGisWmsObject.credit ? arcGisWmsObject.credit : "",
-            show: true
-        };
-        imageLayers = imageLayers.filter(l => l.uid !== arcGisWmsObject.uid);
-        imageLayers.push(option);
+        const layersReturned = await getArcGisRestCapabilitiesLayerInformation(arcGisWmsObject.url, arcGisWmsObject.id);
+        const baseMapServerUrl = arcGisWmsObject.url.substring(0, arcGisWmsObject.url.lastIndexOf("/MapServer") + 10);
+        for (const layer of layersReturned) {
+            const option: WesImageryObject = {
+                uid: arcGisWmsObject.uid + "_" + layer.id,
+                type: "ArcGis",
+                name: layer.name,
+                id: layer.id,
+                description: arcGisWmsObject.abstract ? arcGisWmsObject.abstract : arcGisWmsObject.title,
+                url: baseMapServerUrl,
+                serviceInfo: arcGisWmsObject.serviceInfo,
+                bounds: arcGisWmsObject.wgs84BoundingBox,
+                credit: arcGisWmsObject.credit ? arcGisWmsObject.credit : "",
+                show: true
+            };
+            imageLayers = imageLayers.filter(l => l.uid !== arcGisWmsObject.uid);
+            imageLayers.push(option);
+        }
     }
     mapState.imageLayers = imageLayers;
     setMapState(mapState);
