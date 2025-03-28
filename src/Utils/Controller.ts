@@ -485,17 +485,11 @@ export function getDefaultState() {
  * @returns {JSON | null} The default Map State from the server.
  */
 export async function fetchDefaultMapState(force: boolean) {
-    let url = document.referrer;
-    let response: Response;
-    url = url + "wes/Cesium/DefaultCesiumState";
-    response = await fetch(url);
+    const url = document.referrer;
+    const response = await fetch("state.json");
     if (response.status !== 200) {
-        console.warn("Failed to fetch Default Map State from ", url);
-        response = await fetch("state.json");
-        if (response.status !== 200) {
-            console.error("Failed to fetch Default Map State from state.json");
-            return;
-        }
+        console.error("Failed to fetch Default Map State from state.json");
+        return;
     }
     if (response.status === 200) {
         try {
