@@ -25,7 +25,7 @@
         {
             "uid": "6faf58eb-a676-4ea4-86d0-aecb814baf2a",
             "type": "WMTS",
-            "name": "World_Imagery",
+            "name": "ArcGIS World Imagery",
             "description": "No description.",
             "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/WMTS/tile/1.0.0/World_Imagery/{Style}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.jpg",
             "serviceInfo": {
@@ -95,20 +95,6 @@
             "style": "default",
             "credit": "U. S. Geological Survey",
             "baseMapLayer": true
-        },
-        {
-            "uid": "3ff8eab4-b9cb-4bde-8dc0-fd5acc24ca9c",
-            "tileMatrixSetID": "default028mm",
-            "maximumLevel": 19,
-            "alpha": 1,
-            "name": "St Johns WMTS",
-            "show": true,
-            "description": "St Johns WMTS",
-            "style": "default",
-            "type": "WMTS",
-            "layer": "St Johns WMTS",
-            "url": "https://www.gov.nl.ca/landuseatlasmaps/rest/services/NLImagery/MapServer/WMTS/tile/1.0.0/NLImagery/{Style}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}",
-            "baseMapLayer": true
         }
     ],
     "imageLayers": [
@@ -128,15 +114,7 @@
         }
     ],
     "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2OWJhMWNjZS03NmNjLTQ0OGItOGE5MC02MzVmNjVjZjBlM2UiLCJpZCI6MTEwMDMwLCJpYXQiOjE2NjQ4NzQwNDB9.3spD2Vvdc267VZFFQozH0nxmeJRlE7dQC5QsKeiJMiY",
-    "dataSources": [
-        {
-            "uid": "2c1ae7bd-0244-41e2-8c79-ef788d34fa87",
-            "name": "Celestrak",
-            "show": false,
-            "type": "Celestial",
-            "url": "https://celestrak.org/NORAD/elements/gp.php?GROUP=last-30-days&FORMAT=tle"
-        }
-    ],
+    "dataSources": [],
     "terrainSets": [
         {
             "uid": "36ed260c-9688-44ba-af13-4fe2da562d3e",
@@ -149,30 +127,6 @@
             "name": "No Elevation (WGS Ellipsoid)",
             "type": "Terrain",
             "url": "NA"
-        },
-        {
-            "uid": "79874ae8-45da-498b-9ceb-5d5b965f1bfa",
-            "name": "Compusult StJohns 1m HighRes",
-            "type": "Terrain",
-            "url": "https://terrain.compusult.com/stjohns"
-        },
-        {
-            "uid": "79874ae8-45da-498b-9ceb-5d6b965f1bfa",
-            "name": "Compusult Whitehorse",
-            "type": "Terrain",
-            "url": "https://terrain.compusult.com/whitehorse"
-        },
-        {
-            "uid": "79874ae8-45da-498b-9ceb-5d6b965f1bfa",
-            "name": "Compusult SanJuan",
-            "type": "Terrain",
-            "url": "https://terrain.compusult.com/sanjuan"
-        },
-        {
-            "uid": "79874ae8-45da-498b-9ceb-5d5b965f1bfa",
-            "name": "Compusult Newfoundland 5m HighRes",
-            "type": "Terrain",
-            "url": "https://terrain.compusult.com/nl5m"
         }
     ],
     "catalogList": [],
